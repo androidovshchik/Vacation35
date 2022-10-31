@@ -129,7 +129,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ws.xsoh.etar.BuildConfig;
+import ws.xsoh.etar.BuildConfigKt;
 import ws.xsoh.etar.R;
 
 public class EventInfoFragment extends DialogFragment implements OnCheckedChangeListener,
@@ -1205,7 +1205,7 @@ public class EventInfoFragment extends DialogFragment implements OnCheckedChange
                 if (type == ShareType.INTENT) {
                     inviteFile.setReadable(true, false);     // Set world-readable
                     Uri icsFile = FileProvider.getUriForFile(getActivity(),
-                            BuildConfig.APPLICATION_ID + ".provider", inviteFile);
+                        BuildConfigKt.APPLICATION_ID + ".provider", inviteFile);
                     Intent shareIntent = new Intent();
                     shareIntent.setAction(Intent.ACTION_SEND);
                     shareIntent.putExtra(Intent.EXTRA_STREAM, icsFile);
@@ -1226,7 +1226,7 @@ public class EventInfoFragment extends DialogFragment implements OnCheckedChange
                     // TODO: revisit above
                     if (IcalendarUtils.copyFile(inviteFile, vcsInviteFile)) {
                         Uri vcsFile = FileProvider.getUriForFile(getActivity(),
-                                BuildConfig.APPLICATION_ID + ".provider", vcsInviteFile);
+                            BuildConfigKt.APPLICATION_ID + ".provider", vcsInviteFile);
                         Intent mmsShareIntent = new Intent();
                         mmsShareIntent.setAction(Intent.ACTION_SEND);
                         mmsShareIntent.setPackage("com.android.mms");

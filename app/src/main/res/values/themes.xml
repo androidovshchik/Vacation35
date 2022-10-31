@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <style name="CalendarAppThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="CalendarAppThemeLight" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -41,7 +41,7 @@
         <item name="iconCalendarAccount">@android:color/black</item>
     </style>
 
-    <style name="CalendarAppThemeDark" parent="Theme.AppCompat.NoActionBar">
+    <style name="CalendarAppThemeDark" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -82,7 +82,7 @@
         <item name="iconCalendarAccount">@android:color/white</item>
     </style>
 
-    <style name="CalendarAppThemeBlack" parent="Theme.AppCompat.NoActionBar">
+    <style name="CalendarAppThemeBlack" parent="Theme.MaterialComponents.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/bg_black</item>
         <item name="colorAccent">@color/colorAccent</item>

@@ -82,7 +82,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ws.xsoh.etar.BuildConfig;
+import ws.xsoh.etar.BuildConfigKt;
 import ws.xsoh.etar.R;
 
 public class Utils {
@@ -300,7 +300,7 @@ public class Utils {
      * Gets the intent action for telling the widget to update.
      */
     public static String getSearchAuthority(Context context) {
-        return BuildConfig.APPLICATION_ID + ".CalendarRecentSuggestionsProvider";
+        return BuildConfigKt.APPLICATION_ID + ".CalendarRecentSuggestionsProvider";
     }
 
     /**

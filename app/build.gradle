@@ -1,6 +1,6 @@
 
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'org.ec4j.editorconfig'
 }
@@ -17,7 +17,7 @@ android {
         targetSdk 33
         versionCode 32
         versionName "1.0.30"
-        applicationId "ws.xsoh.etar"
+        resValue "string", "search_authority", 'ws.xsoh.etar.CalendarRecentSuggestionsProvider'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
@@ -29,47 +29,14 @@ android {
         release {
             // TODO: could be enabled for ProGuard minimization
             minifyEnabled false
-            resValue "string", "search_authority", defaultConfig.applicationId + '.CalendarRecentSuggestionsProvider'
         }
-
         debug {
             minifyEnabled false
-
-            applicationIdSuffix ".debug"
-            resValue "string", "search_authority", defaultConfig.applicationId + '.debug.CalendarRecentSuggestionsProvider'
         }
     }
 
     buildFeatures {
         viewBinding true
-    }
-
-    /*
-     * To sign release build, create file gradle.properties in ~/.gradle/ with this content:
-     *
-     * signingStoreLocation=/home/key.store
-     * signingStorePassword=xxx
-     * signingKeyAlias=alias
-     * signingKeyPassword=xxx
-     */
-    if (project.hasProperty('signingStoreLocation') &&
-            project.hasProperty('signingStorePassword') &&
-            project.hasProperty('signingKeyAlias') &&
-            project.hasProperty('signingKeyPassword')) {
-        println "Found sign properties in gradle.properties! Signing build…"
-
-        signingConfigs {
-            release {
-                storeFile file(signingStoreLocation)
-                storePassword signingStorePassword
-                keyAlias signingKeyAlias
-                keyPassword signingKeyPassword
-            }
-        }
-
-        buildTypes.release.signingConfig = signingConfigs.release
-    } else {
-        buildTypes.release.signingConfig = null
     }
 
     lint {
