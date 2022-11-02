@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_download"
+        android:icon="@drawable/ic_baseline_download_24"
+        android:title="Выгрузка дня"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_today"
+        android:icon="@drawable/today_icon"
+        android:title="Сегодняшний день"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_new_bids"
+        android:icon="@drawable/ic_baseline_add_home_24"
+        android:title="Заявки на брони"
+        app:showAsAction="always" />
+    <group
+        android:enabled="false"
+        android:visible="false">
+        <item
+            android:id="@+id/action_info"
+            android:title="" />
+        <item
+            android:id="@+id/action_goto"
+            android:title="" />
+        <item
+            android:id="@+id/action_refresh"
+            android:title="" />
+        <item
+            android:id="@+id/action_search"
+            android:title="" />
+        <item
+            android:id="@+id/action_hide_controls"
+            android:title="" />
+        <item
+            android:id="@+id/action_import"
+            android:title="" />
+        <item
+            android:id="@+id/action_view_settings"
+            android:title="" />
+    </group>
+</menu>

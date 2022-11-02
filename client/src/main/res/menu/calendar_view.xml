@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_users"
+            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:title="Пользователи" />
+    </group>
+    <group
+        android:enabled="false"
+        android:visible="false">
+        <item
+            android:id="@+id/day_menu_item"
+            android:title="" />
+        <item
+            android:id="@+id/week_menu_item"
+            android:title="" />
+        <item
+            android:id="@+id/month_menu_item"
+            android:title="" />
+        <item
+            android:id="@+id/agenda_menu_item"
+            android:title="" />
+        <item
+            android:id="@+id/action_settings"
+            android:title="" />
+        <item
+            android:id="@+id/action_about"
+            android:title="" />
+    </group>
+</menu>
