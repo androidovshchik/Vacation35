@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group
+        android:id="@+id/calendar"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_booking"
+            android:icon="@drawable/ic_baseline_house_24"
+            android:title="Брони" />
+        <item
+            android:id="@+id/action_price"
+            android:icon="@drawable/ic_baseline_attach_money_24"
+            android:title="Цены" />
+        <item
+            android:id="@+id/action_income"
+            android:icon="@drawable/ic_baseline_show_chart_24"
+            android:title="Прибыль" />
+    </group>
+    <group
+        android:id="@+id/other"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/action_users"
+            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:title="Пользователи" />
+        <item
+            android:id="@+id/action_logout"
+            android:icon="@drawable/ic_baseline_exit_to_app_24"
+            android:title="Выход" />
+    </group>
+</menu>
