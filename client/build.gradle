@@ -49,9 +49,12 @@ dependencies {
     implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
     implementation "org.jetbrains.exposed:exposed-java-time:$exposed_version"
     implementation 'mysql:mysql-connector-java:5.1.49'
-    implementation 'hu.autsoft:krate:2.0.0'
-    implementation 'hu.autsoft:krate-kotlinx:2.0.0'
+    implementation "hu.autsoft:krate:$krate_version"
+    implementation "hu.autsoft:krate-kotlinx:$krate_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
+    implementation "com.louiscad.splitties:splitties-fun-pack-android-base:$splitties_version"
+    implementation "com.louiscad.splitties:splitties-alertdialog:$splitties_version"
+    implementation "com.louiscad.splitties:splitties-snackbar:$splitties_version"
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation project(':app')
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'

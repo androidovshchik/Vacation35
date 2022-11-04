@@ -1,5 +1,7 @@
 package rf.vacation35.screen
 
+import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,6 +46,9 @@ class LoginFragment : Fragment() {
     @Inject
     lateinit var preferences: Preferences
 
+    @Inject
+    lateinit var progressDialog: ProgressDialog
+
     private lateinit var binding: FragmentLoginBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -54,6 +59,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.iToolbar.appBar.isVisible = true
         binding.iToolbar.toolbar.title = "Авторизация"
+        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG) {
             binding.etLogin.setText("admin")
             binding.etPassword.setText("vacation35rf")
@@ -61,6 +67,7 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             val login = binding.etLogin.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
+            progressDialog.show()
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val user = withContext(Dispatchers.IO) {
@@ -77,8 +84,15 @@ class LoginFragment : Fragment() {
                 } catch (e: Throwable) {
                     Timber.e(e)
                     getView()?.snack(e.message.toString())
+                } finally {
+                    progressDialog.dismiss()
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        progressDialog.dismiss()
+        super.onDestroyView()
     }
 }

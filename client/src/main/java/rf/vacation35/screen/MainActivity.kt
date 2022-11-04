@@ -13,6 +13,7 @@ import splitties.activities.start
 import splitties.alertdialog.alertDialog
 import splitties.alertdialog.cancelButton
 import splitties.alertdialog.okButton
+import splitties.alertdialog.title
 import javax.inject.Inject
 
 @AndroidEntryPoint
