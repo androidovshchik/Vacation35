@@ -3,6 +3,7 @@ buildscript {
     ext {
         kotlin_version = '1.7.20'
         hilt_version = '2.44'
+        exposed_version = '0.40.1'
     }
 }
 

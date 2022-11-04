@@ -1,4 +1,4 @@
-package rf.vacation35
+package rf.vacation35.local
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,7 +7,6 @@ import hu.autsoft.krate.SimpleKrate
 import hu.autsoft.krate.kotlinx.kotlinxPref
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import rf.vacation35.local.User
 import javax.inject.Inject
 
 class Preferences @Inject constructor(
