@@ -18,7 +18,7 @@ CREATE TABLE users(
 INSERT INTO
     users(u_name, u_login, u_password, u_access_booking, u_access_price, u_admin)
 VALUES
-    ('Админ', 'admin', 'отпуск35рф', TRUE, TRUE, TRUE);
+    ('Админ', 'admin', 'vacation35rf', TRUE, TRUE, TRUE);
 
 CREATE TABLE bases(
     ba_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,

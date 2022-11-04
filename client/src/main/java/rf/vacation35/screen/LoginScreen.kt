@@ -1,5 +1,6 @@
 package rf.vacation35.screen
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +13,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.BuildConfig
 import rf.vacation35.databinding.ActivityLoginBinding
 import rf.vacation35.databinding.FragmentLoginBinding
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
+import splitties.fragments.start
 import splitties.snackbar.snack
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,17 +54,29 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.iToolbar.appBar.isVisible = true
         binding.iToolbar.toolbar.title = "Авторизация"
+        if (BuildConfig.DEBUG) {
+            binding.etLogin.setText("admin")
+            binding.etPassword.setText("vacation35rf")
+        }
         binding.btnLogin.setOnClickListener {
-            val login = binding.etLogin.text.toString()
-            val password = binding.etPassword.text.toString()
+            val login = binding.etLogin.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
             viewLifecycleOwner.lifecycleScope.launch {
-                val user = withContext(Dispatchers.IO) {
-                    dbApi.findUser(login, password)
-                }
-                if (user != null) {
-                    getView()?.snack("Найден")
-                } else {
-                    getView()?.snack("Пользователь не найден")
+                try {
+                    val user = withContext(Dispatchers.IO) {
+                        dbApi.findUser(login, password)
+                    }
+                    if (user != null) {
+                        preferences.userData = user.getData()
+                        start<MainActivity> {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        }
+                    } else {
+                        getView()?.snack("Пользователь не найден")
+                    }
+                } catch (e: Throwable) {
+                    Timber.e(e)
+                    getView()?.snack(e.message.toString())
                 }
             }
         }
