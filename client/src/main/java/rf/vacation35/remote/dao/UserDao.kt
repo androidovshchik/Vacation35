@@ -13,7 +13,11 @@ class UserDao(id: EntityID<Int>) : IntEntity(id) {
 
     var password by UserTable.password
 
-    var isAdmin by UserTable.isAdmin
+    var accessPrice by UserTable.accessPrice
+
+    var accessBooking by UserTable.accessBooking
+
+    var admin by UserTable.admin
 
     companion object : IntEntityClass<UserDao>(UserTable)
 }
