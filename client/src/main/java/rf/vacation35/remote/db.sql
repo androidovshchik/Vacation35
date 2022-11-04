@@ -9,8 +9,8 @@ CREATE TABLE users(
     u_name VARCHAR(60) NOT NULL,
     u_login VARCHAR(30) NOT NULL UNIQUE,
     u_password VARCHAR(30) NOT NULL,
-    u_access_booking BOOLEAN NOT NULL DEFAULT FALSE,
     u_access_price BOOLEAN NOT NULL DEFAULT FALSE,
+    u_access_booking BOOLEAN NOT NULL DEFAULT FALSE,
     u_admin BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (u_id)
 ) ENGINE=InnoDB CHARACTER SET=UTF8;
@@ -30,7 +30,7 @@ CREATE TABLE buildings(
     bu_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
     bu_base MEDIUMINT UNSIGNED NOT NULL,
     bu_name VARCHAR(60) NOT NULL,
-    bu_color VARCHAR(10) NOT NULL,
+    bu_color VARCHAR(20) NOT NULL,
     PRIMARY KEY (bu_id),
     FOREIGN KEY (bu_base) REFERENCES bases(ba_id)
         ON DELETE CASCADE
