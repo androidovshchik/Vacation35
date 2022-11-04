@@ -1,9 +1,11 @@
 package rf.vacation35.local
 
+import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
+@Keep
 @Serializable
-class User(
+class UserData(
     var id: Int,
     var name: String,
     var login: String,

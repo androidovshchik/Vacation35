@@ -13,7 +13,7 @@ class Preferences @Inject constructor(
     @ApplicationContext context: Context
 ) : SimpleKrate(context) {
 
-    var user: User? by kotlinxPref()
+    var userData: UserData? by kotlinxPref()
 
     fun asFlow() = callbackFlow<String> {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, propertyKey ->

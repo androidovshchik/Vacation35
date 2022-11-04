@@ -1,13 +1,15 @@
 package rf.vacation35.remote
 
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.and
 import rf.vacation35.extension.safeTransaction
 import rf.vacation35.remote.dao.UserDao
+import rf.vacation35.remote.dsl.UserTable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DbManager @Inject constructor() {
+class DbApi @Inject constructor() {
 
     init {
         Database.connect(
@@ -18,7 +20,8 @@ class DbManager @Inject constructor() {
         )
     }
 
-    fun getUsers() = safeTransaction({
-        UserDao.all()
+    fun findUser(login: String, password: String) = safeTransaction({
+        UserDao.find { UserTable.login eq login and (UserTable.password eq password) }
+            .firstOrNull()
     }, null)
 }
