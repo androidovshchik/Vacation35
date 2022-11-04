@@ -1,6 +1,5 @@
 package rf.vacation35.screen
 
-import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
@@ -8,14 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.BuildConfig
 import rf.vacation35.databinding.ActivityLoginBinding
 import rf.vacation35.databinding.FragmentLoginBinding
 import rf.vacation35.local.Preferences
@@ -57,13 +54,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.iToolbar.appBar.isVisible = true
         binding.iToolbar.toolbar.title = "Авторизация"
-        @SuppressLint("SetTextI18n")
-        if (BuildConfig.DEBUG) {
-            binding.etLogin.setText("admin")
-            binding.etPassword.setText("vacation35rf")
-        }
         binding.btnLogin.setOnClickListener {
             val login = binding.etLogin.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()

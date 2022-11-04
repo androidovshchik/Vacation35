@@ -9,6 +9,7 @@
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -24,8 +25,10 @@
             android:id="@+id/et_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:hint="Логин"
             android:imeOptions="actionNext"
+            android:importantForAutofill="no"
             android:inputType="text" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -44,8 +47,10 @@
             android:id="@+id/et_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:hint="Пароль"
             android:imeOptions="actionDone"
+            android:importantForAutofill="no"
             android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>

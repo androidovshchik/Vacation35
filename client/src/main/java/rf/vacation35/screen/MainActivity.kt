@@ -1,5 +1,6 @@
 package rf.vacation35.screen
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -8,6 +9,7 @@ import androidx.core.view.GravityCompat
 import dagger.hilt.android.AndroidEntryPoint
 import rf.vacation35.R
 import rf.vacation35.databinding.ActivityMainBinding
+import rf.vacation35.databinding.DrawerHeaderBinding
 import rf.vacation35.local.Preferences
 import splitties.activities.start
 import splitties.alertdialog.alertDialog
@@ -24,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (preferences.userData == null) {
@@ -39,12 +42,11 @@ class MainActivity : AppCompatActivity() {
         binding.drawer.addDrawerListener(toggle)
         toggle.syncState()
 
-        /*with(nv_main.getHeaderView(0)) {
-            tv_name.text = preferences.name
-            iv_settings.setOnClickListener {
-                navController.navigateOnce(R.id.settings_fragment)
-            }
-        }*/
+        with(DrawerHeaderBinding.bind(binding.navView.getHeaderView(0))) {
+            val userData = preferences.userData!!
+            login.text = "@${userData.login}"
+            name.text = userData.name
+        }
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.action_logout -> {
