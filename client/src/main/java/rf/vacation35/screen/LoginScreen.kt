@@ -70,7 +70,7 @@ class LoginFragment : Fragment() {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }
                     } else {
-                        getView()?.snack("Пользователь не найден")
+                        getView()?.snack("Неверные данные для входа")
                     }
                 } catch (e: Throwable) {
                     Timber.e(e)

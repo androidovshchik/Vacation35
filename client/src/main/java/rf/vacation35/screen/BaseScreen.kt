@@ -17,7 +17,7 @@ import rf.vacation35.remote.DbApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AccountActivity : AppCompatActivity() {
+class BaseActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAccountBinding
 
@@ -29,7 +29,7 @@ class AccountActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class AccountFragment : Fragment() {
+class BaseFragment : Fragment() {
 
     @Inject
     lateinit var dbApi: DbApi
@@ -44,10 +44,10 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val id = activity?.intent?.getIntExtra("id", 0) ?: 0
         viewLifecycleOwner.lifecycleScope.launch {
-            val user = withContext(Dispatchers.IO) {
-                dbApi.findUser(id)
+            val base = withContext(Dispatchers.IO) {
+                dbApi.findBase(id)
             }
-            if (user != null) {
+            if (base != null) {
 
             } else {
 

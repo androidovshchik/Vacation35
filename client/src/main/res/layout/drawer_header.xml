@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="1dp"
-        android:textColor="@android:color/white"
+        android:textColor="#99ffffff"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/name"
         app:layout_constraintStart_toStartOf="parent"
