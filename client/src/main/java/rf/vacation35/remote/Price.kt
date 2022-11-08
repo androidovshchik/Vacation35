@@ -1,6 +1,7 @@
 package rf.vacation35.remote
 
-import android.provider.CalendarContract
+import android.provider.CalendarContract.Events
+import android.provider.CalendarContract.Attendees
 import com.android.calendar.Event
 import rf.vacation35.remote.dao.PriceDao
 
@@ -20,7 +21,7 @@ class Price(dao: PriceDao) : Event() {
         endMillis = 0
         hasAlarm = false
         isRepeating = false
-        status = CalendarContract.Events.STATUS_TENTATIVE
-        selfAttendeeStatus = CalendarContract.Attendees.ATTENDEE_STATUS_NONE
+        status = Events.STATUS_TENTATIVE
+        selfAttendeeStatus = Attendees.ATTENDEE_STATUS_NONE
     }
 }

@@ -3,13 +3,11 @@ package rf.vacation35.remote
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
 import rf.vacation35.extension.transact
+import rf.vacation35.remote.dao.BaseDao
 import rf.vacation35.remote.dao.UserDao
 import rf.vacation35.remote.dsl.UserTable
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class DbApi @Inject constructor() {
+class DbApi private constructor() {
 
     init {
         Database.connect(
@@ -20,8 +18,36 @@ class DbApi @Inject constructor() {
         )
     }
 
+    fun listUsers() = transact {
+        UserDao.all().toList()
+    }
+
+    fun findUser(id: Int) = transact {
+        UserDao.findById(id)
+    }
+
     fun findUser(login: String, password: String) = transact {
         UserDao.find { UserTable.login eq login and (UserTable.password eq password) }
             .firstOrNull()
+    }
+
+    fun listBases() = transact {
+        BaseDao.all().toList()
+    }
+
+    fun findBase(id: Int) = transact {
+        BaseDao.findById(id)
+    }
+
+    companion object {
+
+        @Volatile
+        private var sInstance: DbApi? = null
+
+        fun getInstance() = sInstance ?: synchronized(this) {
+            sInstance ?: DbApi().also {
+                sInstance = it
+            }
+        }
     }
 }
