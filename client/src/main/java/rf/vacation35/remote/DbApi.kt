@@ -3,9 +3,11 @@ package rf.vacation35.remote
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
 import rf.vacation35.extension.transact
-import rf.vacation35.remote.dao.BaseDao
-import rf.vacation35.remote.dao.UserDao
+import rf.vacation35.remote.dao.*
+import rf.vacation35.remote.dsl.BookingTable
+import rf.vacation35.remote.dsl.BuildingTable
 import rf.vacation35.remote.dsl.UserTable
+import java.time.LocalDateTime
 
 class DbApi private constructor() {
 
@@ -37,6 +39,23 @@ class DbApi private constructor() {
 
     fun findBase(id: Int) = transact {
         BaseDao.findById(id)
+    }
+
+    fun listBuildings(baseId: Int) = transact {
+        BuildingDao.find { BuildingTable.base eq baseId }.toList()
+    }
+
+    fun findBuilding(id: Int) = transact {
+        BuildingDao.findById(id)
+    }
+
+    fun listPrices() = transact {
+        PriceDao.all().toList()
+    }
+
+    fun queryBookings(start: LocalDateTime, end: LocalDateTime) = transact {
+        BookingDao.find { BookingTable.entryTime less end and (BookingTable.exitTime greater start) }
+            .sortedBy { it.entryTime }
     }
 
     companion object {
