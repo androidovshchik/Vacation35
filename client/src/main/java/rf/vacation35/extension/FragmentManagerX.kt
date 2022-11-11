@@ -1,9 +1,7 @@
-@file:Suppress("DEPRECATION")
-
 package rf.vacation35.extension
 
-import android.app.Fragment
-import android.app.FragmentManager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 
 val FragmentManager.topFragment: Fragment?
     get() = findFragmentByTag((backStackEntryCount - 1).toString())
