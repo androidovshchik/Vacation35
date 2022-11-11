@@ -37,7 +37,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Имя"
                     android:imeOptions="actionNext"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -55,7 +56,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Логин"
                     android:imeOptions="actionNext"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -73,7 +75,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Пароль"
                     android:imeOptions="actionDone"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

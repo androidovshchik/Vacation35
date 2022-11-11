@@ -37,7 +37,8 @@
                     android:layout_height="wrap_content"
                     android:hint="Имя"
                     android:imeOptions="actionNext"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="36dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:text="Список заявок"

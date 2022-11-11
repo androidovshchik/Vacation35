@@ -24,7 +24,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_name"
+                android:id="@+id/til_start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
@@ -32,67 +32,85 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <EditText
-                    android:id="@+id/et_name"
+                    android:id="@+id/et_start"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Имя"
+                    android:hint="Начало отсчета"
                     android:imeOptions="actionNext"
-                    android:inputType="text"
+                    android:inputType="datetime"
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_buildings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="36dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Список построек"
-                android:textColor="@android:color/black"
-                app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/til_name" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_bids"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Список заявок"
-                android:textColor="@android:color/black"
-                app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/btn_buildings" />
+                app:layout_constraintTop_toBottomOf="@+id/til_start">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_bookings"
+                <EditText
+                    android:id="@+id/et_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Конец отсчета"
+                    android:imeOptions="actionNext"
+                    android:inputType="datetime"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Список броней"
-                android:textColor="@android:color/black"
-                app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/btn_bids" />
+                app:layout_constraintTop_toBottomOf="@+id/til_end">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_prices"
+                <EditText
+                    android:id="@+id/et_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Цена"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_discount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Список цен"
+                app:layout_constraintTop_toBottomOf="@+id/til_price">
+
+                <EditText
+                    android:id="@+id/et_discount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Скидка %"
+                    android:imeOptions="actionDone"
+                    android:inputType="number"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/s_daily"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="4dp"
+                android:text="Почасовая"
                 android:textColor="@android:color/black"
-                app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/btn_bookings" />
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_discount"
+                app:switchPadding="6dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_delete"
@@ -109,7 +127,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/btn_save"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_name"
+                app:layout_constraintTop_toBottomOf="@+id/cb_admin"
                 app:layout_constraintVertical_bias="1" />
 
             <com.google.android.material.button.MaterialButton
@@ -126,7 +144,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@+id/btn_delete"
-                app:layout_constraintTop_toBottomOf="@+id/til_name"
+                app:layout_constraintTop_toBottomOf="@+id/cb_admin"
                 app:layout_constraintVertical_bias="1" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

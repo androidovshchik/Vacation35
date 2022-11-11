@@ -28,7 +28,8 @@
             android:hint="Логин"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
-            android:inputType="text" />
+            android:inputType="text"
+            android:maxLines="1" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -50,7 +51,8 @@
             android:hint="Пароль"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:maxLines="1" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
