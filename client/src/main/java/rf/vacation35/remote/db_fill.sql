@@ -7,9 +7,9 @@ VALUES
 INSERT INTO
     buildings(bu_base, bu_name, bu_color)
 VALUES
-    (1, 'СтроениеК', '#ff0000'),
-    (1, 'СтроениеЗ', '#00ff00'),
-    (2, 'СтроениеС', '#0000ff');
+    (1, 'ПостройкаК', '#ff0000'),
+    (1, 'ПостройкаЗ', '#00ff00'),
+    (2, 'ПостройкаС', '#0000ff');
 
 INSERT INTO
     prices(p_building, p_start_sec, p_end_sec, p_rub, p_discount_per)
