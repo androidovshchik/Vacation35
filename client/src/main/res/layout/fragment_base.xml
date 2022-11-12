@@ -82,19 +82,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/btn_bids" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_prices"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:text="Список цен"
-                android:textColor="@android:color/black"
-                app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/btn_bookings" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_delete"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

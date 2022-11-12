@@ -12,14 +12,6 @@ VALUES
     (2, 'ПостройкаС', '#0000ff');
 
 INSERT INTO
-    prices(p_building, p_start_sec, p_end_sec, p_rub, p_discount_per)
-VALUES
-    (1, 43200, 432000, 1000, 20),
-    (1, 432000, 475200, 1200, 0),
-    (1, 388800, 604800, 1200, 0),
-    (2, 0, 604800, 1500, 0);
-
-INSERT INTO
     bookings(bo_building, bo_entry_time, bo_exit_time, bo_client_name, bo_phone, bo_alert, bo_bid)
 VALUES
     (1, '2022-10-01 10:00:00', '2022-10-06 20:00:00', 'Пол1', '+77058025009', TRUE, FALSE),
