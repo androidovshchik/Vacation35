@@ -152,53 +152,56 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
                 android:src="@drawable/ic_baseline_local_phone_24"
                 app:fabSize="mini"
+                app:layout_constraintBottom_toTopOf="@+id/btn_confirm"
                 app:layout_constraintEnd_toStartOf="@+id/fab_sms"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/til_phone"
+                app:layout_constraintVertical_bias="0"
                 app:tint="@android:color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_sms"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:src="@drawable/ic_baseline_sms_24"
                 app:fabSize="mini"
+                app:layout_constraintBottom_toBottomOf="@+id/fab_phone"
                 app:layout_constraintEnd_toStartOf="@+id/iv_whatsapp"
                 app:layout_constraintStart_toEndOf="@+id/fab_phone"
-                app:layout_constraintTop_toBottomOf="@+id/til_phone"
+                app:layout_constraintTop_toTopOf="@+id/fab_phone"
                 app:tint="@android:color/white" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/iv_whatsapp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_whatsapp"
                 app:fabCustomSize="42dp"
+                app:layout_constraintBottom_toBottomOf="@+id/fab_phone"
                 app:layout_constraintEnd_toStartOf="@+id/iv_telegram"
                 app:layout_constraintStart_toEndOf="@+id/fab_sms"
-                app:layout_constraintTop_toBottomOf="@+id/til_phone"
+                app:layout_constraintTop_toTopOf="@+id/fab_phone"
                 app:tint="@null" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/iv_telegram"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:adjustViewBounds="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_telegram"
                 app:fabCustomSize="42dp"
+                app:layout_constraintBottom_toBottomOf="@+id/fab_phone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_whatsapp"
-                app:layout_constraintTop_toBottomOf="@+id/til_phone"
+                app:layout_constraintTop_toTopOf="@+id/fab_phone"
                 app:tint="@null" />
 
             <com.google.android.material.button.MaterialButton
@@ -211,10 +214,10 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:text="Подтвердить"
+                android:visibility="gone"
                 app:backgroundTint="@android:color/holo_green_dark"
                 app:layout_constraintBottom_toTopOf="@+id/btn_save"
-                app:layout_constraintTop_toBottomOf="@+id/til_phone"
-                app:layout_constraintVertical_bias="1" />
+                tools:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_delete"
