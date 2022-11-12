@@ -9,6 +9,10 @@
             android:id="@+id/action_bookings"
             android:icon="@drawable/ic_baseline_calendar_month_24"
             android:title="Брони" />
+        <item
+            android:id="@+id/action_bids"
+            android:icon="@drawable/ic_baseline_calendar_today_24"
+            android:title="Заявки" />
     </group>
     <group
         android:id="@+id/other"

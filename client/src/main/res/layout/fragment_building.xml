@@ -65,6 +65,44 @@
                 app:layout_constraintTop_toTopOf="@+id/v_color"
                 tools:text="#ff0000" />
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@+id/v_color">
+
+                <EditText
+                    android:id="@+id/et_entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Время заезда"
+                    android:imeOptions="actionNext"
+                    android:inputType="time"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_exit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@+id/til_entry">
+
+                <EditText
+                    android:id="@+id/et_exit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Время выезда"
+                    android:imeOptions="actionNext"
+                    android:inputType="time"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bids"
                 android:layout_width="match_parent"
@@ -76,7 +114,7 @@
                 android:text="Список заявок"
                 android:textColor="@android:color/black"
                 app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/v_color" />
+                app:layout_constraintTop_toBottomOf="@+id/til_exit" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bookings"
@@ -106,7 +144,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/btn_save"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/til_name"
+                app:layout_constraintTop_toBottomOf="@+id/btn_bookings"
                 app:layout_constraintVertical_bias="1" />
 
             <com.google.android.material.button.MaterialButton
@@ -123,7 +161,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@+id/btn_delete"
-                app:layout_constraintTop_toBottomOf="@+id/til_name"
+                app:layout_constraintTop_toBottomOf="@+id/btn_bookings"
                 app:layout_constraintVertical_bias="1" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
