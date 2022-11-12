@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:maxLines="1"
-            android:paddingVertical="8dp"
+            android:paddingVertical="10dp"
             android:textColor="@android:color/black"
             android:textSize="17sp"
             app:layout_constraintStart_toStartOf="parent"

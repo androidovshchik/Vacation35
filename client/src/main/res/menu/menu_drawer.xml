@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
     <group
-        android:id="@+id/calendar"
+        android:id="@+id/primary"
         android:checkableBehavior="single">
         <item
             android:id="@+id/action_bookings"
@@ -13,22 +13,22 @@
             android:id="@+id/action_bids"
             android:icon="@drawable/ic_baseline_calendar_today_24"
             android:title="Заявки" />
+        <item
+            android:id="@+id/action_buildings"
+            android:icon="@drawable/ic_baseline_home_24"
+            android:title="Постройки" />
     </group>
     <group
-        android:id="@+id/other"
+        android:id="@+id/admin"
         android:checkableBehavior="none">
-        <item
-            android:id="@+id/action_users"
-            android:icon="@drawable/ic_baseline_people_alt_24"
-            android:title="Пользователи" />
         <item
             android:id="@+id/action_bases"
             android:icon="@drawable/ic_baseline_map_24"
             android:title="Базы отдыха" />
         <item
-            android:id="@+id/action_buildings"
-            android:icon="@drawable/ic_baseline_home_24"
-            android:title="Постройки" />
+            android:id="@+id/action_users"
+            android:icon="@drawable/ic_baseline_people_alt_24"
+            android:title="Пользователи" />
     </group>
     <group
         android:id="@+id/logout"

@@ -13,8 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.databinding.ActivityLoginBinding
 import rf.vacation35.databinding.FragmentLoginBinding
+import rf.vacation35.extension.addFragment
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import splitties.fragments.start
@@ -25,12 +25,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLoginBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        supportFragmentManager.addFragment(android.R.id.content, LoginFragment())
     }
 }
 
@@ -54,7 +51,9 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.iToolbar.toolbar.title = "Авторизация"
+        with(binding.toolbar) {
+            title = "Авторизация"
+        }
         binding.btnLogin.setOnClickListener {
             val login = binding.etLogin.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -65,7 +64,7 @@ class LoginFragment : Fragment() {
                         dbApi.findUser(login, password)
                     }
                     if (user != null) {
-                        preferences.userData = user.getData()
+                        preferences.user = user.raw
                         start<MainActivity> {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }
