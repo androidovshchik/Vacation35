@@ -6,17 +6,9 @@
         android:id="@+id/calendar"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/action_booking"
-            android:icon="@drawable/ic_baseline_house_24"
+            android:id="@+id/action_bookings"
+            android:icon="@drawable/ic_baseline_calendar_month_24"
             android:title="Брони" />
-        <item
-            android:id="@+id/action_price"
-            android:icon="@drawable/ic_baseline_attach_money_24"
-            android:title="Цены" />
-        <item
-            android:id="@+id/action_income"
-            android:icon="@drawable/ic_baseline_show_chart_24"
-            android:title="Прибыль" />
     </group>
     <group
         android:id="@+id/other"
@@ -25,6 +17,18 @@
             android:id="@+id/action_users"
             android:icon="@drawable/ic_baseline_people_alt_24"
             android:title="Пользователи" />
+        <item
+            android:id="@+id/action_bases"
+            android:icon="@drawable/ic_baseline_map_24"
+            android:title="Базы отдыха" />
+        <item
+            android:id="@+id/action_buildings"
+            android:icon="@drawable/ic_baseline_home_24"
+            android:title="Постройки" />
+    </group>
+    <group
+        android:id="@+id/logout"
+        android:checkableBehavior="none">
         <item
             android:id="@+id/action_logout"
             android:icon="@drawable/ic_baseline_exit_to_app_24"

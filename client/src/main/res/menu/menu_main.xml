@@ -8,11 +8,11 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_today"
-        android:icon="@drawable/today_icon"
+        android:icon="@drawable/ic_baseline_calendar_today_24"
         android:title="Сегодняшний день"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_new_bids"
+        android:id="@+id/action_bids"
         android:icon="@drawable/ic_baseline_add_home_24"
         android:title="Заявки на брони"
         app:showAsAction="always" />
