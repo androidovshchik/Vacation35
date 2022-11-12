@@ -32,7 +32,7 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:itemCount="15"
-                tools:listitem="@layout/item_price" />
+                tools:listitem="@layout/item_booking" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
