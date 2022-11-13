@@ -1,9 +1,13 @@
 package rf.vacation35.remote
 
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
 import rf.vacation35.extension.transact
-import rf.vacation35.remote.dao.*
+import rf.vacation35.remote.dao.BookingDao
+import rf.vacation35.remote.dao.BuildingDao
+import rf.vacation35.remote.dao.UserDao
 import rf.vacation35.remote.dsl.BookingTable
 import rf.vacation35.remote.dsl.BuildingTable
 import rf.vacation35.remote.dsl.UserTable
@@ -20,12 +24,20 @@ class DbApi private constructor() {
         )
     }
 
-    fun listUsers() = transact {
-        UserDao.all().toList()
+    fun <ID : Comparable<ID>, T : Entity<ID>> list(b: EntityClass<ID, T>) = transact {
+        b.all().toList()
     }
 
-    fun findUser(id: Int) = transact {
-        UserDao.findById(id)
+    fun <ID : Comparable<ID>, T : Entity<ID>> find(b: EntityClass<ID, T>, id: ID) = transact {
+        b.findById(id)
+    }
+
+    fun save(dao: Entity<*>) = transact {
+        dao.flush()
+    }
+
+    fun delete(dao: Entity<*>) = transact {
+        dao.delete()
     }
 
     fun findUser(login: String, password: String) = transact {
@@ -33,24 +45,8 @@ class DbApi private constructor() {
             .firstOrNull()
     }
 
-    fun listBases() = transact {
-        BaseDao.all().toList()
-    }
-
-    fun findBase(id: Int) = transact {
-        BaseDao.findById(id)
-    }
-
     fun listBuildings(baseId: Int) = transact {
         BuildingDao.find { BuildingTable.base eq baseId }.toList()
-    }
-
-    fun findBuilding(id: Int) = transact {
-        BuildingDao.findById(id)
-    }
-
-    fun listPrices() = transact {
-        PriceDao.all().toList()
     }
 
     fun queryBookings(start: LocalDateTime, end: LocalDateTime) = transact {

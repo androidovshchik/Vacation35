@@ -43,7 +43,7 @@ class AccountListFragment : Fragment() {
     lateinit var api: DbApi
 
     @Inject
-    lateinit var progressDialog: ProgressDialog
+    lateinit var progress: ProgressDialog
 
     private lateinit var binding: FragmentListBinding
 
@@ -88,9 +88,9 @@ class AccountListFragment : Fragment() {
             start<AccountActivity>()
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            progressDialog.with({
+            progress.with({
                 val users = withContext(Dispatchers.IO) {
-                    api.listUsers()
+                    api.list(UserDao)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(users)
@@ -102,7 +102,7 @@ class AccountListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progressDialog.dismiss()
+        progress.dismiss()
         super.onDestroyView()
     }
 }
@@ -123,7 +123,7 @@ class AccountFragment : Fragment() {
     lateinit var api: DbApi
 
     @Inject
-    lateinit var progressDialog: ProgressDialog
+    lateinit var progress: ProgressDialog
 
     private lateinit var binding: FragmentAccountBinding
 
@@ -151,9 +151,9 @@ class AccountFragment : Fragment() {
         }
         if (id > 0) {
             viewLifecycleOwner.lifecycleScope.launch {
-                progressDialog.with({
+                progress.with({
                     val user = withContext(Dispatchers.IO) {
-                        api.findUser(id)
+                        api.find(UserDao, id)
                     }
                     if (user != null) {
                         binding.etName.setText(user.name)
@@ -173,7 +173,7 @@ class AccountFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progressDialog.dismiss()
+        progress.dismiss()
         super.onDestroyView()
     }
 }
