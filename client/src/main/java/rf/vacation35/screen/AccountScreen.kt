@@ -151,14 +151,24 @@ class AccountFragment : Fragment() {
             }
         }
         binding.btnSave.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                progress.with({
-                    withContext(Dispatchers.IO) {
-                        api.save(user!!)
-                    }
-                }, {
-                    getView()?.snack(it)
-                })
+            try {
+                user!!.name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустое имя") }
+                user!!.login = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустой логин") }
+                user!!.password = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустой пароль") }
+                user!!.accessBooking = binding.cbBookings.isChecked
+                user!!.accessPrice = binding.cbPrices.isChecked
+                user!!.admin = binding.cbAdmin.isChecked
+                viewLifecycleOwner.lifecycleScope.launch {
+                    progress.with({
+                        withContext(Dispatchers.IO) {
+                            api.save(user!!)
+                        }
+                    }, {
+                        getView()?.snack(it)
+                    })
+                }
+            } catch (e: Throwable) {
+                getView()?.snack(e)
             }
         }
         if (id > 0) {
