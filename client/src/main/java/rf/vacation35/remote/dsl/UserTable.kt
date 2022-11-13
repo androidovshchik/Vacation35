@@ -8,7 +8,7 @@ object UserTable : IntIdTable("users", "u_id") {
 
     var login = varchar("u_login", 30).uniqueIndex()
 
-    var password = varchar("u_password", 15)
+    var password = varchar("u_password", 30)
 
     var accessPrice = bool("u_access_price").default(false)
 

@@ -13,5 +13,9 @@ class BuildingDao(id: EntityID<Int>) : IntEntity(id) {
 
     var color by BuildingTable.color
 
+    var entryTime by BuildingTable.entryTime
+
+    var exitTime by BuildingTable.exitTime
+
     companion object : IntEntityClass<BuildingDao>(BuildingTable)
 }

@@ -17,8 +17,6 @@ class BookingDao(id: EntityID<Long>) : LongEntity(id) {
 
     var phone by BookingTable.phone
 
-    var alert by BookingTable.alert
-
     var bid by BookingTable.bid
 
     companion object : LongEntityClass<BookingDao>(BookingTable)

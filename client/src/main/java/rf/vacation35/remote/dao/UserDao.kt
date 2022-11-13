@@ -3,7 +3,7 @@ package rf.vacation35.remote.dao
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import rf.vacation35.local.User
+import rf.vacation35.local.RawUser
 import rf.vacation35.remote.dsl.UserTable
 
 class UserDao(id: EntityID<Int>) : IntEntity(id) {
@@ -20,7 +20,7 @@ class UserDao(id: EntityID<Int>) : IntEntity(id) {
 
     var admin by UserTable.admin
 
-    val raw get() = User(
+    val raw get() = RawUser(
         id.value,
         name,
         login,

@@ -13,14 +13,14 @@
             android:id="@+id/action_bids"
             android:icon="@drawable/ic_baseline_calendar_today_24"
             android:title="Заявки" />
-        <item
-            android:id="@+id/action_buildings"
-            android:icon="@drawable/ic_baseline_home_24"
-            android:title="Постройки" />
     </group>
     <group
         android:id="@+id/admin"
         android:checkableBehavior="none">
+        <item
+            android:id="@+id/action_buildings"
+            android:icon="@drawable/ic_baseline_home_24"
+            android:title="Постройки" />
         <item
             android:id="@+id/action_bases"
             android:icon="@drawable/ic_baseline_map_24"
