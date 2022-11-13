@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.databinding.FragmentAccountBinding
@@ -42,6 +43,8 @@ class AccountListFragment : Fragment() {
     lateinit var progress: ProgressDialog
 
     private lateinit var binding: FragmentListBinding
+
+    private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemAccountBinding, UserDao> {
@@ -82,7 +85,12 @@ class AccountListFragment : Fragment() {
         binding.fabAdd.setOnClickListener {
             start<AccountActivity>()
         }
-        viewLifecycleOwner.lifecycleScope.launch {
+    }
+
+    override fun onStart() {
+        super.onStart()
+        listJob?.cancel()
+        listJob = viewLifecycleOwner.lifecycleScope.launch {
             progress.with({
                 val users = withContext(Dispatchers.IO) {
                     api.list(UserDao)
@@ -91,7 +99,7 @@ class AccountListFragment : Fragment() {
                 adapter.items.addAll(users)
                 adapter.notifyDataSetChanged()
             }, {
-                getView()?.snack(it)
+                view?.snack(it)
             })
         }
     }
@@ -145,6 +153,7 @@ class AccountFragment : Fragment() {
                         withContext(Dispatchers.IO) {
                             api.delete(user!!)
                         }
+                        activity?.finish()
                     }, {
                         getView()?.snack(it)
                     })
@@ -172,14 +181,14 @@ class AccountFragment : Fragment() {
                                     it.admin = admin
                                 }
                             } else {
-                                api.save(user!!.also {
+                                api.update(user!!) {
                                     it.name = name
                                     it.login = login
                                     it.password = password
                                     it.accessBooking = accessBooking
                                     it.accessPrice = accessPrice
                                     it.admin = admin
-                                })
+                                }
                             }
                         }
                         binding.btnDelete.isEnabled = true

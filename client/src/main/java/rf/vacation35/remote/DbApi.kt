@@ -17,14 +17,14 @@ class DbApi private constructor() {
 
     init {
         Database.connect(
-            "jdbc:mysql://31.31.198.241:3306/u1617530_vacation35api?characterEncoding=utf8&useUnicode=true",
+            "jdbc:mysql://31.31.198.241:3306/u1617530_vacation35api?characterEncoding=UTF-8&useUnicode=true",
             "com.mysql.jdbc.Driver",
             "u1617530_vacation35",
             "vRf8F661mq0\$"
         )
     }
 
-    fun <ID : Comparable<ID>, T : Entity<ID>> list(dao: EntityClass<ID, T>) = transact {
+    fun <T : Entity<*>> list(dao: EntityClass<*, T>) = transact {
         dao.all().toList()
     }
 
@@ -32,12 +32,12 @@ class DbApi private constructor() {
         dao.findById(id)
     }
 
-    fun <ID : Comparable<ID>, T : Entity<ID>> create(dao: EntityClass<ID, T>, init: (T) -> Unit) = transact {
+    fun <T : Entity<*>> create(dao: EntityClass<*, T>, init: (T) -> Unit) = transact {
         dao.new(init)
     }
 
-    fun save(dao: Entity<*>) = transact {
-        dao.flush()
+    fun <T : Entity<*>> update(dao: T, action: (T) -> Unit) = transact {
+        action(dao)
     }
 
     fun delete(dao: Entity<*>) = transact {

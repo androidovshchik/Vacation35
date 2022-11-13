@@ -24,10 +24,8 @@
             android:id="@+id/et_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:hint="Логин"
             android:imeOptions="actionNext"
-            android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1" />
 
@@ -47,7 +45,6 @@
             android:id="@+id/et_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:hint="Пароль"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
