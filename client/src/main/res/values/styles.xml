@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="DialogStyle" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
     <style name="MyToolbar" parent="@style/Widget.CalendarAppTheme.ActionBar">
         <item name="title">Название</item>
     </style>
