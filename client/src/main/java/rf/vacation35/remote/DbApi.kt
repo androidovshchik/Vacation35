@@ -24,12 +24,16 @@ class DbApi private constructor() {
         )
     }
 
-    fun <ID : Comparable<ID>, T : Entity<ID>> list(b: EntityClass<ID, T>) = transact {
-        b.all().toList()
+    fun <ID : Comparable<ID>, T : Entity<ID>> list(dao: EntityClass<ID, T>) = transact {
+        dao.all().toList()
     }
 
-    fun <ID : Comparable<ID>, T : Entity<ID>> find(b: EntityClass<ID, T>, id: ID) = transact {
-        b.findById(id)
+    fun <ID : Comparable<ID>, T : Entity<ID>> find(dao: EntityClass<ID, T>, id: ID) = transact {
+        dao.findById(id)
+    }
+
+    fun <ID : Comparable<ID>, T : Entity<ID>> create(dao: EntityClass<ID, T>, init: (T) -> Unit) = transact {
+        dao.new(init)
     }
 
     fun save(dao: Entity<*>) = transact {

@@ -129,6 +129,7 @@ class AccountFragment : Fragment() {
         return binding.root
     }
 
+    @Suppress("LocalVariableName")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val id = activity?.intent?.getIntExtra("id", 0) ?: 0
         with(binding.toolbar) {
@@ -152,17 +153,36 @@ class AccountFragment : Fragment() {
         }
         binding.btnSave.setOnClickListener {
             try {
-                user!!.name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустое имя") }
-                user!!.login = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустой логин") }
-                user!!.password = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Пустой пароль") }
-                user!!.accessBooking = binding.cbBookings.isChecked
-                user!!.accessPrice = binding.cbPrices.isChecked
-                user!!.admin = binding.cbAdmin.isChecked
+                val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
+                val login = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задан логин") }
+                val password = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задан пароль") }
+                val accessBooking = binding.cbBookings.isChecked
+                val accessPrice = binding.cbPrices.isChecked
+                val admin = binding.cbAdmin.isChecked
                 viewLifecycleOwner.lifecycleScope.launch {
                     progress.with({
                         withContext(Dispatchers.IO) {
-                            api.save(user!!)
+                            if (user == null) {
+                                user = api.create(UserDao) {
+                                    it.name = name
+                                    it.login = login
+                                    it.password = password
+                                    it.accessBooking = accessBooking
+                                    it.accessPrice = accessPrice
+                                    it.admin = admin
+                                }
+                            } else {
+                                api.save(user!!.also {
+                                    it.name = name
+                                    it.login = login
+                                    it.password = password
+                                    it.accessBooking = accessBooking
+                                    it.accessPrice = accessPrice
+                                    it.admin = admin
+                                })
+                            }
                         }
+                        binding.btnDelete.isEnabled = true
                     }, {
                         getView()?.snack(it)
                     })
@@ -195,12 +215,6 @@ class AccountFragment : Fragment() {
                 })
             }
         } else {
-            user = UserDao.new {
-                name = ""
-                login = ""
-                password = ""
-            }
-            binding.btnDelete.isEnabled = true
             binding.btnSave.isEnabled = true
         }
     }
