@@ -92,11 +92,11 @@ class AccountListFragment : Fragment() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             progress.with({
-                val users = withContext(Dispatchers.IO) {
+                val items = withContext(Dispatchers.IO) {
                     api.list(UserDao)
                 }
                 adapter.items.clear()
-                adapter.items.addAll(users)
+                adapter.items.addAll(items)
                 adapter.notifyDataSetChanged()
             }, {
                 view?.snack(it)
@@ -137,7 +137,6 @@ class AccountFragment : Fragment() {
         return binding.root
     }
 
-    @Suppress("LocalVariableName")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val id = activity?.intent?.getIntExtra("id", 0) ?: 0
         with(binding.toolbar) {
@@ -163,8 +162,8 @@ class AccountFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
-                val login = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задан логин") }
-                val password = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задан пароль") }
+                val login = binding.etLogin.text.toString().trim().ifEmpty { throw Throwable("Не задан логин") }
+                val password = binding.etPassword.text.toString().trim().ifEmpty { throw Throwable("Не задан пароль") }
                 val accessBooking = binding.cbBookings.isChecked
                 val accessPrice = binding.cbPrices.isChecked
                 val admin = binding.cbAdmin.isChecked
@@ -191,6 +190,7 @@ class AccountFragment : Fragment() {
                                 }
                             }
                         }
+                        binding.toolbar.title = "Пользователь"
                         binding.btnDelete.isEnabled = true
                     }, {
                         getView()?.snack(it)
