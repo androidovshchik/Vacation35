@@ -1,5 +1,6 @@
 package rf.vacation35.screen
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +27,7 @@ class AccountListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, AccountListFragment())
+        supportFragmentManager.addFragment(android.R.id.content, AccountListFragment(), false)
     }
 }
 
@@ -38,14 +39,26 @@ class AccountListFragment : Fragment() {
 
     private lateinit var binding: FragmentListBinding
 
+    @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemAccountBinding, UserDao> {
         onCreateViewHolder { parent ->
-            ItemAccountBinding.inflate(layoutInflater, parent, false).also {
-
+            with(ItemAccountBinding.inflate(layoutInflater, parent, false)) {
+                AbstractAdapter.ViewHolder(this).apply {
+                    root.setOnClickListener {
+                        try {
+                            val item = items[bindingAdapterPosition]
+                            start<AccountActivity> {
+                                putExtra("id", item.id.value)
+                            }
+                        } catch (ignored: Throwable) {
+                        }
+                    }
+                }
             }
         }
-        onBindViewHolder { binding, item ->
-            binding.login
+        onBindViewHolder { item ->
+            name.text = item.name
+            login.text = "@${item.login}"
         }
     }
 
@@ -56,6 +69,10 @@ class AccountListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(binding.toolbar) {
+            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            setNavigationOnClickListener {
+                activity?.finish()
+            }
             title = "Пользователи"
         }
         binding.rvList.adapter = adapter
@@ -78,7 +95,7 @@ class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, AccountFragment())
+        supportFragmentManager.addFragment(android.R.id.content, AccountFragment(), false)
     }
 }
 
@@ -97,14 +114,23 @@ class AccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val id = activity?.intent?.getIntExtra("id", 0) ?: 0
-        viewLifecycleOwner.lifecycleScope.launch {
-            val user = withContext(Dispatchers.IO) {
-                api.findUser(id)
+        with(binding.toolbar) {
+            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            setNavigationOnClickListener {
+                activity?.finish()
             }
-            if (user != null) {
+            title = if (id == 0) "Новый пользователь" else "Пользователь"
+        }
+        if (id > 0) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val user = withContext(Dispatchers.IO) {
+                    api.findUser(id)
+                }
+                if (user != null) {
 
-            } else {
+                } else {
 
+                }
             }
         }
     }
