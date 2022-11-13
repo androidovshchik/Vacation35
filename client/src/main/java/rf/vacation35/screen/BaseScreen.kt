@@ -174,6 +174,8 @@ class BaseFragment : Fragment() {
                                 }
                             }
                         }
+                        binding.toolbar.title = "База отдыха"
+                        binding.btnBuildings.isEnabled = true
                         binding.btnDelete.isEnabled = true
                     }, {
                         getView()?.snack(it)
@@ -191,6 +193,7 @@ class BaseFragment : Fragment() {
                     }
                     base?.let {
                         binding.etName.setText(it.name)
+                        binding.btnBuildings.isEnabled = true
                         binding.btnDelete.isEnabled = true
                         binding.btnSave.isEnabled = true
                     }

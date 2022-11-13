@@ -17,7 +17,7 @@ CREATE TABLE users(
 INSERT INTO
     users(u_name, u_login, u_password, u_access_booking, u_access_price, u_admin)
 VALUES
-    ('Админ', 'admin', 'vacation35rf', TRUE, TRUE, TRUE);
+    ('Админ', 'admin', 'отпуск35рф', TRUE, TRUE, TRUE);
 
 CREATE TABLE bases(
     ba_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -30,6 +30,8 @@ CREATE TABLE buildings(
     bu_base MEDIUMINT UNSIGNED NOT NULL,
     bu_name VARCHAR(60) NOT NULL,
     bu_color VARCHAR(20) NOT NULL,
+    bu_entry_time DATETIME,
+    bu_exit_time DATETIME,
     PRIMARY KEY (bu_id),
     FOREIGN KEY (bu_base) REFERENCES bases(ba_id)
         ON DELETE CASCADE
@@ -43,7 +45,6 @@ CREATE TABLE bookings(
     bo_exit_time DATETIME NOT NULL,
     bo_client_name VARCHAR(200) NOT NULL,
     bo_phone VARCHAR(40) NOT NULL,
-    bo_alert BOOLEAN NOT NULL DEFAULT TRUE,
     bo_bid BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (bo_id),
     FOREIGN KEY (bo_building) REFERENCES buildings(bu_id)
