@@ -7,7 +7,7 @@ import splitties.alertdialog.cancelButton
 import splitties.alertdialog.okButton
 import splitties.alertdialog.title
 
-inline fun Context.areYouSure(crossinline yes: (dialog: DialogInterface) -> Unit) {
+fun Context.areYouSure(yes: (dialog: DialogInterface) -> Unit) {
     alertDialog {
         title = "Вы уверены?"
         okButton(yes)

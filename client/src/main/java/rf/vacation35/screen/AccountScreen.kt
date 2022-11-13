@@ -13,14 +13,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.R
 import rf.vacation35.databinding.FragmentAccountBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemAccountBinding
-import rf.vacation35.extension.addFragment
-import rf.vacation35.extension.areYouSure
-import rf.vacation35.extension.snack
-import rf.vacation35.extension.with
+import rf.vacation35.extension.*
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.UserDao
 import splitties.fragments.start
@@ -77,8 +73,7 @@ class AccountListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(binding.toolbar) {
-            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-            setNavigationOnClickListener {
+            onBackPressed {
                 activity?.finish()
             }
             title = "Пользователи"
@@ -127,6 +122,8 @@ class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
 
+    private var dao: UserDao? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
         return binding.root
@@ -135,34 +132,52 @@ class AccountFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val id = activity?.intent?.getIntExtra("id", 0) ?: 0
         with(binding.toolbar) {
-            setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-            setNavigationOnClickListener {
+            onBackPressed {
                 activity?.finish()
             }
             title = if (id == 0) "Новый пользователь" else "Пользователь"
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
-
+                viewLifecycleOwner.lifecycleScope.launch {
+                    progress.with({
+                        withContext(Dispatchers.IO) {
+                            api.delete(dao!!)
+                        }
+                    }, {
+                        getView()?.snack(it)
+                    })
+                }
             }
         }
         binding.btnSave.setOnClickListener {
-
+            viewLifecycleOwner.lifecycleScope.launch {
+                progress.with({
+                    withContext(Dispatchers.IO) {
+                        api.save(dao!!)
+                    }
+                }, {
+                    getView()?.snack(it)
+                })
+            }
         }
         if (id > 0) {
             viewLifecycleOwner.lifecycleScope.launch {
                 progress.with({
-                    val user = withContext(Dispatchers.IO) {
+                    dao = withContext(Dispatchers.IO) {
                         api.find(UserDao, id)
                     }
-                    if (user != null) {
-                        binding.etName.setText(user.name)
-                        binding.etLogin.setText(user.login)
-                        binding.etPassword.setText(user.password)
-                        binding.cbBookings.isChecked = user.admin
-                        binding.cbPrices.isChecked = user.admin
-                        binding.cbAdmin.isChecked = user.admin
-                    } else {
+                    dao?.let {
+                        binding.etName.setText(it.name)
+                        binding.etLogin.setText(it.login)
+                        binding.etPassword.setText(it.password)
+                        binding.cbBookings.isChecked = it.accessBooking
+                        binding.cbPrices.isChecked = it.accessPrice
+                        binding.cbAdmin.isChecked = it.admin
+                        binding.btnDelete.isEnabled = true
+                        binding.btnSave.isEnabled = true
+                    }
+                    if (dao == null) {
                         getView()?.snack("Пользователь не найден")
                     }
                 }, {
