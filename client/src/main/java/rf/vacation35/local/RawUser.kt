@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-class User(
+class RawUser(
     var id: Int,
     var name: String,
     var login: String,

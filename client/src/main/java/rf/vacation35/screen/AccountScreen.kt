@@ -122,7 +122,7 @@ class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
 
-    private var dao: UserDao? = null
+    private var user: UserDao? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
@@ -142,7 +142,7 @@ class AccountFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     progress.with({
                         withContext(Dispatchers.IO) {
-                            api.delete(dao!!)
+                            api.delete(user!!)
                         }
                     }, {
                         getView()?.snack(it)
@@ -154,7 +154,7 @@ class AccountFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 progress.with({
                     withContext(Dispatchers.IO) {
-                        api.save(dao!!)
+                        api.save(user!!)
                     }
                 }, {
                     getView()?.snack(it)
@@ -164,10 +164,10 @@ class AccountFragment : Fragment() {
         if (id > 0) {
             viewLifecycleOwner.lifecycleScope.launch {
                 progress.with({
-                    dao = withContext(Dispatchers.IO) {
+                    user = withContext(Dispatchers.IO) {
                         api.find(UserDao, id)
                     }
-                    dao?.let {
+                    user?.let {
                         binding.etName.setText(it.name)
                         binding.etLogin.setText(it.login)
                         binding.etPassword.setText(it.password)
@@ -177,13 +177,21 @@ class AccountFragment : Fragment() {
                         binding.btnDelete.isEnabled = true
                         binding.btnSave.isEnabled = true
                     }
-                    if (dao == null) {
+                    if (user == null) {
                         getView()?.snack("Пользователь не найден")
                     }
                 }, {
                     getView()?.snack(it)
                 })
             }
+        } else {
+            user = UserDao.new {
+                name = ""
+                login = ""
+                password = ""
+            }
+            binding.btnDelete.isEnabled = true
+            binding.btnSave.isEnabled = true
         }
     }
 

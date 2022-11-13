@@ -15,11 +15,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.databinding.FragmentLoginBinding
 import rf.vacation35.extension.addFragment
+import rf.vacation35.extension.snack
+import rf.vacation35.extension.with
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import splitties.fragments.start
 import splitties.snackbar.snack
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,13 +36,13 @@ class LoginActivity : AppCompatActivity() {
 class LoginFragment : Fragment() {
 
     @Inject
-    lateinit var dbApi: DbApi
+    lateinit var api: DbApi
 
     @Inject
     lateinit var preferences: Preferences
 
     @Inject
-    lateinit var progressDialog: ProgressDialog
+    lateinit var progress: ProgressDialog
 
     private lateinit var binding: FragmentLoginBinding
 
@@ -57,32 +58,28 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             val login = binding.etLogin.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            progressDialog.show()
             viewLifecycleOwner.lifecycleScope.launch {
-                try {
+                progress.with({
                     val user = withContext(Dispatchers.IO) {
-                        dbApi.findUser(login, password)
+                        api.findUser(login, password)
                     }
                     if (user != null) {
-                        preferences.user = user.raw
+                        preferences.rawUser = user.raw
                         start<MainActivity> {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }
                     } else {
                         getView()?.snack("Неверные данные для входа")
                     }
-                } catch (e: Throwable) {
-                    Timber.e(e)
-                    getView()?.snack(e.message.toString())
-                } finally {
-                    progressDialog.dismiss()
-                }
+                }, {
+                    getView()?.snack(it)
+                })
             }
         }
     }
 
     override fun onDestroyView() {
-        progressDialog.dismiss()
+        progress.dismiss()
         super.onDestroyView()
     }
 }
