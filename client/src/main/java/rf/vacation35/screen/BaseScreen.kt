@@ -1,7 +1,6 @@
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.R
 import rf.vacation35.databinding.FragmentBaseBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBaseBinding
@@ -39,8 +39,7 @@ class BaseListFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    @Inject
-    lateinit var progress: ProgressDialog
+    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentListBinding
 
@@ -90,7 +89,7 @@ class BaseListFragment : Fragment() {
         super.onStart()
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
-            progress.with({
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val items = withContext(Dispatchers.IO) {
                     api.list(BaseDao)
                 }
@@ -104,7 +103,7 @@ class BaseListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progress.dismiss()
+        childFragmentManager.removeFragment(progress)
         super.onDestroyView()
     }
 }
@@ -124,8 +123,7 @@ class BaseFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    @Inject
-    lateinit var progress: ProgressDialog
+    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentBaseBinding
 
@@ -147,7 +145,7 @@ class BaseFragment : Fragment() {
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    progress.with({
+                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             api.delete(base!!)
                         }
@@ -162,7 +160,7 @@ class BaseFragment : Fragment() {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
                 viewLifecycleOwner.lifecycleScope.launch {
-                    progress.with({
+                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             if (base == null) {
                                 base = api.create(BaseDao) {
@@ -187,7 +185,7 @@ class BaseFragment : Fragment() {
         }
         if (id > 0) {
             viewLifecycleOwner.lifecycleScope.launch {
-                progress.with({
+                childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     base = withContext(Dispatchers.IO) {
                         api.find(BaseDao, id)
                     }
@@ -210,7 +208,7 @@ class BaseFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progress.dismiss()
+        childFragmentManager.removeFragment(progress)
         super.onDestroyView()
     }
 }

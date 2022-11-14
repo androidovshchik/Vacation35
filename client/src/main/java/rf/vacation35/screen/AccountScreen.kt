@@ -1,7 +1,6 @@
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.R
 import rf.vacation35.databinding.FragmentAccountBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemAccountBinding
@@ -39,8 +39,7 @@ class AccountListFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    @Inject
-    lateinit var progress: ProgressDialog
+    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentListBinding
 
@@ -91,7 +90,7 @@ class AccountListFragment : Fragment() {
         super.onStart()
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
-            progress.with({
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val items = withContext(Dispatchers.IO) {
                     api.list(UserDao)
                 }
@@ -105,7 +104,7 @@ class AccountListFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progress.dismiss()
+        childFragmentManager.removeFragment(progress)
         super.onDestroyView()
     }
 }
@@ -125,8 +124,7 @@ class AccountFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    @Inject
-    lateinit var progress: ProgressDialog
+    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentAccountBinding
 
@@ -148,7 +146,7 @@ class AccountFragment : Fragment() {
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    progress.with({
+                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             api.delete(user!!)
                         }
@@ -168,7 +166,7 @@ class AccountFragment : Fragment() {
                 val accessPrice = binding.cbPrices.isChecked
                 val admin = binding.cbAdmin.isChecked
                 viewLifecycleOwner.lifecycleScope.launch {
-                    progress.with({
+                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             if (user == null) {
                                 user = api.create(UserDao) {
@@ -202,7 +200,7 @@ class AccountFragment : Fragment() {
         }
         if (id > 0) {
             viewLifecycleOwner.lifecycleScope.launch {
-                progress.with({
+                childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     user = withContext(Dispatchers.IO) {
                         api.find(UserDao, id)
                     }
@@ -229,7 +227,7 @@ class AccountFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progress.dismiss()
+        childFragmentManager.removeFragment(progress)
         super.onDestroyView()
     }
 }

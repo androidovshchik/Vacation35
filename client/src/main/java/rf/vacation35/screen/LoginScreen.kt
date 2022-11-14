@@ -1,6 +1,5 @@
 package rf.vacation35.screen
 
-import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,8 +12,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.R
 import rf.vacation35.databinding.FragmentLoginBinding
 import rf.vacation35.extension.addFragment
+import rf.vacation35.extension.removeFragment
 import rf.vacation35.extension.snack
 import rf.vacation35.extension.with
 import rf.vacation35.local.Preferences
@@ -41,8 +42,7 @@ class LoginFragment : Fragment() {
     @Inject
     lateinit var preferences: Preferences
 
-    @Inject
-    lateinit var progress: ProgressDialog
+    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentLoginBinding
 
@@ -59,7 +59,7 @@ class LoginFragment : Fragment() {
             val login = binding.etLogin.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
             viewLifecycleOwner.lifecycleScope.launch {
-                progress.with({
+                childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     val user = withContext(Dispatchers.IO) {
                         api.findUser(login, password)
                     }
@@ -79,7 +79,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        progress.dismiss()
+        childFragmentManager.removeFragment(progress)
         super.onDestroyView()
     }
 }
