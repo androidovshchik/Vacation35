@@ -20,6 +20,8 @@ import rf.vacation35.extension.addFragment
 import rf.vacation35.extension.areYouSure
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
+import rf.vacation35.remote.dao.BaseDao
+import rf.vacation35.remote.dao.BuildingDao
 import splitties.activities.start
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,6 +38,10 @@ class MainActivity : AbstractActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var header: DrawerHeaderBinding
+
+    private var bases = emptyList<BaseDao>()
+
+    private var buildings = emptyList<BuildingDao>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +90,29 @@ class MainActivity : AbstractActivity() {
 
         fragmentManager.addFragment(R.id.fl_container, MonthByWeekFragment(System.currentTimeMillis(), false))
 
+        binding.esBase.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> binding.esBuilding.updateList(emptyList())
+                1 -> binding.esBuilding.updateList(buildings.map { it.name })
+                else -> {
+                    try {
+                        val baseId = bases[position - 2].id.value
+                        binding.esBuilding.updateList(buildings.filter { it.base == baseId }.map { it.name })
+                    } catch (ignored: Throwable) {
+                    }
+                }
+            }
+        }
+        binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> {}
+                1 -> {}
+                else -> {
+
+                }
+            }
+        }
+
         updateHeader()
         lifecycleScope.launch {
             preferences.asFlow()
@@ -92,6 +121,25 @@ class MainActivity : AbstractActivity() {
                         updateHeader()
                     }
                 }
+        }
+        lifecycleScope.launch {
+            while (!isFinishing) {
+                try {
+                    bases = withContext(Dispatchers.IO) {
+                        api.list(BaseDao).sortedBy { it.name }
+                    }
+                    binding.esBase.updateList(bases.map { it.name })
+                    buildings = withContext(Dispatchers.IO) {
+                        api.list(BuildingDao).sortedBy { it.name }
+                    }
+                    binding.esBuilding.updateList(buildings.map { it.name })
+                    break
+                } catch (e: Throwable) {
+                    Timber.e(e)
+                } finally {
+                    delay(10_000L)
+                }
+            }
         }
         lifecycleScope.launch {
             while (!isFinishing) {
