@@ -15,7 +15,7 @@ class EditSpinner @JvmOverloads constructor(
     defStyleAttr: Int = R.attr.autoCompleteTextViewStyle
 ) : AppCompatAutoCompleteTextView(context, attrs, defStyleAttr) {
 
-    private val adapter = ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, mutableListOf("", "Все"))
+    private val adapter = ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, mutableListOf(""))
 
     init {
         threshold = 1
@@ -30,7 +30,9 @@ class EditSpinner @JvmOverloads constructor(
     fun updateList(items: List<String>) {
         adapter.clear()
         adapter.addAll("")
-        adapter.addAll("Все")
+        if (items.isNotEmpty()) {
+            adapter.addAll("Все")
+        }
         adapter.addAll(items)
         adapter.notifyDataSetChanged()
     }
