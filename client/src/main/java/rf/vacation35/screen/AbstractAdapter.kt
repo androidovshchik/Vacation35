@@ -1,6 +1,7 @@
 package rf.vacation35.screen
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
@@ -34,4 +35,26 @@ open class AbstractAdapter<V : ViewBinding, T>(val items: MutableList<T>) : Recy
     override fun getItemCount(): Int = items.count()
 
     class ViewHolder<V : ViewBinding>(val binding: V) : RecyclerView.ViewHolder(binding.root)
+}
+
+abstract class EndlessListener : RecyclerView.OnScrollListener() {
+
+    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        val manager = recyclerView.layoutManager as LinearLayoutManager
+        val first = manager.findFirstVisibleItemPosition()
+        val last = manager.findLastVisibleItemPosition()
+        val count = manager.itemCount
+        when {
+            first <= 0 -> {
+                onScrolledToTop()
+            }
+            last >= count - 1 -> {
+                onScrolledToBottom()
+            }
+        }
+    }
+
+    abstract fun onScrolledToTop()
+
+    abstract fun onScrolledToBottom()
 }
