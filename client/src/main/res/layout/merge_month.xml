@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_height="wrap_content"
+    tools:layout_width="match_parent"
+    tools:paddingBottom="11dp"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1428571428" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2857142857" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4285714285" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5714285714" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7142857142" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl6"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8571428571" />
+
+    <TextView
+        android:id="@+id/tv_month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:fontFamily="@font/museosanscyrl700"
+        android:textColor="@color/colorTextDark"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Январь" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv1"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv2"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv3"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl3"
+        app:layout_constraintStart_toEndOf="@+id/gl2"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv4"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl4"
+        app:layout_constraintStart_toEndOf="@+id/gl3"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv5"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl5"
+        app:layout_constraintStart_toEndOf="@+id/gl4"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv6"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl6"
+        app:layout_constraintStart_toEndOf="@+id/gl5"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv7"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="7dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl6"
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/week1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="dv1,dv2,dv3,dv4,dv5,dv6,dv7" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv8"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv9"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv10"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl3"
+        app:layout_constraintStart_toEndOf="@+id/gl2"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv11"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl4"
+        app:layout_constraintStart_toEndOf="@+id/gl3"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv12"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl5"
+        app:layout_constraintStart_toEndOf="@+id/gl4"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv13"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl6"
+        app:layout_constraintStart_toEndOf="@+id/gl5"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv14"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl6"
+        app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/week2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="dv8,dv9,dv10,dv11,dv12,dv13,dv14" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv15"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv16"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv17"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl3"
+        app:layout_constraintStart_toEndOf="@+id/gl2"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv18"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl4"
+        app:layout_constraintStart_toEndOf="@+id/gl3"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv19"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl5"
+        app:layout_constraintStart_toEndOf="@+id/gl4"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv20"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl6"
+        app:layout_constraintStart_toEndOf="@+id/gl5"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv21"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl6"
+        app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/week3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="dv15,dv16,dv17,dv18,dv19,dv20,dv21" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv22"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv23"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv24"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl3"
+        app:layout_constraintStart_toEndOf="@+id/gl2"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv25"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl4"
+        app:layout_constraintStart_toEndOf="@+id/gl3"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv26"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl5"
+        app:layout_constraintStart_toEndOf="@+id/gl4"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv27"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl6"
+        app:layout_constraintStart_toEndOf="@+id/gl5"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv28"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl6"
+        app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/week4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="dv22,dv23,dv24,dv25,dv26,dv27,dv28" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv29"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv30"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv31"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl3"
+        app:layout_constraintStart_toEndOf="@+id/gl2"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv32"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl4"
+        app:layout_constraintStart_toEndOf="@+id/gl3"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv33"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl5"
+        app:layout_constraintStart_toEndOf="@+id/gl4"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv34"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl6"
+        app:layout_constraintStart_toEndOf="@+id/gl5"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv35"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl6"
+        app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/week5"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="dv29,dv30,dv31,dv32,dv33,dv34,dv35" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv36"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/week5"
+        tools:visibility="visible" />
+
+    <com.girlapp.view.calendar.DayView
+        android:id="@+id/dv37"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/day_max_height"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/gl2"
+        app:layout_constraintStart_toEndOf="@+id/gl1"
+        app:layout_constraintTop_toBottomOf="@+id/week5"
+        tools:visibility="visible" />
+
+</merge>
