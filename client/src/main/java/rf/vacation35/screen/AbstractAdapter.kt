@@ -8,7 +8,7 @@ inline fun <V : ViewBinding, T> abstractAdapter(items: List<T> = mutableListOf()
     return AbstractAdapter<V, T>(items.toMutableList()).apply { body() }
 }
 
-class AbstractAdapter<V : ViewBinding, T>(val items: MutableList<T>) : RecyclerView.Adapter<AbstractAdapter.ViewHolder<V>>() {
+open class AbstractAdapter<V : ViewBinding, T>(val items: MutableList<T>) : RecyclerView.Adapter<AbstractAdapter.ViewHolder<V>>() {
 
     private lateinit var _onCreateViewHolder: (parent: ViewGroup) -> ViewHolder<V>
 
