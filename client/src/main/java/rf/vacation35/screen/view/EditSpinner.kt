@@ -1,4 +1,4 @@
-package rf.vacation35.screen
+package rf.vacation35.screen.view
 
 import android.annotation.SuppressLint
 import android.content.Context
