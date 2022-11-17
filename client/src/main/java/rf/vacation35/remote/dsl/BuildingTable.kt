@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 
 object BuildingTable : IntIdTable("buildings", "bu_id") {
 
-    var base = integer("bu_base")
+    val base = reference("ba_id", BaseTable)
 
     var name = varchar("bu_name", 60)
 

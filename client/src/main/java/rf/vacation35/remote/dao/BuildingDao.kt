@@ -7,7 +7,7 @@ import rf.vacation35.remote.dsl.BuildingTable
 
 class BuildingDao(id: EntityID<Int>) : IntEntity(id) {
 
-    var base by BuildingTable.base
+    var base by BaseDao referencedOn BuildingTable.base
 
     var name by BuildingTable.name
 

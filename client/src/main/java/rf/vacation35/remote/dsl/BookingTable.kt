@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 
 object BookingTable : LongIdTable("bookings", "bo_id") {
 
-    var building = integer("bo_building").nullable()
+    val building = reference("bu_id", BuildingTable)
 
     var entryTime = datetime("bo_entry_time")
 

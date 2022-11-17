@@ -7,7 +7,7 @@ import rf.vacation35.remote.dsl.BookingTable
 
 class BookingDao(id: EntityID<Long>) : LongEntity(id) {
 
-    var building by BookingTable.building
+    var building by BuildingDao referencedOn BookingTable.building
 
     var entryTime by BookingTable.entryTime
 
