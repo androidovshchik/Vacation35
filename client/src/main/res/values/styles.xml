@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="DialogStyle" parent="Theme.MaterialComponents.Light.Dialog">
-        <item name="android:windowMinWidthMinor">100%</item>
-        <item name="android:windowMinWidthMajor">100%</item>
-        <item name="android:backgroundDimAmount">0.4</item>
-    </style>
-
-    <style name="MyToolbar" parent="Widget.AppCompat.ActionBar">
+    <style name="MyToolbar" parent="Widget.MaterialComponents.ActionBar.Primary">
         <item name="android:background">?attr/colorPrimary</item>
-        <item name="android:theme">@style/ThemeOverlay.AppCompat.ActionBar</item>
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
     </style>
 
 </resources>
