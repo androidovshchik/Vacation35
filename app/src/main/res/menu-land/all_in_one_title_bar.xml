@@ -22,13 +22,13 @@
         android:alphabeticShortcut="t"
         android:icon="@drawable/today_icon"
         android:title="@string/goto_today"
-        app:showAsAction="always|withText" />
+        app:showAsAction="withText|ifRoom" />
     <item
         android:id="@+id/action_info"
         android:alphabeticShortcut="i"
         android:icon="@drawable/ic_info_outline"
         android:title="@string/menu_info"
-        app:showAsAction="always|withText" />
+        app:showAsAction="withText|ifRoom" />
     <item
         android:id="@+id/action_goto"
         android:alphabeticShortcut="g"
@@ -42,19 +42,19 @@
     <item
         android:id="@+id/action_search"
         android:alphabeticShortcut="f"
-        android:icon="@drawable/ic_menu_search"
         android:imeOptions="actionSearch"
         android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="collapseActionView" />
-    <item
-        android:id="@+id/action_hide_controls"
-        android:alphabeticShortcut="h"
-        android:title="@string/hide_controls" />
+        app:showAsAction="never|collapseActionView" />
     <item
         android:id="@+id/action_import"
         android:alphabeticShortcut="i"
         android:title="@string/cal_import_menu_title"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_hide_controls"
+        android:alphabeticShortcut="h"
+        android:title="@string/hide_controls"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_view_settings"
