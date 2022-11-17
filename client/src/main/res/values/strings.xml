@@ -1,3 +1,40 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" tools:ignore="MissingTranslation">Отпуск35</string>
+    <string-array name="month">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+    <!-- @see https://sashamaps.net/docs/resources/20-colors -->
+    <string-array name="colors">
+        <item>#e6194B</item>
+        <item>#3cb44b</item>
+        <item>#ffe119</item>
+        <item>#4363d8</item>
+        <item>#f58231</item>
+        <item>#911eb4</item>
+        <item>#42d4f4</item>
+        <item>#f032e6</item>
+        <item>#bfef45</item>
+        <item>#fabed4</item>
+        <item>#469990</item>
+        <item>#dcbeff</item>
+        <item>#9A6324</item>
+        <item>#fffac8</item>
+        <item>#800000</item>
+        <item>#aaffc3</item>
+        <item>#808000</item>
+        <item>#ffd8b1</item>
+        <item>#000075</item>
+        <item>#a9a9a9</item>
+    </string-array>
 </resources>
