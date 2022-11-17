@@ -1,12 +1,12 @@
 package rf.vacation35
 
-import com.android.calendar.CalendarApplication
+import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
 @HiltAndroidApp
 @Suppress("unused")
-class MainApp : CalendarApplication() {
+class MainApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
