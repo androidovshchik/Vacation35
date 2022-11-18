@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_height="wrap_content"
+    tools:layout_width="match_parent"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+
+    <TextView
+        android:id="@+id/tv_day1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="пн" />
+
+    <TextView
+        android:id="@+id/tv_day2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day3"
+        app:layout_constraintStart_toEndOf="@+id/tv_day1"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="вт" />
+
+    <TextView
+        android:id="@+id/tv_day3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day4"
+        app:layout_constraintStart_toEndOf="@+id/tv_day2"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="ср" />
+
+    <TextView
+        android:id="@+id/tv_day4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day5"
+        app:layout_constraintStart_toEndOf="@+id/tv_day3"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="чт" />
+
+    <TextView
+        android:id="@+id/tv_day5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day6"
+        app:layout_constraintStart_toEndOf="@+id/tv_day4"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="пт" />
+
+    <TextView
+        android:id="@+id/tv_day6"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_day7"
+        app:layout_constraintStart_toEndOf="@+id/tv_day5"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="сб" />
+
+    <TextView
+        android:id="@+id/tv_day7"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="2dp"
+        android:textColor="#b3000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_day6"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="вс" />
+
+</merge>

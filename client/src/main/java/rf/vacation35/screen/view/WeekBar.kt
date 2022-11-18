@@ -26,9 +26,7 @@ class WeekBar : ConstraintLayout, TemporalView<DayOfWeek> {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
-        if (isInEditMode) {
-            notify(DayOfWeek.MONDAY)
-        }
+        notify(DayOfWeek.MONDAY)
     }
 
     @SuppressLint("SetTextI18n")
