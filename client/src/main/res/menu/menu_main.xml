@@ -2,13 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_download"
-        android:icon="@drawable/ic_baseline_download_24"
-        android:title="Выгрузка дня"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_today"
         android:icon="@drawable/ic_baseline_today_24"
         android:title="Сегодняшний день"
         app:showAsAction="always" />
+    <group
+        android:id="@+id/g_filter"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_all"
+            android:checked="true"
+            android:title="Все" />
+        <item
+            android:id="@+id/action_bids"
+            android:title="Заявки" />
+        <item
+            android:id="@+id/action_bookings"
+            android:title="Брони" />
+    </group>
 </menu>
