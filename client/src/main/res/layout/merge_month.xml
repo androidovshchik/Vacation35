@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:layout_height="wrap_content"
     tools:layout_width="match_parent"
-    tools:paddingBottom="11dp"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <androidx.constraintlayout.widget.Guideline
@@ -51,93 +50,95 @@
 
     <TextView
         android:id="@+id/tv_month"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
+        android:background="@drawable/rect"
+        android:gravity="center"
+        android:padding="10dp"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Январь" />
+        tools:text="Январь 2022" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl3"
         app:layout_constraintStart_toEndOf="@+id/gl2"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl4"
         app:layout_constraintStart_toEndOf="@+id/gl3"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl5"
         app:layout_constraintStart_toEndOf="@+id/gl4"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv6"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/gl6"
         app:layout_constraintStart_toEndOf="@+id/gl5"
-        app:layout_constraintTop_toBottomOf="@+id/tv_month" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height" />
 
     <rf.vacation35.screen.view.DayView
         android:id="@+id/dv7"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:minHeight="@dimen/day_min_height"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl6"
         app:layout_constraintTop_toBottomOf="@+id/tv_month"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -156,6 +157,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -167,6 +169,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -178,6 +181,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl3"
         app:layout_constraintStart_toEndOf="@+id/gl2"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -189,6 +193,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl4"
         app:layout_constraintStart_toEndOf="@+id/gl3"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -200,6 +205,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl5"
         app:layout_constraintStart_toEndOf="@+id/gl4"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -211,6 +217,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl6"
         app:layout_constraintStart_toEndOf="@+id/gl5"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -222,6 +229,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl6"
         app:layout_constraintTop_toBottomOf="@+id/week1"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -240,6 +248,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -251,6 +260,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -262,6 +272,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl3"
         app:layout_constraintStart_toEndOf="@+id/gl2"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -273,6 +284,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl4"
         app:layout_constraintStart_toEndOf="@+id/gl3"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -284,6 +296,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl5"
         app:layout_constraintStart_toEndOf="@+id/gl4"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -295,6 +308,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl6"
         app:layout_constraintStart_toEndOf="@+id/gl5"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -306,6 +320,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl6"
         app:layout_constraintTop_toBottomOf="@+id/week2"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -324,6 +339,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -335,6 +351,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -346,6 +363,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl3"
         app:layout_constraintStart_toEndOf="@+id/gl2"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -357,6 +375,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl4"
         app:layout_constraintStart_toEndOf="@+id/gl3"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -368,6 +387,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl5"
         app:layout_constraintStart_toEndOf="@+id/gl4"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -379,6 +399,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl6"
         app:layout_constraintStart_toEndOf="@+id/gl5"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -390,6 +411,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl6"
         app:layout_constraintTop_toBottomOf="@+id/week3"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -408,6 +430,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -419,6 +442,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -430,6 +454,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl3"
         app:layout_constraintStart_toEndOf="@+id/gl2"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -441,6 +466,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl4"
         app:layout_constraintStart_toEndOf="@+id/gl3"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -452,6 +478,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl5"
         app:layout_constraintStart_toEndOf="@+id/gl4"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -463,6 +490,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl6"
         app:layout_constraintStart_toEndOf="@+id/gl5"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -474,6 +502,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl6"
         app:layout_constraintTop_toBottomOf="@+id/week4"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -492,6 +521,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/week5"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
     <rf.vacation35.screen.view.DayView
@@ -503,6 +533,7 @@
         app:layout_constraintEnd_toStartOf="@+id/gl2"
         app:layout_constraintStart_toEndOf="@+id/gl1"
         app:layout_constraintTop_toBottomOf="@+id/week5"
+        tools:layout_height="@dimen/day_min_height"
         tools:visibility="visible" />
 
 </merge>
