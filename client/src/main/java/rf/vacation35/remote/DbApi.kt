@@ -2,15 +2,15 @@ package rf.vacation35.remote
 
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.*
 import rf.vacation35.extension.transact
-import rf.vacation35.remote.dao.BookingDao
-import rf.vacation35.remote.dao.BuildingDao
-import rf.vacation35.remote.dao.UserDao
-import rf.vacation35.remote.dsl.BookingTable
-import rf.vacation35.remote.dsl.BuildingTable
-import rf.vacation35.remote.dsl.UserTable
+import rf.vacation35.remote.dao.Booking
+import rf.vacation35.remote.dao.Building
+import rf.vacation35.remote.dao.User
+import rf.vacation35.remote.dsl.Bases
+import rf.vacation35.remote.dsl.Bookings
+import rf.vacation35.remote.dsl.Buildings
+import rf.vacation35.remote.dsl.Users
 import java.time.LocalDateTime
 
 class DbApi private constructor() {
@@ -45,16 +45,23 @@ class DbApi private constructor() {
     }
 
     fun findUser(login: String, password: String) = transact {
-        UserDao.find { UserTable.login eq login and (UserTable.password eq password) }
+        User.find { Users.login eq login and (Users.password eq password) }
             .firstOrNull()
     }
 
     fun listBuildings(baseId: Int) = transact {
-        BuildingDao.find { BuildingTable.base eq baseId }.toList()
+        Buildings.innerJoin(Bases, { base }, { Bases.id })
+            .run {
+                if (baseId > 0) {
+                    select { Buildings.base eq baseId }
+                } else {
+                    selectAll()
+                }
+            }.map { Building.Raw(it) }
     }
 
     fun queryBookings(start: LocalDateTime, end: LocalDateTime) = transact {
-        BookingDao.find { BookingTable.entryTime less end and (BookingTable.exitTime greater start) }
+        Booking.find { Bookings.entryTime less end and (Bookings.exitTime greater start) }
             .sortedBy { it.entryTime }
     }
 
