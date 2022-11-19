@@ -21,6 +21,7 @@ class DayView : View, TemporalView<LocalDate> {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = dp(20)
+        textAlign = Paint.Align.LEFT
         strokeWidth = dp(1)
     }
 
@@ -66,21 +67,21 @@ class DayView : View, TemporalView<LocalDate> {
         val date = mValue
         val month = YearMonth.from(date)
 
+        val hasBids = mBookings.any { it.bid }
         val day = date.dayOfMonth.toString()
         var bounds = paint.getTextBounds(day)
 
         paint.style = Paint.Style.FILL
-        canvas.drawColor(if (date.dayOfMonth % 2 == 0) Color.WHITE else Color.GRAY)
+        canvas.drawColor(if (hasBids) 0xff9E9E9E.toInt() else Color.WHITE)
 
         paint.style = Paint.Style.FILL
-        paint.color = if (date.dayOfMonth % 2 == 0) Color.BLACK else Color.WHITE
-        paint.textAlign = Paint.Align.LEFT
+        paint.color = if (hasBids) Color.WHITE else Color.BLACK
         canvas.drawText(day, width - dayMargin - bounds.width(), dayMargin + bounds.height(), paint)
 
         paint.style = Paint.Style.FILL
         var y = paint.textSize + 2 * dayMargin
         mBookings.forEachIndexed { i, booking ->
-            paint.color = Color.parseColor(booking.building.color)
+            paint.color = Color.parseColor(booking.building?.color ?: "#000000")
             canvas.drawRect(0f, y, width, y + stripHeight, paint)
             y += stripHeight
         }
