@@ -9,7 +9,7 @@ import rf.vacation35.R
 import rf.vacation35.databinding.MergeMonthBinding
 import rf.vacation35.extension.includes
 import rf.vacation35.extension.plus
-import rf.vacation35.remote.dao.BookingDao
+import rf.vacation35.remote.dao.Booking
 import splitties.systemservices.layoutInflater
 import java.time.DayOfWeek
 import java.time.YearMonth
@@ -18,7 +18,7 @@ class MonthLayout : ConstraintLayout, TemporalView<YearMonth> {
 
     override lateinit var mValue: YearMonth
 
-    override val mBookings = mutableListOf<BookingDao>()
+    override val mBookings = mutableListOf<Booking>()
 
     private val binding = MergeMonthBinding.inflate(context.layoutInflater, this)
 

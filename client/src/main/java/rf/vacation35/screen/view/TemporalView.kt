@@ -2,13 +2,13 @@ package rf.vacation35.screen.view
 
 import android.view.View
 import androidx.annotation.CallSuper
-import rf.vacation35.remote.dao.BookingDao
+import rf.vacation35.remote.dao.Booking
 
 interface TemporalView<T> {
 
     var mValue: T
 
-    val mBookings: MutableList<BookingDao>
+    val mBookings: MutableList<Booking>
 
     @CallSuper
     fun notify(value: T?) {
@@ -19,13 +19,13 @@ interface TemporalView<T> {
     }
 
     @CallSuper
-    fun notify(value: T?, bookings: List<BookingDao>) {
+    fun notify(value: T?, bookings: List<Booking>) {
         update(bookings)
         notify(value)
     }
 
     @CallSuper
-    fun update(bookings: List<BookingDao>, notify: Boolean = false) {
+    fun update(bookings: List<Booking>, notify: Boolean = false) {
         (0 until getChildCount()).forEach {
             val child = getChildAt(it)
             if (child is TemporalView<*>) {

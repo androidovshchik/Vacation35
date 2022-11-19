@@ -1,3 +1,4 @@
+
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
@@ -19,7 +20,7 @@ import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemAccountBinding
 import rf.vacation35.extension.*
 import rf.vacation35.remote.DbApi
-import rf.vacation35.remote.dao.UserDao
+import rf.vacation35.remote.dao.User
 import splitties.fragments.start
 import splitties.snackbar.snack
 import javax.inject.Inject
@@ -46,7 +47,7 @@ class AccountListFragment : Fragment() {
     private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
-    private val adapter = abstractAdapter<ItemAccountBinding, UserDao> {
+    private val adapter = abstractAdapter<ItemAccountBinding, User> {
         onCreateViewHolder { parent ->
             with(ItemAccountBinding.inflate(layoutInflater, parent, false)) {
                 AbstractAdapter.ViewHolder(this).apply {
@@ -92,7 +93,7 @@ class AccountListFragment : Fragment() {
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val items = withContext(Dispatchers.IO) {
-                    api.list(UserDao)
+                    api.list(User)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(items)
@@ -128,7 +129,9 @@ class AccountFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountBinding
 
-    private var user: UserDao? = null
+    private var user: User? = null
+
+    private var findJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
@@ -157,6 +160,7 @@ class AccountFragment : Fragment() {
                 }
             }
         }
+        binding.btnSave.isEnabled = id <= 0
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
@@ -169,7 +173,7 @@ class AccountFragment : Fragment() {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             if (user == null) {
-                                user = api.create(UserDao) {
+                                user = api.create(User) {
                                     it.name = name
                                     it.login = login
                                     it.password = password
@@ -198,11 +202,17 @@ class AccountFragment : Fragment() {
                 getView()?.snack(e)
             }
         }
-        if (id > 0) {
-            viewLifecycleOwner.lifecycleScope.launch {
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        if (id > 0 || user != null) {
+            findJob?.cancel()
+            findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     user = withContext(Dispatchers.IO) {
-                        api.find(UserDao, id)
+                        api.find(User, id)
                     }
                     user?.let {
                         binding.etName.setText(it.name)
@@ -215,14 +225,12 @@ class AccountFragment : Fragment() {
                         binding.btnSave.isEnabled = true
                     }
                     if (user == null) {
-                        getView()?.snack("Пользователь не найден")
+                        view?.snack("Пользователь не найден")
                     }
                 }, {
-                    getView()?.snack(it)
+                    view?.snack(it)
                 })
             }
-        } else {
-            binding.btnSave.isEnabled = true
         }
     }
 

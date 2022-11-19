@@ -9,7 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import rf.vacation35.extension.*
-import rf.vacation35.remote.dao.BookingDao
+import rf.vacation35.remote.dao.Booking
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -17,7 +17,7 @@ class DayView : View, TemporalView<LocalDate> {
 
     override lateinit var mValue: LocalDate
 
-    override val mBookings = mutableListOf<BookingDao>()
+    override val mBookings = mutableListOf<Booking>()
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = dp(20)
@@ -42,7 +42,7 @@ class DayView : View, TemporalView<LocalDate> {
         invalidate()
     }
 
-    override fun update(bookings: List<BookingDao>, notify: Boolean) {
+    override fun update(bookings: List<Booking>, notify: Boolean) {
 
         super.update(bookings, notify)
         if (notify) {
