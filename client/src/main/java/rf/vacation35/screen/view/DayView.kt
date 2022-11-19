@@ -2,16 +2,16 @@ package rf.vacation35.screen.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
-import rf.vacation35.extension.dp
-import rf.vacation35.extension.getIdRes
-import rf.vacation35.extension.sp
+import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.BookingDao
 import java.time.LocalDate
+import java.time.YearMonth
 
 class DayView : View, TemporalView<LocalDate> {
 
@@ -20,9 +20,7 @@ class DayView : View, TemporalView<LocalDate> {
     override val mBookings = mutableListOf<BookingDao>()
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.LEFT
-        textSize = sp(20)
-
+        textSize = dp(20)
         strokeWidth = dp(1)
     }
 
@@ -34,7 +32,7 @@ class DayView : View, TemporalView<LocalDate> {
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            foreground = ContextCompat.getDrawable(context, context.getIdRes(android.R.attr.actionBarItemBackground))
+            foreground = ContextCompat.getDrawable(context, context.getIdRes(android.R.attr.selectableItemBackground))
         }
     }
 
@@ -57,6 +55,49 @@ class DayView : View, TemporalView<LocalDate> {
         }
         if (!::mValue.isInitialized) {
             return
+        }
+
+        val width = width.toFloat()
+        val height = height.toFloat()
+        val dayMargin = dp(5)
+        val stripHeight = dp(10)
+        val strokeWidthHalf = paint.strokeWidth / 2
+
+        val date = mValue
+        val month = YearMonth.from(date)
+
+        val day = date.dayOfMonth.toString()
+        var bounds = paint.getTextBounds(day)
+
+        paint.style = Paint.Style.FILL
+        canvas.drawColor(if (date.dayOfMonth % 2 == 0) Color.WHITE else Color.GRAY)
+
+        paint.style = Paint.Style.FILL
+        paint.color = if (date.dayOfMonth % 2 == 0) Color.BLACK else Color.WHITE
+        paint.textAlign = Paint.Align.LEFT
+        canvas.drawText(day, width - dayMargin - bounds.width(), dayMargin + bounds.height(), paint)
+
+        paint.style = Paint.Style.FILL
+        var y = paint.textSize + 2 * dayMargin
+        mBookings.forEachIndexed { i, booking ->
+            paint.color = Color.parseColor(booking.building.color)
+            canvas.drawRect(0f, y, width, y + stripHeight, paint)
+            y += stripHeight
+        }
+
+        paint.style = Paint.Style.STROKE
+        paint.color = Color.BLACK
+        // left line
+        canvas.drawLine(strokeWidthHalf, strokeWidthHalf, strokeWidthHalf, height - strokeWidthHalf, paint)
+        // top line
+        canvas.drawLine(strokeWidthHalf, strokeWidthHalf, width - strokeWidthHalf, strokeWidthHalf, paint)
+        if (date == month.atEndOfMonth()) {
+            // right line
+            canvas.drawLine(width - strokeWidthHalf, strokeWidthHalf, width - strokeWidthHalf, height - strokeWidthHalf, paint)
+        }
+        // bottom line
+        if (!month.includes(date + 7)) {
+            canvas.drawLine(strokeWidthHalf, height - strokeWidthHalf, width - strokeWidthHalf, height - strokeWidthHalf, paint)
         }
     }
 
