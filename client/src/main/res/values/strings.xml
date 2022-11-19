@@ -1,5 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" tools:ignore="MissingTranslation">Отпуск35</string>
+    <string name="material_dialog_title">Выберите цвет</string>
+    <string name="title_recent_colors">Основные цвета</string>
     <string-array name="month">
         <item>Январь</item>
         <item>Февраль</item>
