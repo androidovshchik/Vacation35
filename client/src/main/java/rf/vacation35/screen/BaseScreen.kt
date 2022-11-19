@@ -19,7 +19,7 @@ import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBaseBinding
 import rf.vacation35.extension.*
 import rf.vacation35.remote.DbApi
-import rf.vacation35.remote.dao.BaseDao
+import rf.vacation35.remote.dao.Base
 import splitties.fragments.start
 import splitties.snackbar.snack
 import javax.inject.Inject
@@ -46,7 +46,7 @@ class BaseListFragment : Fragment() {
     private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
-    private val adapter = abstractAdapter<ItemBaseBinding, BaseDao> {
+    private val adapter = abstractAdapter<ItemBaseBinding, Base> {
         onCreateViewHolder { parent ->
             with(ItemBaseBinding.inflate(layoutInflater, parent, false)) {
                 AbstractAdapter.ViewHolder(this).apply {
@@ -91,7 +91,7 @@ class BaseListFragment : Fragment() {
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val items = withContext(Dispatchers.IO) {
-                    api.list(BaseDao)
+                    api.list(Base)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(items)
@@ -127,7 +127,9 @@ class BaseFragment : Fragment() {
 
     private lateinit var binding: FragmentBaseBinding
 
-    private var base: BaseDao? = null
+    private var base: Base? = null
+
+    private var findJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBaseBinding.inflate(inflater, container, false)
@@ -141,6 +143,11 @@ class BaseFragment : Fragment() {
                 activity?.finish()
             }
             title = if (id == 0) "Новая база отдыха" else "База отдыха"
+        }
+        binding.btnBuildings.setOnClickListener {
+            start<BuildingListActivity> {
+                putExtra("id", base!!.id.value)
+            }
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
@@ -156,6 +163,7 @@ class BaseFragment : Fragment() {
                 }
             }
         }
+        binding.btnSave.isEnabled = id <= 0
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
@@ -163,7 +171,7 @@ class BaseFragment : Fragment() {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
                             if (base == null) {
-                                base = api.create(BaseDao) {
+                                base = api.create(Base) {
                                     it.name = name
                                 }
                             } else {
@@ -183,11 +191,17 @@ class BaseFragment : Fragment() {
                 getView()?.snack(e)
             }
         }
-        if (id > 0) {
-            viewLifecycleOwner.lifecycleScope.launch {
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        if (id > 0 || base != null) {
+            findJob?.cancel()
+            findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     base = withContext(Dispatchers.IO) {
-                        api.find(BaseDao, id)
+                        api.find(Base, id)
                     }
                     base?.let {
                         binding.etName.setText(it.name)
@@ -196,14 +210,12 @@ class BaseFragment : Fragment() {
                         binding.btnSave.isEnabled = true
                     }
                     if (base == null) {
-                        getView()?.snack("База отдыха не найдена")
+                        view?.snack("База отдыха не найдена")
                     }
                 }, {
-                    getView()?.snack(it)
+                    view?.snack(it)
                 })
             }
-        } else {
-            binding.btnSave.isEnabled = true
         }
     }
 
