@@ -4,7 +4,7 @@ import android.os.Parcelable
 import rf.vacation35.databinding.ItemMonthBinding
 import rf.vacation35.extension.minus
 import rf.vacation35.extension.plus
-import rf.vacation35.remote.dao.BookingDao
+import rf.vacation35.remote.dao.Booking
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -14,7 +14,7 @@ inline fun monthAdapter(body: MonthAdapter.() -> Unit): MonthAdapter {
 
 class MonthAdapter : AbstractAdapter<ItemMonthBinding, YearMonth>(mutableListOf()) {
 
-    val mBookings = mutableListOf<BookingDao>()
+    val mBookings = mutableListOf<Booking>()
 
     var mState: Parcelable? = null
 

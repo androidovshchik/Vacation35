@@ -1,36 +1,41 @@
 package rf.vacation35.screen
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.android.calendar.month.MonthByWeekFragment
-import rf.vacation35.databinding.ActivityBookingBinding
-import ws.xsoh.etar.databinding.FullMonthByWeekBinding
+import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
+import rf.vacation35.extension.addFragment
+import rf.vacation35.remote.DbApi
+import javax.inject.Inject
 
-class BookingActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityBookingBinding
+@AndroidEntryPoint
+class BookingListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityBookingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        supportFragmentManager.addFragment(android.R.id.content, BookingListFragment(), false)
     }
 }
 
-class BookingFragment : MonthByWeekFragment(System.currentTimeMillis(), false) {
+@AndroidEntryPoint
+class BookingListFragment : Fragment() {
 
-    private lateinit var binding: FullMonthByWeekBinding
+    @Inject
+    lateinit var api: DbApi
+}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container, savedInstanceState)!!
-        binding = FullMonthByWeekBinding.bind(view)
-        return view
+@AndroidEntryPoint
+class BookingActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        supportFragmentManager.addFragment(android.R.id.content, BookingFragment(), false)
     }
+}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+@AndroidEntryPoint
+class BookingFragment : Fragment() {
 
-    }
+    @Inject
+    lateinit var api: DbApi
 }
