@@ -24,18 +24,18 @@ class Booking(id: EntityID<Long>) : LongEntity(id) {
     fun toRaw(): Raw {
         return Raw(
             id.value,
-            building?.toRaw(),
             entryTime,
             exitTime,
             clientName,
             phone,
             bid,
-        )
+        ).also {
+            it.building = building?.toRaw()
+        }
     }
 
     class Raw(
         var id: Long,
-        var building: Building.Raw?,
         var entryTime: LocalDateTime,
         var exitTime: LocalDateTime,
         var clientName: String,
@@ -43,15 +43,21 @@ class Booking(id: EntityID<Long>) : LongEntity(id) {
         var bid: Boolean,
     ) {
 
+        var building: Building.Raw? = null
+
         constructor(row: ResultRow): this(
             row[Bookings.id].value,
-            try { Building.Raw(row) } catch (e: Throwable) { null },
             row[Bookings.entryTime],
             row[Bookings.exitTime],
             row[Bookings.clientName],
             row[Bookings.phone],
             row[Bookings.bid],
-        )
+        ) {
+            try {
+                building = Building.Raw(row)
+            } catch (ignored: Throwable) {
+            }
+        }
     }
 
     companion object : LongEntityClass<Booking>(Bookings)

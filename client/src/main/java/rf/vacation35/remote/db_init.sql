@@ -30,8 +30,8 @@ CREATE TABLE buildings(
     bu_base MEDIUMINT UNSIGNED NOT NULL,
     bu_name VARCHAR(60) NOT NULL,
     bu_color VARCHAR(20) NOT NULL,
-    bu_entry_time DATETIME,
-    bu_exit_time DATETIME,
+    bu_entry_time TIME,
+    bu_exit_time TIME,
     PRIMARY KEY (bu_id),
     FOREIGN KEY (bu_base) REFERENCES bases(ba_id)
         ON DELETE CASCADE

@@ -37,13 +37,13 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     @Keep
     @Serializable
     class Raw(
-        var id: Int,
-        var name: String,
-        var login: String,
-        var password: String,
-        var accessPrice: Boolean = false,
-        var accessBooking: Boolean = false,
-        var admin: Boolean = false,
+        val id: Int,
+        val name: String,
+        val login: String,
+        val password: String,
+        val accessPrice: Boolean = false,
+        val accessBooking: Boolean = false,
+        val admin: Boolean = false,
     ) {
 
         constructor(row: ResultRow): this(

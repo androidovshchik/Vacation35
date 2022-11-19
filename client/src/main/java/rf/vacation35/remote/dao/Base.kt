@@ -18,8 +18,8 @@ class Base(id: EntityID<Int>) : IntEntity(id) {
     }
 
     class Raw(
-        var id: Int,
-        var name: String,
+        val id: Int,
+        val name: String,
     ) {
 
         constructor(row: ResultRow): this(

@@ -22,31 +22,37 @@ class Building(id: EntityID<Int>) : IntEntity(id) {
     fun toRaw(): Raw {
         return Raw(
             id.value,
-            base.toRaw(),
             name,
             color,
             entryTime,
             exitTime,
-        )
+        ).also {
+            it.base = base.toRaw()
+        }
     }
 
     class Raw(
-        var id: Int,
-        var base: Base.Raw,
-        var name: String,
-        var color: String,
-        var entryTime: LocalTime?,
-        var exitTime: LocalTime?,
+        val id: Int,
+        val name: String,
+        val color: String,
+        val entryTime: LocalTime?,
+        val exitTime: LocalTime?,
     ) {
+
+        lateinit var base: Base.Raw
 
         constructor(row: ResultRow): this(
             row[Buildings.id].value,
-            Base.Raw(row),
             row[Buildings.name],
             row[Buildings.color],
             row[Buildings.entryTime],
             row[Buildings.exitTime],
-        )
+        ) {
+            try {
+                base = Base.Raw(row)
+            } catch (ignored: Throwable) {
+            }
+        }
     }
 
     companion object : IntEntityClass<Building>(Buildings)
