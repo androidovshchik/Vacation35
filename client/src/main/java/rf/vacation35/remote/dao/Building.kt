@@ -3,6 +3,7 @@ package rf.vacation35.remote.dao
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Buildings
 import java.time.LocalTime
 
@@ -18,10 +19,10 @@ class Building(id: EntityID<Int>) : IntEntity(id) {
 
     var exitTime by Buildings.exitTime
 
-    fun toRaw(base: Base.Raw): Raw {
+    fun toRaw(): Raw {
         return Raw(
             id.value,
-            base,
+            base.toRaw(),
             name,
             color,
             entryTime,
@@ -36,7 +37,17 @@ class Building(id: EntityID<Int>) : IntEntity(id) {
         var color: String,
         var entryTime: LocalTime?,
         var exitTime: LocalTime?,
-    )
+    ) {
+
+        constructor(row: ResultRow): this(
+            row[Buildings.id].value,
+            Base.Raw(row),
+            row[Buildings.name],
+            row[Buildings.color],
+            row[Buildings.entryTime],
+            row[Buildings.exitTime],
+        )
+    }
 
     companion object : IntEntityClass<Building>(Buildings)
 }
