@@ -49,10 +49,10 @@ class DbApi private constructor() {
             .firstOrNull()
     }
 
-    fun listBuildings(baseId: Int) = transact {
+    fun listBuildings(baseId: Int? = null) = transact {
         Buildings.innerJoin(Bases, { base }, { Bases.id })
             .run {
-                if (baseId > 0) {
+                if (baseId != null && baseId > 0) {
                     select { Buildings.base eq baseId }
                 } else {
                     selectAll()
