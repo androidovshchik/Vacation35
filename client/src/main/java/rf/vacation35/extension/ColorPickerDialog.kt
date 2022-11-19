@@ -18,7 +18,7 @@ import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
 import rf.vacation35.R
 
-fun ColorPickerDialog.Builder.open() {
+fun ColorPickerDialog.Builder.customShow() {
     with(build()) {
         // Create Dialog Instance
         val dialog = AlertDialog.Builder(context)
