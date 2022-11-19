@@ -2,7 +2,7 @@ package rf.vacation35.remote.dsl
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 
-object UserTable : IntIdTable("users", "u_id") {
+object Users : IntIdTable("users", "u_id") {
 
     var name = varchar("u_name", 60)
 

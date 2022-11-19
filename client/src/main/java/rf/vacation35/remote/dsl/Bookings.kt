@@ -3,9 +3,9 @@ package rf.vacation35.remote.dsl
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.javatime.datetime
 
-object BookingTable : LongIdTable("bookings", "bo_id") {
+object Bookings : LongIdTable("bookings", "bo_id") {
 
-    val building = reference("bu_id", BuildingTable).nullable()
+    val building = reference("bo_building", Buildings).nullable()
 
     var entryTime = datetime("bo_entry_time")
 
