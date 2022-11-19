@@ -64,7 +64,7 @@ class LoginFragment : Fragment() {
                         api.findUser(login, password)
                     }
                     if (user != null) {
-                        preferences.rawUser = user.raw
+                        preferences.user = user.toRaw()
                         start<MainActivity> {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }
