@@ -80,6 +80,7 @@ class AccountListFragment : Fragment() {
                 activity?.finish()
             }
             title = "Пользователи"
+            inflateNavMenu()
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
@@ -145,6 +146,7 @@ class AccountFragment : Fragment() {
                 activity?.finish()
             }
             title = if (id == 0) "Новый пользователь" else "Пользователь"
+            inflateNavMenu()
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {

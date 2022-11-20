@@ -78,6 +78,7 @@ class BaseListFragment : Fragment() {
                 activity?.finish()
             }
             title = "Базы отдыха"
+            inflateNavMenu()
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
@@ -143,6 +144,7 @@ class BaseFragment : Fragment() {
                 activity?.finish()
             }
             title = if (id == 0) "Новая база отдыха" else "База отдыха"
+            inflateNavMenu()
         }
         binding.btnBuildings.setOnClickListener {
             start<BuildingListActivity> {
