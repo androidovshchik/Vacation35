@@ -8,10 +8,12 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import rf.vacation35.R
 import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.Booking
 import java.time.LocalDate
-import java.time.YearMonth
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 class DayView : View, TemporalView<LocalDate> {
 
@@ -24,6 +26,12 @@ class DayView : View, TemporalView<LocalDate> {
         textAlign = Paint.Align.LEFT
         strokeWidth = dp(1)
     }
+
+    private val minHeight = resources.getDimension(R.dimen.day_min_height)
+
+    private val dayMargin get() = dp(5)
+
+    private val stripHeight get() = dp(10)
 
     @JvmOverloads
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr)
@@ -46,8 +54,14 @@ class DayView : View, TemporalView<LocalDate> {
 
         super.update(bookings, notify)
         if (notify) {
-            invalidate()
+            requestLayout()
         }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val reservedSize = ((minHeight - (paint.textSize + 2 * dayMargin)) / stripHeight).roundToInt()
+        val totalHeight = (minHeight + max(0, mBookings.size - reservedSize) * stripHeight).roundToInt()
+        setMeasuredDimension(getDefaultSize(suggestedMinimumWidth, widthMeasureSpec), totalHeight)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -60,19 +74,21 @@ class DayView : View, TemporalView<LocalDate> {
 
         val width = width.toFloat()
         val height = height.toFloat()
-        val dayMargin = dp(5)
-        val stripHeight = dp(10)
         val strokeWidthHalf = paint.strokeWidth / 2
 
         val date = mValue
-        val month = YearMonth.from(date)
+        val day = date.dayOfMonth.toString()
 
         val hasBids = mBookings.any { it.bid }
-        val day = date.dayOfMonth.toString()
-        var bounds = paint.getTextBounds(day)
 
         paint.style = Paint.Style.FILL
-        canvas.drawColor(if (hasBids) 0xff9E9E9E.toInt() else Color.WHITE)
+        canvas.drawColor(when {
+            hasBids -> 0xffbdbdbd.toInt()
+            date.dayOfWeek.value % 2 != 0 -> 0xffeeeeee.toInt()
+            else -> 0xfffafafa.toInt()
+        })
+
+        var bounds = paint.getTextBounds(day)
 
         paint.style = Paint.Style.FILL
         paint.color = if (hasBids) Color.WHITE else Color.BLACK
@@ -80,7 +96,7 @@ class DayView : View, TemporalView<LocalDate> {
 
         paint.style = Paint.Style.FILL
         var y = paint.textSize + 2 * dayMargin
-        mBookings.forEachIndexed { i, booking ->
+        mBookings.forEachIndexed { _, booking ->
             paint.color = Color.parseColor(booking.building?.color ?: "#000000")
             canvas.drawRect(0f, y, width, y + stripHeight, paint)
             y += stripHeight
@@ -88,18 +104,7 @@ class DayView : View, TemporalView<LocalDate> {
 
         paint.style = Paint.Style.STROKE
         paint.color = Color.BLACK
-        // left line
-        canvas.drawLine(strokeWidthHalf, strokeWidthHalf, strokeWidthHalf, height - strokeWidthHalf, paint)
-        // top line
         canvas.drawLine(strokeWidthHalf, strokeWidthHalf, width - strokeWidthHalf, strokeWidthHalf, paint)
-        if (date == month.atEndOfMonth()) {
-            // right line
-            canvas.drawLine(width - strokeWidthHalf, strokeWidthHalf, width - strokeWidthHalf, height - strokeWidthHalf, paint)
-        }
-        // bottom line
-        if (!month.includes(date + 7)) {
-            canvas.drawLine(strokeWidthHalf, height - strokeWidthHalf, width - strokeWidthHalf, height - strokeWidthHalf, paint)
-        }
     }
 
     override fun getChildCount() = 0
