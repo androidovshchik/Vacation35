@@ -7,10 +7,6 @@ import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Bookings
 import java.time.LocalDateTime
 
-infix fun ClosedRange<LocalDateTime>.cross(other: Booking.Raw): Boolean {
-    return other.endInclusive >= start && other.start <= endInclusive
-}
-
 class Booking(id: EntityID<Long>) : LongEntity(id) {
 
     var building by Building optionalReferencedOn Bookings.building

@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import rf.vacation35.R
 import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.Booking
-import rf.vacation35.remote.dao.cross
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
