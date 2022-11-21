@@ -24,6 +24,17 @@ fun FragmentManager.hideFragment(id: Int) {
     }
 }
 
+inline fun FragmentManager.with(id: Int, fragment: Fragment, body: () -> Unit, catch: (Throwable) -> Unit) {
+    addFragment(id, fragment, false)
+    try {
+        body()
+    } catch (e: Throwable) {
+        catch(e)
+    } finally {
+        removeFragment(fragment)
+    }
+}
+
 fun FragmentManager.addFragment(id: Int, fragment: Fragment, backStack: Boolean = true) {
     beginTransaction()
         .add(id, fragment, backStackEntryCount.toString())
@@ -46,6 +57,15 @@ fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Bool
         }
         .commitAllowingStateLoss()
     executePendingTransactions()
+}
+
+fun FragmentManager.removeFragment(fragment: Fragment) {
+    if (fragment.isAdded) {
+        beginTransaction()
+            .remove(fragment)
+            .commitAllowingStateLoss()
+        executePendingTransactions()
+    }
 }
 
 fun FragmentManager.popFragment(name: String?, immediate: Boolean): Boolean {

@@ -50,6 +50,15 @@ fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Bool
     executePendingTransactions()
 }
 
+fun FragmentManager.removeFragment(fragment: Fragment) {
+    if (fragment.isAdded) {
+        beginTransaction()
+            .remove(fragment)
+            .commitAllowingStateLoss()
+        executePendingTransactions()
+    }
+}
+
 fun FragmentManager.popFragment(name: String?, immediate: Boolean): Boolean {
     return if (name != null) {
         if (immediate) {
