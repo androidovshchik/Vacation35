@@ -14,7 +14,7 @@ inline fun monthAdapter(body: MonthAdapter.() -> Unit): MonthAdapter {
 
 class MonthAdapter : AbstractAdapter<ItemMonthBinding, YearMonth>(mutableListOf()) {
 
-    val mBookings = mutableListOf<Booking>()
+    val mBookings = mutableListOf<Booking.Raw>()
 
     var mState: Parcelable? = null
 
@@ -43,7 +43,8 @@ class MonthAdapter : AbstractAdapter<ItemMonthBinding, YearMonth>(mutableListOf(
 
     override fun onBindViewHolder(holder: ViewHolder<ItemMonthBinding>, position: Int) {
         val item = items[position]
-        holder.binding.ml.notify(item, mBookings)
+        holder.binding.ml.update(item)
+        holder.binding.ml.update(mBookings, true)
     }
 
     /** @see https://en.wikipedia.org/wiki/Pairing_function */

@@ -11,7 +11,10 @@ import androidx.core.content.ContextCompat
 import rf.vacation35.R
 import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.Booking
+import rf.vacation35.remote.dao.cross
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -19,7 +22,7 @@ class DayView : View, TemporalView<LocalDate> {
 
     override lateinit var mValue: LocalDate
 
-    override val mBookings = mutableListOf<Booking>()
+    override val mBookings = mutableListOf<Booking.Raw>()
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textSize = dp(20)
@@ -45,16 +48,23 @@ class DayView : View, TemporalView<LocalDate> {
         }
     }
 
-    override fun notify(value: LocalDate?) {
-        super.notify(value)
-        invalidate()
+    override fun update(value: LocalDate?, notify: Boolean) {
+        super.update(value, notify)
+        if (notify) {
+            invalidate()
+        }
     }
 
-    override fun update(bookings: List<Booking>, notify: Boolean) {
-
+    override fun update(bookings: List<Booking.Raw>, notify: Boolean) {
         super.update(bookings, notify)
+        mBookings.clear()
+        if (::mValue.isInitialized) {
+            val start = LocalDateTime.of(mValue, LocalTime.MIN)
+            val end = LocalDateTime.of(mValue, LocalTime.MAX)
+            mBookings.addAll(bookings.filter { start..end cross it })
+        }
         if (notify) {
-            requestLayout()
+            invalidate()
         }
     }
 
