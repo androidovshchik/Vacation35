@@ -2,7 +2,6 @@ package rf.vacation35.screen
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentCalendarBinding
 import rf.vacation35.databinding.ItemMonthBinding
@@ -24,6 +25,8 @@ import rf.vacation35.remote.dao.Booking
 import splitties.dimensions.dip
 import splitties.fragments.start
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -44,9 +47,11 @@ class CalendarFragment : Fragment() {
 
     private val progress = ProgressDialog()
 
+    private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
+
     private lateinit var binding: FragmentCalendarBinding
 
-    private var listJob: Job? = null
+    private var queryJob: Job? = null
 
     private var scrolledMonth = YearMonth.now()
 
@@ -65,7 +70,6 @@ class CalendarFragment : Fragment() {
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                adapter.mState = manager.onSaveInstanceState()
                 try {
                     val position = manager.findFirstVisibleItemPosition()
                     val month = adapter.items[position] + 1
@@ -102,43 +106,51 @@ class CalendarFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val context = requireContext()
-        val state = adapter.mState
         binding.rvCalendar.adapter = adapter
-        if (state != null) {
-            manager.onRestoreInstanceState(state)
-        } else {
-            manager.scrollToPositionWithOffset(2, context.dip(24))
-        }
+        scrollToToday()
         binding.rvCalendar.addOnScrollListener(scrollListener)
         binding.fabAdd.setOnClickListener {
             start<BookingActivity>()
         }
-        val filter = childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment
         viewLifecycleOwner.lifecycleScope.launch {
-            filter.loadBuildings()
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                filter.loadBuildings()
+            }, {
+                getView()?.snack(it)
+            })
         }
         viewLifecycleOwner.lifecycleScope.launch {
             filter.buildings.collect {
-                listJob?.cancel()
+                loadBookings()
             }
         }
     }
 
-    private fun loadBookings() {
-        binding.pbLoading.isVisible = true
-        /*try {
-            val items = withContext(Dispatchers.IO) {
-                api.queryBookings()
-            }
-            adapter.items.clear()
-            adapter.items.addAll(items)
-            adapter.notifyDataSetChanged()
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        } finally {
+    fun scrollToToday() {
+        binding.rvCalendar.stopScroll()
+        val context = context ?: return
+        val position = adapter.items.indexOf(YearMonth.now())
+        manager.scrollToPositionWithOffset(position, context.dip(24))
+    }
 
-        }*/
+    private fun loadBookings() {
+        queryJob?.cancel()
+        binding.pbLoading.isVisible = true
+        queryJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val buildingIds = filter.buildings.value.map { it.id }
+                val start = LocalDateTime.of((scrolledMonth - 3).atDay(1), LocalTime.MIN)
+                val end = LocalDateTime.of((scrolledMonth + 2).atEndOfMonth(), LocalTime.MAX)
+                val bookings = withContext(Dispatchers.IO) {
+                    api.queryBookings(buildingIds, start, end)
+                }
+                adapter.mBookings.clear()
+                adapter.mBookings.addAll(bookings)
+                adapter.notifyDataSetChanged()
+            } finally {
+                binding.pbLoading.isVisible = false
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -150,8 +162,6 @@ class CalendarFragment : Fragment() {
 class MonthAdapter : AbstractAdapter<ItemMonthBinding, YearMonth>(mutableListOf()) {
 
     val mBookings = mutableListOf<Booking.Raw>()
-
-    var mState: Parcelable? = null
 
     init {
         val month = YearMonth.now()

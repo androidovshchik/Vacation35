@@ -8,9 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +26,11 @@ class FilterFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    val buildings = MutableSharedFlow<List<Building.Raw>>(0, 1, BufferOverflow.DROP_OLDEST)
+    val buildings = MutableStateFlow(listOf<Building.Raw>())
+
+    private val _bases = MutableStateFlow(listOf<Base>())
+
+    private var _buildings = listOf<Building.Raw>()
 
     private lateinit var binding: FragmentFilterBinding
 
@@ -42,11 +44,11 @@ class FilterFragment : Fragment() {
             buildings.tryEmit(emptyList())
             when (position) {
                 0 -> binding.esBuilding.updateList(emptyList())
-                1 -> binding.esBuilding.updateList(mBuildings.value.map { it.name })
+                1 -> binding.esBuilding.updateList(_buildings.map { it.name })
                 else -> {
-                    val base = mBases.value.getOrNull(max(0, position - 2))
+                    val base = _bases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
-                        val buildings = mBuildings.value.filter { it.base.id == base.id.value }
+                        val buildings = _buildings.filter { it.base.id == base.id.value }
                         binding.esBuilding.updateList(buildings.map { it.name })
                     }
                 }
@@ -56,9 +58,9 @@ class FilterFragment : Fragment() {
         binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.tryEmit(emptyList())
-                1 -> buildings.tryEmit(mBuildings.value)
+                1 -> buildings.tryEmit(_buildings)
                 else -> {
-                    val building = mBuildings.value.getOrNull(max(0, position - 2))
+                    val building = _buildings.getOrNull(max(0, position - 2))
                     if (building != null) {
                         buildings.tryEmit(listOf(building))
                     }
@@ -66,24 +68,24 @@ class FilterFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            mBases.collect { items ->
+            _bases.collect { items ->
                 binding.esBase.updateList(items.map { it.name })
             }
         }
     }
 
     suspend fun loadBuildings() {
-        mBuildings.value = emptyList()
-        mBases.value = emptyList()
+        _buildings = emptyList()
+        _bases.value = emptyList()
         withContext(Dispatchers.IO) {
             while (true) {
                 try {
-                    mBuildings.value = withContext(Dispatchers.IO) {
+                    _buildings = withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .listBuildings()
                             .sortedBy { it.name }
                     }
-                    mBases.value = withContext(Dispatchers.IO) {
+                    _bases.value = withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .list(Base)
                             .sortedBy { it.name }
@@ -91,17 +93,9 @@ class FilterFragment : Fragment() {
                     break
                 } catch (e: Throwable) {
                     Timber.e(e)
-                } finally {
                     delay(10_000L)
                 }
             }
         }
-    }
-
-    companion object {
-
-        private val mBases = MutableStateFlow(listOf<Base>())
-
-        private val mBuildings = MutableStateFlow(listOf<Building.Raw>())
     }
 }
