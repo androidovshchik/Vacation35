@@ -52,10 +52,14 @@ dependencies {
     implementation "hu.autsoft:krate:$krate_version"
     implementation "hu.autsoft:krate-kotlinx:$krate_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
+    implementation 'com.mohamedabulgasem:datetimepicker:1.1.1'
+    implementation 'ca.antonious:materialdaypicker:0.7.4'
+    implementation 'com.github.Dhaval2404:ColorPicker:2.3'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation "com.louiscad.splitties:splitties-fun-pack-android-base:$splitties_version"
     implementation "com.louiscad.splitties:splitties-alertdialog:$splitties_version"
     implementation "com.louiscad.splitties:splitties-snackbar:$splitties_version"
+    implementation "com.louiscad.splitties:splitties-dimensions:$splitties_version"
     implementation 'com.jakewharton.timber:timber:5.0.1'
-    implementation project(':app')
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

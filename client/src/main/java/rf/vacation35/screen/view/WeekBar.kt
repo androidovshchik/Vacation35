@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
-import rf.vacation35.databinding.MergeWeekBarBinding
+import rf.vacation35.databinding.MergeWeekBinding
 import rf.vacation35.extension.shortName
 import rf.vacation35.remote.dao.Booking
 import splitties.systemservices.layoutInflater
@@ -17,7 +17,7 @@ class WeekBar : ConstraintLayout, TemporalView<DayOfWeek> {
     override val mBookings: MutableList<Booking.Raw>
         get() = throw NotImplementedError()
 
-    private val binding = MergeWeekBarBinding.inflate(context.layoutInflater, this)
+    private val binding = MergeWeekBinding.inflate(context.layoutInflater, this)
 
     @JvmOverloads
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr)
