@@ -2,10 +2,12 @@ package rf.vacation35.screen
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,8 +20,11 @@ import rf.vacation35.databinding.FragmentCalendarBinding
 import rf.vacation35.databinding.ItemMonthBinding
 import rf.vacation35.extension.*
 import rf.vacation35.remote.DbApi
+import rf.vacation35.remote.dao.Booking
 import splitties.dimensions.dip
 import splitties.fragments.start
+import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,6 +48,8 @@ class CalendarFragment : Fragment() {
 
     private var listJob: Job? = null
 
+    private var scrolledMonth = YearMonth.now()
+
     private val manager: LinearLayoutManager
         get() = binding.rvCalendar.layoutManager as LinearLayoutManager
 
@@ -59,12 +66,21 @@ class CalendarFragment : Fragment() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                 adapter.mState = manager.onSaveInstanceState()
+                try {
+                    val position = manager.findFirstVisibleItemPosition()
+                    val month = adapter.items[position] + 1
+                    if (month !in scrolledMonth - 3..scrolledMonth + 2) {
+                        scrolledMonth = month
+                        loadBookings()
+                    }
+                } catch (ignored: Throwable) {
+                }
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
-    private val adapter = monthAdapter {
+    private val adapter = MonthAdapter().apply {
         onCreateViewHolder { parent ->
             with(ItemMonthBinding.inflate(layoutInflater, parent, false)) {
                 AbstractAdapter.ViewHolder(this).apply {
@@ -104,13 +120,73 @@ class CalendarFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             filter.buildings.collect {
-
+                listJob?.cancel()
             }
         }
+    }
+
+    private fun loadBookings() {
+        binding.pbLoading.isVisible = true
+        /*try {
+            val items = withContext(Dispatchers.IO) {
+                api.queryBookings()
+            }
+            adapter.items.clear()
+            adapter.items.addAll(items)
+            adapter.notifyDataSetChanged()
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        } finally {
+
+        }*/
     }
 
     override fun onDestroyView() {
         childFragmentManager.removeFragment(progress)
         super.onDestroyView()
+    }
+}
+
+class MonthAdapter : AbstractAdapter<ItemMonthBinding, YearMonth>(mutableListOf()) {
+
+    val mBookings = mutableListOf<Booking.Raw>()
+
+    var mState: Parcelable? = null
+
+    init {
+        val month = YearMonth.now()
+        items.add(month - 2)
+        items.add(month - 1)
+        items.add(month)
+        items.add(month + 1)
+        items.add(month + 2)
+
+        setHasStableIds(true)
+    }
+
+    fun insertFirst() {
+        val first = items.firstOrNull()?.takeIf { it.year > LocalDate.MIN.year } ?: return
+        items.add(0, first - 1)
+        notifyItemInserted(0)
+    }
+
+    fun insertLast() {
+        val last = items.lastOrNull() ?: return
+        items.add(last + 1)
+        notifyItemInserted(items.lastIndex)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder<ItemMonthBinding>, position: Int) {
+        val item = items[position]
+        holder.binding.ml.update(item)
+        holder.binding.ml.update(mBookings, true)
+    }
+
+    /** @see https://en.wikipedia.org/wiki/Pairing_function */
+    override fun getItemId(position: Int): Long {
+        val item = items[position]
+        val a = item.year
+        val b = item.monthValue
+        return ((a + b) * (a + b + 1) / 2 + b).toLong()
     }
 }
