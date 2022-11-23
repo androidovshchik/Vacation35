@@ -54,6 +54,8 @@
         android:id="@+id/fl_fullscreen"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:elevation="100dp"
+        android:outlineProvider="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

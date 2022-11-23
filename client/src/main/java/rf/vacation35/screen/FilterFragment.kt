@@ -12,6 +12,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_BASE_TITLE
+import rf.vacation35.EXTRA_BUILDING_TITLE
 import rf.vacation35.databinding.FragmentFilterBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
@@ -30,7 +32,7 @@ class FilterFragment : Fragment() {
 
     private val _bases = MutableStateFlow(listOf<Base>())
 
-    private var _buildings = listOf<Building.Raw>()
+    private val _buildings = mutableListOf<Building.Raw>()
 
     private lateinit var binding: FragmentFilterBinding
 
@@ -40,6 +42,16 @@ class FilterFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        activity?.intent?.getStringExtra(EXTRA_BASE_TITLE)?.let {
+            binding.esBase.setText(it)
+            binding.esBase.isEnabled = false
+            binding.esBuilding.isEnabled = false
+        }
+        activity?.intent?.getStringExtra(EXTRA_BUILDING_TITLE)?.let {
+            binding.esBuilding.setText(it)
+            binding.esBase.isEnabled = false
+            binding.esBuilding.isEnabled = false
+        }
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
             buildings.tryEmit(emptyList())
             when (position) {
@@ -75,16 +87,16 @@ class FilterFragment : Fragment() {
     }
 
     suspend fun loadBuildings() {
-        _buildings = emptyList()
+        _buildings.clear()
         _bases.value = emptyList()
         withContext(Dispatchers.IO) {
             while (true) {
                 try {
-                    _buildings = withContext(Dispatchers.IO) {
+                    _buildings.addAll(withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .listBuildings()
                             .sortedBy { it.name }
-                    }
+                    })
                     _bases.value = withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .list(Base)

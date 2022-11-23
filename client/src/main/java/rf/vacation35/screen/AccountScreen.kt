@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentAccountBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -55,7 +56,7 @@ class AccountListFragment : Fragment() {
                         try {
                             val item = items[bindingAdapterPosition]
                             start<AccountActivity> {
-                                putExtra("id", item.id.value)
+                                putExtra(EXTRA_ID, item.id.value)
                             }
                         } catch (ignored: Throwable) {
                         }
@@ -140,7 +141,7 @@ class AccountFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -208,7 +209,7 @@ class AccountFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         if (id > 0 || user != null) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
