@@ -91,10 +91,10 @@ class DayView : View, TemporalView<LocalDate> {
         val hasBids = mBookings.any { it.bid }
 
         paint.style = Paint.Style.FILL
-        canvas.drawColor(when {
-            hasBids -> 0xffbdbdbd.toInt()
-            date.dayOfWeek.value % 2 != 0 -> 0xffeeeeee.toInt()
-            else -> 0xfffafafa.toInt()
+        canvas.drawColor(if (date.dayOfWeek.value % 2 != 0) {
+            if (hasBids) 0xff616161.toInt() else 0xffeeeeee.toInt()
+        } else {
+            if (hasBids) 0xff757575.toInt() else 0xfffafafa.toInt()
         })
 
         var bounds = paint.getTextBounds(day)
@@ -105,7 +105,7 @@ class DayView : View, TemporalView<LocalDate> {
 
         paint.style = Paint.Style.FILL
         var y = paint.textSize + 2 * dayMargin
-        mBookings.forEachIndexed { _, booking ->
+        mBookings.filter { !it.bid }.forEachIndexed { _, booking ->
             paint.color = Color.parseColor(booking.building?.color ?: "#000000")
             canvas.drawRect(0f, y, width, y + stripHeight, paint)
             y += stripHeight
