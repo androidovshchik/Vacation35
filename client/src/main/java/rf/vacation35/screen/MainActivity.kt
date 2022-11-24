@@ -4,15 +4,18 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
-import com.android.calendar.month.MonthByWeekFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.BuildConfig
+import rf.vacation35.EXTRA_BIDS
 import rf.vacation35.R
 import rf.vacation35.databinding.ActivityMainBinding
 import rf.vacation35.databinding.DrawerHeaderBinding
@@ -20,15 +23,12 @@ import rf.vacation35.extension.addFragment
 import rf.vacation35.extension.areYouSure
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
-import rf.vacation35.remote.dao.BaseDao
-import rf.vacation35.remote.dao.BuildingDao
 import splitties.activities.start
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.max
 
 @AndroidEntryPoint
-class MainActivity : AbstractActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var api: DbApi
@@ -36,20 +36,15 @@ class MainActivity : AbstractActivity() {
     @Inject
     lateinit var preferences: Preferences
 
+    private val calendar = CalendarFragment()
+
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var header: DrawerHeaderBinding
 
-    private var bases = emptyList<BaseDao>()
-
-    private var buildings = emptyList<BuildingDao>()
-
-    // todo view model
-    private var building: BuildingDao? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (preferences.rawUser == null) {
+        if (preferences.user == null) {
             start<LoginActivity>()
             finish()
             return
@@ -65,24 +60,26 @@ class MainActivity : AbstractActivity() {
 
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.action_bookings -> {
-                    binding.toolbar.title = "Брони"
-                }
                 R.id.action_bids -> {
-                    binding.toolbar.title = "Заявки"
+                    start<BookingListActivity> {
+                        putExtra(EXTRA_BIDS, true)
+                    }
                 }
-                R.id.action_buildings -> {
-
+                R.id.action_bookings -> {
+                    start<BookingListActivity>()
                 }
                 R.id.action_bases -> {
                     start<BaseListActivity>()
+                }
+                R.id.action_buildings -> {
+                    start<BuildingListActivity>()
                 }
                 R.id.action_users -> {
                     start<AccountListActivity>()
                 }
                 R.id.action_logout -> {
                     areYouSure {
-                        preferences.rawUser = null
+                        preferences.user = null
                         start<LoginActivity>()
                         finish()
                     }
@@ -92,69 +89,26 @@ class MainActivity : AbstractActivity() {
             true
         }
 
-        fragmentManager.addFragment(R.id.fl_container, MonthByWeekFragment(System.currentTimeMillis(), false))
+        supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
 
-        binding.esBase.setOnItemClickListener { _, _, position, _ ->
-            building = null
-            when (position) {
-                0 -> binding.esBuilding.updateList(emptyList())
-                1 -> binding.esBuilding.updateList(buildings.map { it.name })
-                else -> {
-                    val base = bases.getOrNull(max(0, position - 2))
-                    if (base != null) {
-                        val buildings = buildings.filter { it.base == base.id.value }
-                        binding.esBuilding.updateList(buildings.map { it.name })
-                    }
-                }
-            }
-            binding.esBuilding.setText("")
-        }
-        binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
-            when (position) {
-                0 -> {}
-                1 -> {}
-                else -> {
-
-                }
-            }
-        }
-
-        updateHeader()
+        updateAccess()
         lifecycleScope.launch {
             preferences.asFlow()
                 .collect {
                     if (it == "user") {
-                        updateHeader()
+                        updateAccess()
                     }
                 }
         }
         lifecycleScope.launch {
             while (!isFinishing) {
                 try {
-                    bases = withContext(Dispatchers.IO) {
-                        api.list(BaseDao).sortedBy { it.name }
+                    val oldUser = preferences.user!!
+                    val newUser = withContext(Dispatchers.IO) {
+                        api.findUser(oldUser.login, oldUser.password)
                     }
-                    buildings = withContext(Dispatchers.IO) {
-                        api.list(BuildingDao).sortedBy { it.name }
-                    }
-                    binding.esBase.updateList(bases.map { it.name })
-                    break
-                } catch (e: Throwable) {
-                    Timber.e(e)
-                } finally {
-                    delay(10_000L)
-                }
-            }
-        }
-        lifecycleScope.launch {
-            while (!isFinishing) {
-                try {
-                    val rawUser = preferences.rawUser!!
-                    val user = withContext(Dispatchers.IO) {
-                        api.findUser(rawUser.login, rawUser.password)
-                    }
-                    if (user != null) {
-                        preferences.rawUser = user.raw
+                    if (newUser != null) {
+                        preferences.user = newUser.toRaw()
                     } else if (!isFinishing) {
                         start<LoginActivity> {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -170,14 +124,34 @@ class MainActivity : AbstractActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun updateHeader() {
-        val rawUser = preferences.rawUser!!
-        header.login.text = "@${rawUser.login}"
-        header.name.text = rawUser.name
+    private fun updateAccess() {
+        val user = preferences.user!!
+        with(header) {
+            login.text = "@${user.login}"
+            name.text = user.name
+        }
+        with(binding.navView.menu) {
+            findItem(R.id.action_bids).isVisible = user.admin || user.accessBooking
+            findItem(R.id.action_bookings).isVisible = user.admin || user.accessBooking
+
+            findItem(R.id.action_bases).isVisible = user.admin
+            findItem(R.id.action_buildings).isVisible = user.admin || user.accessPrice
+            findItem(R.id.action_users).isVisible = user.admin || BuildConfig.DEBUG
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_today -> {
+                calendar.scrollToToday()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
