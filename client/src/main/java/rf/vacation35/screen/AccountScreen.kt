@@ -140,18 +140,19 @@ class AccountFragment : Fragment() {
 
     private var findJob: Job? = null
 
+    private val userId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (id == 0) "Новый пользователь" else "Пользователь"
+            title = if (userId == 0) "Новый пользователь" else "Пользователь"
             inflateNavMenu()
         }
         binding.btnDelete.setOnClickListener {
@@ -168,7 +169,7 @@ class AccountFragment : Fragment() {
                 }
             }
         }
-        binding.btnSave.isEnabled = id <= 0
+        binding.btnSave.isEnabled = userId <= 0
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
@@ -214,13 +215,12 @@ class AccountFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
-        if (id > 0 || user != null) {
+        if (userId > 0 || user != null) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     user = withContext(Dispatchers.IO) {
-                        api.find(User, id)
+                        api.find(User, userId)
                     }
                     user?.let {
                         binding.etName.setText(it.name)

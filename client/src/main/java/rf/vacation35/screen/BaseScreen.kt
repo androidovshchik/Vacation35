@@ -149,18 +149,19 @@ class BaseFragment : Fragment() {
 
     private var findJob: Job? = null
 
+    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBaseBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (id == 0) "Новая база отдыха" else "База отдыха"
+            title = if (baseId == 0) "Новая база отдыха" else "База отдыха"
             inflateNavMenu()
         }
         binding.btnBuildings.setOnClickListener {
@@ -184,7 +185,7 @@ class BaseFragment : Fragment() {
             }
         }
         val user = preferences.user!!
-        binding.btnSave.isEnabled = id <= 0 && user.admin
+        binding.btnSave.isEnabled = baseId <= 0 && user.admin
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
@@ -218,13 +219,12 @@ class BaseFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
-        if (id > 0 || base != null) {
+        if (baseId > 0 || base != null) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     base = withContext(Dispatchers.IO) {
-                        api.find(Base, id)
+                        api.find(Base, baseId)
                     }
                     base?.let {
                         val user = preferences.user!!
