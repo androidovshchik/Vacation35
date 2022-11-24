@@ -127,9 +127,9 @@ class FilterFragment : Fragment() {
         }
     }
 
-    fun selectInitially(): Boolean {
+    fun selectDefault() {
         if (hasInitialized) {
-            return false
+            return
         }
         hasInitialized = true
         if (_bases.value.isNotEmpty()) {
@@ -141,6 +141,5 @@ class FilterFragment : Fragment() {
             binding.esBuilding.updateList(_buildings.map { it.name })
             binding.esBuilding.setText("Все")
         }
-        return true
     }
 }

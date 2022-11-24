@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_DATE
@@ -61,6 +60,8 @@ class CalendarFragment : Fragment() {
     private lateinit var binding: FragmentCalendarBinding
 
     private var startJob: Job? = null
+
+    private var listenJob: Job? = null
 
     private var queryJob: Job? = null
 
@@ -130,21 +131,20 @@ class CalendarFragment : Fragment() {
                     }
                 }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            filter.buildings.drop(1).collect {
-                loadBookings()
-            }
-        }
     }
 
     override fun onStart() {
         super.onStart()
+        listenJob?.cancel()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 filter.loadBuildings()
-                if (!filter.selectInitially()) {
-                    loadBookings()
+                filter.selectDefault()
+                listenJob = launch {
+                    filter.buildings.collect {
+                        loadBookings()
+                    }
                 }
             }, {
                 view?.snack(it)
