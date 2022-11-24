@@ -87,6 +87,7 @@ class AccountListFragment : Fragment() {
         binding.fabAdd.setOnClickListener {
             start<AccountActivity>()
         }
+        childFragmentManager.hideFragment(R.id.f_filter)
     }
 
     override fun onStart() {

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_BASE_TITLE
 import rf.vacation35.EXTRA_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentBaseBinding
@@ -85,6 +86,7 @@ class BaseListFragment : Fragment() {
         binding.fabAdd.setOnClickListener {
             start<BaseActivity>()
         }
+        childFragmentManager.hideFragment(R.id.f_filter)
     }
 
     override fun onStart() {
@@ -150,6 +152,7 @@ class BaseFragment : Fragment() {
         binding.btnBuildings.setOnClickListener {
             start<BuildingListActivity> {
                 putExtra(EXTRA_ID, base!!.id.value)
+                putExtra(EXTRA_BASE_TITLE, base!!.name)
             }
         }
         binding.btnDelete.setOnClickListener {
