@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,6 +21,7 @@ import rf.vacation35.databinding.FragmentBaseBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBaseBinding
 import rf.vacation35.extension.*
+import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import splitties.fragments.start
@@ -40,6 +42,9 @@ class BaseListFragment : Fragment() {
 
     @Inject
     lateinit var api: DbApi
+
+    @Inject
+    lateinit var preferences: Preferences
 
     private val progress = ProgressDialog()
 
@@ -91,6 +96,8 @@ class BaseListFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
@@ -126,6 +133,9 @@ class BaseFragment : Fragment() {
 
     @Inject
     lateinit var api: DbApi
+
+    @Inject
+    lateinit var preferences: Preferences
 
     private val progress = ProgressDialog()
 
@@ -169,7 +179,8 @@ class BaseFragment : Fragment() {
                 }
             }
         }
-        binding.btnSave.isEnabled = id <= 0
+        val user = preferences.user!!
+        binding.btnSave.isEnabled = id <= 0 && user.admin
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
@@ -210,10 +221,11 @@ class BaseFragment : Fragment() {
                         api.find(Base, id)
                     }
                     base?.let {
+                        val user = preferences.user!!
                         binding.etName.setText(it.name)
                         binding.btnBuildings.isEnabled = true
                         binding.btnDelete.isEnabled = true
-                        binding.btnSave.isEnabled = true
+                        binding.btnSave.isEnabled = user.admin
                     }
                     if (base == null) {
                         view?.snack("База отдыха не найдена")
