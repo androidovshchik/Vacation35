@@ -31,7 +31,9 @@ class AccountListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, AccountListFragment(), false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, AccountListFragment(), false)
+        }
     }
 }
 
@@ -118,7 +120,9 @@ class AccountActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, AccountFragment(), false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, AccountFragment(), false)
+        }
     }
 }
 

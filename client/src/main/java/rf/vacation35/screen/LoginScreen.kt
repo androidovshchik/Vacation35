@@ -29,7 +29,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, LoginFragment())
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, LoginFragment())
+        }
     }
 }
 

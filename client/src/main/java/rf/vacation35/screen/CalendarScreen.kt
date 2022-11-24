@@ -39,7 +39,9 @@ class CalendarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, CalendarFragment(), false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, CalendarFragment(), false)
+        }
     }
 }
 

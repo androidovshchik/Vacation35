@@ -33,7 +33,9 @@ class BaseListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, BaseListFragment(), false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, BaseListFragment(), false)
+        }
     }
 }
 
@@ -124,7 +126,9 @@ class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.addFragment(android.R.id.content, BaseFragment(), false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(android.R.id.content, BaseFragment(), false)
+        }
     }
 }
 

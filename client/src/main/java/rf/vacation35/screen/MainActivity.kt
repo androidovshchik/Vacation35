@@ -88,7 +88,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
+        }
 
         updateAccess()
         lifecycleScope.launch {
