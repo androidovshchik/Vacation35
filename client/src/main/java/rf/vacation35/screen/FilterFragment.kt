@@ -110,4 +110,16 @@ class FilterFragment : Fragment() {
             }
         }
     }
+
+    fun selectAll() {
+        if (_bases.value.isNotEmpty()) {
+            binding.esBase.updateList(_bases.value.map { it.name })
+            binding.esBase.setText("Все")
+        }
+        if (_buildings.isNotEmpty()) {
+            buildings.value = _buildings
+            binding.esBuilding.updateList(_buildings.map { it.name })
+            binding.esBuilding.setText("Все")
+        }
+    }
 }
