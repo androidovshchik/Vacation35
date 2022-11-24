@@ -28,6 +28,8 @@ class FilterFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
+    val bases = mutableListOf<Base>()
+
     val buildings = MutableStateFlow(listOf<Building.Raw>())
 
     private val _bases = MutableStateFlow(listOf<Base>())
@@ -57,11 +59,20 @@ class FilterFragment : Fragment() {
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
             buildings.value = emptyList()
             when (position) {
-                0 -> binding.esBuilding.updateList(emptyList())
-                1 -> binding.esBuilding.updateList(_buildings.map { it.name })
+                0 -> {
+                    bases.clear()
+                    binding.esBuilding.updateList(emptyList())
+                }
+                1 -> {
+                    bases.clear()
+                    bases.addAll(_bases.value)
+                    binding.esBuilding.updateList(_buildings.map { it.name })
+                }
                 else -> {
                     val base = _bases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
+                        bases.clear()
+                        bases.add(base)
                         val buildings = _buildings.filter { it.base.id == base.id.value }
                         binding.esBuilding.updateList(buildings.map { it.name })
                     }
@@ -72,7 +83,10 @@ class FilterFragment : Fragment() {
         binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.value = emptyList()
-                1 -> buildings.value = _buildings
+                1 -> {
+                    val baseIds = bases.map { it.id.value }
+                    buildings.value = _buildings.filter { it.base.id in baseIds }
+                }
                 else -> {
                     val building = _buildings.getOrNull(max(0, position - 2))
                     if (building != null) {
