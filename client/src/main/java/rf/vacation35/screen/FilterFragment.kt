@@ -36,6 +36,8 @@ class FilterFragment : Fragment() {
 
     private lateinit var binding: FragmentFilterBinding
 
+    private var hasInitialized = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFilterBinding.inflate(inflater, container, false)
         return binding.root
@@ -111,7 +113,11 @@ class FilterFragment : Fragment() {
         }
     }
 
-    fun selectAll() {
+    fun selectInitially(): Boolean {
+        if (hasInitialized) {
+            return false
+        }
+        hasInitialized = true
         if (_bases.value.isNotEmpty()) {
             binding.esBase.updateList(_bases.value.map { it.name })
             binding.esBase.setText("Все")
@@ -121,5 +127,6 @@ class FilterFragment : Fragment() {
             binding.esBuilding.updateList(_buildings.map { it.name })
             binding.esBuilding.setText("Все")
         }
+        return true
     }
 }

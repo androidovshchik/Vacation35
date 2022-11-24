@@ -2,6 +2,7 @@ package rf.vacation35.extension
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import kotlinx.coroutines.CancellationException
 
 val FragmentManager.topFragment: Fragment?
     get() = findFragmentByTag((backStackEntryCount - 1).toString())
@@ -28,6 +29,7 @@ inline fun FragmentManager.with(id: Int, fragment: Fragment, body: () -> Unit, c
     addFragment(id, fragment, false)
     try {
         body()
+    } catch (_: CancellationException) {
     } catch (e: Throwable) {
         catch(e)
     } finally {
@@ -36,15 +38,18 @@ inline fun FragmentManager.with(id: Int, fragment: Fragment, body: () -> Unit, c
 }
 
 fun FragmentManager.addFragment(id: Int, fragment: Fragment, backStack: Boolean = true) {
-    beginTransaction()
-        .add(id, fragment, backStackEntryCount.toString())
-        .apply {
-            if (backStack) {
-                addToBackStack(fragment.javaClass.name)
+    try {
+        beginTransaction()
+            .add(id, fragment, backStackEntryCount.toString())
+            .apply {
+                if (backStack) {
+                    addToBackStack(fragment.javaClass.name)
+                }
             }
-        }
-        .commitAllowingStateLoss()
-    executePendingTransactions()
+            .commitAllowingStateLoss()
+        executePendingTransactions()
+    } catch (ignored: Throwable) {
+    }
 }
 
 fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Boolean = true) {
@@ -60,11 +65,12 @@ fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Bool
 }
 
 fun FragmentManager.removeFragment(fragment: Fragment) {
-    if (fragment.isAdded) {
+    try {
         beginTransaction()
             .remove(fragment)
             .commitAllowingStateLoss()
         executePendingTransactions()
+    } catch (ignored: Throwable) {
     }
 }
 

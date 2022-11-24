@@ -27,15 +27,18 @@ fun FragmentManager.hideFragment(id: Int) {
 }
 
 fun FragmentManager.addFragment(id: Int, fragment: Fragment, backStack: Boolean = true) {
-    beginTransaction()
-        .add(id, fragment, backStackEntryCount.toString())
-        .apply {
-            if (backStack) {
-                addToBackStack(fragment.javaClass.name)
+    try {
+        beginTransaction()
+            .add(id, fragment, backStackEntryCount.toString())
+            .apply {
+                if (backStack) {
+                    addToBackStack(fragment.javaClass.name)
+                }
             }
-        }
-        .commitAllowingStateLoss()
-    executePendingTransactions()
+            .commitAllowingStateLoss()
+        executePendingTransactions()
+    } catch (ignored: Throwable) {
+    }
 }
 
 fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Boolean = true) {
@@ -51,11 +54,12 @@ fun FragmentManager.replaceFragment(id: Int, fragment: Fragment, backStack: Bool
 }
 
 fun FragmentManager.removeFragment(fragment: Fragment) {
-    if (fragment.isAdded) {
+    try {
         beginTransaction()
             .remove(fragment)
             .commitAllowingStateLoss()
         executePendingTransactions()
+    } catch (ignored: Throwable) {
     }
 }
 

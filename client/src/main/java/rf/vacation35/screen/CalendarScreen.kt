@@ -141,7 +141,9 @@ class CalendarFragment : Fragment() {
         filterJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 filter.loadBuildings()
-                filter.selectAll()
+                if (!filter.selectInitially()) {
+                    loadBookings()
+                }
             }, {
                 view?.snack(it)
             })
@@ -153,7 +155,9 @@ class CalendarFragment : Fragment() {
         val context = context ?: return
         val position = adapter.items.indexOf(YearMonth.now())
         manager.scrollToPositionWithOffset(position, context.dip(24))
-        updateMonth()
+        binding.rvCalendar.post {
+            updateMonth()
+        }
     }
 
     private fun updateMonth() {
