@@ -60,9 +60,11 @@ class DbApi private constructor() {
             }.map { Building.Raw(it) }
     }
 
-    fun queryBookings(start: LocalDateTime, end: LocalDateTime) = transact {
-        Booking.find { Bookings.entryTime less end and (Bookings.exitTime greater start) }
-            .sortedBy { it.entryTime }
+    fun queryBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime) = transact {
+        Bookings.innerJoin(Buildings, { building }, { Buildings.id })
+            .select { Buildings.id inList buildingIds and (Bookings.entryTime lessEq end and (Bookings.exitTime greaterEq start)) }
+            .map { Booking.Raw(it) }
+            .sortedBy { it.start }
     }
 
     companion object {

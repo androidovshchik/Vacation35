@@ -14,14 +14,18 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_DATE
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentCalendarBinding
 import rf.vacation35.databinding.ItemMonthBinding
 import rf.vacation35.extension.*
+import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Booking
+import rf.vacation35.screen.view.DayView
 import splitties.dimensions.dip
 import splitties.fragments.start
 import java.time.LocalDate
@@ -45,15 +49,24 @@ class CalendarFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
+    @Inject
+    lateinit var preferences: Preferences
+
     private val progress = ProgressDialog()
 
     private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
 
     private lateinit var binding: FragmentCalendarBinding
 
+    private var filterJob: Job? = null
+
     private var queryJob: Job? = null
 
     private var scrolledMonth = YearMonth.now()
+
+    private val minMonth get() = scrolledMonth - 3
+
+    private val maxMonth get() = scrolledMonth + 2
 
     private val manager: LinearLayoutManager
         get() = binding.rvCalendar.layoutManager as LinearLayoutManager
@@ -73,7 +86,7 @@ class CalendarFragment : Fragment() {
                 try {
                     val position = manager.findFirstVisibleItemPosition()
                     val month = adapter.items[position] + 1
-                    if (month !in scrolledMonth - 3..scrolledMonth + 2) {
+                    if (month !in minMonth..maxMonth) {
                         scrolledMonth = month
                         loadBookings()
                     }
@@ -88,10 +101,12 @@ class CalendarFragment : Fragment() {
         onCreateViewHolder { parent ->
             with(ItemMonthBinding.inflate(layoutInflater, parent, false)) {
                 AbstractAdapter.ViewHolder(this).apply {
-                    root.setOnClickListener {
+                    ml.setOnClickListener {
                         try {
-                            val item = items[bindingAdapterPosition]
-
+                            it as DayView
+                            start<BookingListActivity> {
+                                putExtra(EXTRA_DATE, it.mValue)
+                            }
                         } catch (ignored: Throwable) {
                         }
                     }
@@ -112,17 +127,32 @@ class CalendarFragment : Fragment() {
         binding.fabAdd.setOnClickListener {
             start<BookingActivity>()
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                filter.loadBuildings()
-            }, {
-                getView()?.snack(it)
-            })
+        updateAccess()
+        lifecycleScope.launch {
+            preferences.asFlow()
+                .collect {
+                    if (it == "user") {
+                        updateAccess()
+                    }
+                }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            filter.buildings.collect {
+            filter.buildings.drop(1).collect {
                 loadBookings()
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        filterJob?.cancel()
+        filterJob = viewLifecycleOwner.lifecycleScope.launch {
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                filter.loadBuildings()
+                filter.selectAll()
+            }, {
+                view?.snack(it)
+            })
         }
     }
 
@@ -133,14 +163,19 @@ class CalendarFragment : Fragment() {
         manager.scrollToPositionWithOffset(position, context.dip(24))
     }
 
+    private fun updateAccess() {
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin || user.accessBooking
+    }
+
     private fun loadBookings() {
         queryJob?.cancel()
         binding.pbLoading.isVisible = true
         queryJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val buildingIds = filter.buildings.value.map { it.id }
-                val start = LocalDateTime.of((scrolledMonth - 3).atDay(1), LocalTime.MIN)
-                val end = LocalDateTime.of((scrolledMonth + 2).atEndOfMonth(), LocalTime.MAX)
+                val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
+                val end = LocalDateTime.of(maxMonth.atEndOfMonth(), LocalTime.MAX)
                 val bookings = withContext(Dispatchers.IO) {
                     api.queryBookings(buildingIds, start, end)
                 }

@@ -53,7 +53,7 @@ class FilterFragment : Fragment() {
             binding.esBuilding.isEnabled = false
         }
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
-            buildings.tryEmit(emptyList())
+            buildings.value = emptyList()
             when (position) {
                 0 -> binding.esBuilding.updateList(emptyList())
                 1 -> binding.esBuilding.updateList(_buildings.map { it.name })
@@ -69,12 +69,12 @@ class FilterFragment : Fragment() {
         }
         binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> buildings.tryEmit(emptyList())
-                1 -> buildings.tryEmit(_buildings)
+                0 -> buildings.value = emptyList()
+                1 -> buildings.value = _buildings
                 else -> {
                     val building = _buildings.getOrNull(max(0, position - 2))
                     if (building != null) {
-                        buildings.tryEmit(listOf(building))
+                        buildings.value = listOf(building)
                     }
                 }
             }
