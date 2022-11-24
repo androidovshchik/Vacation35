@@ -18,13 +18,13 @@
         android:id="@+id/g_global"
         android:checkableBehavior="none">
         <item
-            android:id="@+id/action_bases"
-            android:icon="@drawable/ic_baseline_map_24"
-            android:title="Базы отдыха" />
-        <item
             android:id="@+id/action_buildings"
             android:icon="@drawable/ic_baseline_home_24"
             android:title="Постройки" />
+        <item
+            android:id="@+id/action_bases"
+            android:icon="@drawable/ic_baseline_map_24"
+            android:title="Базы отдыха" />
         <item
             android:id="@+id/action_users"
             android:icon="@drawable/ic_baseline_people_alt_24"

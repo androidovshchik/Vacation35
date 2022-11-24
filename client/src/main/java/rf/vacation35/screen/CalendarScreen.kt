@@ -62,11 +62,11 @@ class CalendarFragment : Fragment() {
 
     private var queryJob: Job? = null
 
-    private var scrolledMonth = YearMonth.now()
+    private var month = YearMonth.now()
 
-    private val minMonth get() = scrolledMonth - 3
+    private val minMonth get() = month - 3
 
-    private val maxMonth get() = scrolledMonth + 2
+    private val maxMonth get() = month + 2
 
     private val manager: LinearLayoutManager
         get() = binding.rvCalendar.layoutManager as LinearLayoutManager
@@ -83,15 +83,7 @@ class CalendarFragment : Fragment() {
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                try {
-                    val position = manager.findFirstVisibleItemPosition()
-                    val month = adapter.items[position] + 1
-                    if (month !in minMonth..maxMonth) {
-                        scrolledMonth = month
-                        loadBookings()
-                    }
-                } catch (ignored: Throwable) {
-                }
+                updateMonth()
             }
         }
     }
@@ -161,11 +153,19 @@ class CalendarFragment : Fragment() {
         val context = context ?: return
         val position = adapter.items.indexOf(YearMonth.now())
         manager.scrollToPositionWithOffset(position, context.dip(24))
+        updateMonth()
     }
 
-    private fun updateAccess() {
-        val user = preferences.user!!
-        binding.fabAdd.isVisible = user.admin || user.accessBooking
+    private fun updateMonth() {
+        try {
+            val position = manager.findFirstVisibleItemPosition()
+            val item = adapter.items[position] + 1
+            if (item !in minMonth..maxMonth) {
+                month = item
+                loadBookings()
+            }
+        } catch (ignored: Throwable) {
+        }
     }
 
     private fun loadBookings() {
@@ -186,6 +186,11 @@ class CalendarFragment : Fragment() {
                 binding.pbLoading.isVisible = false
             }
         }
+    }
+
+    private fun updateAccess() {
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin || user.accessBooking
     }
 
     override fun onDestroyView() {

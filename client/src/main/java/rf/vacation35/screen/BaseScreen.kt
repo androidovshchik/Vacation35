@@ -197,9 +197,11 @@ class BaseFragment : Fragment() {
                                 }
                             }
                         }
+                        @Suppress("NAME_SHADOWING")
+                        val user = preferences.user!!
                         binding.toolbar.title = "База отдыха"
                         binding.btnBuildings.isEnabled = true
-                        binding.btnDelete.isEnabled = true
+                        binding.btnDelete.isEnabled = user.admin
                     }, {
                         getView()?.snack(it)
                     })
@@ -224,7 +226,7 @@ class BaseFragment : Fragment() {
                         val user = preferences.user!!
                         binding.etName.setText(it.name)
                         binding.btnBuildings.isEnabled = true
-                        binding.btnDelete.isEnabled = true
+                        binding.btnDelete.isEnabled = user.admin
                         binding.btnSave.isEnabled = user.admin
                     }
                     if (base == null) {
