@@ -31,7 +31,7 @@
                 android:layout_marginTop="12dp"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <rf.vacation35.screen.EditSpinner
+                <rf.vacation35.screen.view.EditSpinner
                     android:id="@+id/es_base"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 android:layout_marginTop="12dp"
                 app:layout_constraintTop_toBottomOf="@+id/til_base">
 
-                <rf.vacation35.screen.EditSpinner
+                <rf.vacation35.screen.view.EditSpinner
                     android:id="@+id/es_building"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -258,6 +258,8 @@
         android:id="@+id/fl_fullscreen"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:elevation="100dp"
+        android:outlineProvider="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 

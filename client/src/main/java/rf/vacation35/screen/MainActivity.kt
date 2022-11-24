@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.action_logout -> {
                     areYouSure {
-                        preferences.user = null
                         start<LoginActivity>()
                         finish()
                     }
@@ -131,11 +130,6 @@ class MainActivity : AppCompatActivity() {
             name.text = user.name
         }
         with(binding.navView.menu) {
-            findItem(R.id.action_bids).isVisible = user.admin || user.accessBooking
-            findItem(R.id.action_bookings).isVisible = user.admin || user.accessBooking
-
-            findItem(R.id.action_bases).isVisible = user.admin
-            findItem(R.id.action_buildings).isVisible = user.admin || user.accessPrice
             findItem(R.id.action_users).isVisible = user.admin || BuildConfig.DEBUG
         }
     }
