@@ -230,6 +230,9 @@ class BaseFragment : Fragment() {
                         binding.btnSave.isEnabled = user.admin
                     }
                     if (base == null) {
+                        binding.btnBuildings.isEnabled = false
+                        binding.btnDelete.isEnabled = false
+                        binding.btnSave.isEnabled = false
                         view?.snack("База отдыха не найдена")
                     }
                 }, {

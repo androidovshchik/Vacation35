@@ -60,7 +60,13 @@ class DbApi private constructor() {
             }.map { Building.Raw(it) }
     }
 
-    fun queryBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime) = transact {
+    fun listBuildings(buildingIds: List<Int>) = transact {
+        Buildings.innerJoin(Bases, { base }, { Bases.id })
+            .select { Buildings.id inList buildingIds }
+            .map { Building.Raw(it) }
+    }
+
+    fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime) = transact {
         Bookings.innerJoin(Buildings, { building }, { Buildings.id })
             .select { Buildings.id inList buildingIds and (Bookings.entryTime lessEq end and (Bookings.exitTime greaterEq start)) }
             .map { Booking.Raw(it) }

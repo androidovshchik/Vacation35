@@ -14,8 +14,10 @@ import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentBuildingBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -43,11 +45,17 @@ class BuildingListFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
+    private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
+
     private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentListBinding
 
+    private var startJob: Job? = null
+
     private var listJob: Job? = null
+
+    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemBuildingBinding, Building.Raw> {
@@ -58,7 +66,7 @@ class BuildingListFragment : Fragment() {
                         try {
                             val item = items[bindingAdapterPosition]
                             start<BuildingActivity> {
-                                putExtra("id", item.id)
+                                putExtra(EXTRA_ID, item.id)
                             }
                         } catch (ignored: Throwable) {
                         }
@@ -79,29 +87,57 @@ class BuildingListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = "Постройки"
+            inflateNavMenu()
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
             start<BuildingActivity> {
-                putExtra("id", id)
+                putExtra(EXTRA_ID, baseId)
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            filter.buildings.drop(1).collect {
+                loadBuildings()
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                if (baseId > 0) {
+                    val items = withContext(Dispatchers.IO) {
+                        api.listBuildings(baseId)
+                    }
+                    adapter.items.clear()
+                    adapter.items.addAll(items)
+                    adapter.notifyDataSetChanged()
+                } else {
+                    filter.loadBuildings()
+                    if (!filter.selectInitially()) {
+                        loadBuildings()
+                    }
+                }
+            }, {
+                view?.snack(it)
+            })
+        }
+    }
+
+    private fun loadBuildings() {
+        val ids = filter.buildings.value.map { it.id }
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val items = withContext(Dispatchers.IO) {
-                    api.listBuildings(id)
+                    api.listBuildings(ids)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(items)
@@ -153,12 +189,13 @@ class BuildingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (id == 0) "Новая постройка" else "Постройка"
+            inflateNavMenu()
         }
         binding.vColor.setOnClickListener {
             ColorPickerDialog.Builder(requireActivity())
@@ -234,7 +271,7 @@ class BuildingFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra("id", 0) ?: 0
+        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
         if (id > 0 || building != null) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
@@ -249,6 +286,8 @@ class BuildingFragment : Fragment() {
                         binding.btnSave.isEnabled = true
                     }
                     if (building == null) {
+                        binding.btnDelete.isEnabled = false
+                        binding.btnSave.isEnabled = false
                         view?.snack("Постройка не найдена")
                     }
                 }, {

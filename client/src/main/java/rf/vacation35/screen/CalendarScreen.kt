@@ -58,7 +58,7 @@ class CalendarFragment : Fragment() {
 
     private lateinit var binding: FragmentCalendarBinding
 
-    private var filterJob: Job? = null
+    private var startJob: Job? = null
 
     private var queryJob: Job? = null
 
@@ -137,8 +137,8 @@ class CalendarFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        filterJob?.cancel()
-        filterJob = viewLifecycleOwner.lifecycleScope.launch {
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 filter.loadBuildings()
                 if (!filter.selectInitially()) {
@@ -181,7 +181,7 @@ class CalendarFragment : Fragment() {
                 val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
                 val end = LocalDateTime.of(maxMonth.atEndOfMonth(), LocalTime.MAX)
                 val bookings = withContext(Dispatchers.IO) {
-                    api.queryBookings(buildingIds, start, end)
+                    api.listBookings(buildingIds, start, end)
                 }
                 adapter.mBookings.clear()
                 adapter.mBookings.addAll(bookings)
