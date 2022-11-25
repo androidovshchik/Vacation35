@@ -12,8 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.EXTRA_BASE_TITLE
-import rf.vacation35.EXTRA_BUILDING_TITLE
 import rf.vacation35.databinding.FragmentFilterBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
@@ -28,17 +26,15 @@ class FilterFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    val bases = mutableListOf<Base>()
+    val bases = MutableStateFlow(listOf<Base>())
 
     val buildings = MutableStateFlow(listOf<Building.Raw>())
 
-    private val _bases = MutableStateFlow(listOf<Base>())
+    private val allBases = MutableStateFlow(listOf<Base>())
 
-    private val _buildings = mutableListOf<Building.Raw>()
+    private val allBuildings = mutableListOf<Building.Raw>()
 
     private lateinit var binding: FragmentFilterBinding
-
-    private var hasInitialized = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFilterBinding.inflate(inflater, container, false)
@@ -57,38 +53,34 @@ class FilterFragment : Fragment() {
             binding.esBuilding.isEnabled = false
         }
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
-            buildings.value = emptyList()
             when (position) {
                 0 -> {
-                    bases.clear()
-                    binding.esBuilding.updateList(emptyList())
+                    bases.value = emptyList()
+                    replaceBuildings(emptyList())
                 }
                 1 -> {
-                    bases.clear()
-                    bases.addAll(_bases.value)
-                    binding.esBuilding.updateList(_buildings.map { it.name })
+                    bases.value = allBases.value
+                    replaceBuildings(allBuildings.map { it.name })
                 }
                 else -> {
-                    val base = _bases.value.getOrNull(max(0, position - 2))
+                    val base = allBases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
-                        bases.clear()
-                        bases.add(base)
-                        val buildings = _buildings.filter { it.base.id == base.id.value }
-                        binding.esBuilding.updateList(buildings.map { it.name })
+                        bases.value = listOf(base)
+                        val buildings = allBuildings.filter { it.base.id == base.id.value }
+                        replaceBuildings(buildings.map { it.name })
                     }
                 }
             }
-            binding.esBuilding.setText("")
         }
         binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.value = emptyList()
                 1 -> {
-                    val baseIds = bases.map { it.id.value }
-                    buildings.value = _buildings.filter { it.base.id in baseIds }
+                    val baseIds = bases.value.map { it.id.value }
+                    buildings.value = allBuildings.filter { it.base.id in baseIds }
                 }
                 else -> {
-                    val building = _buildings.getOrNull(max(0, position - 2))
+                    val building = allBuildings.getOrNull(max(0, position - 2))
                     if (building != null) {
                         buildings.value = listOf(building)
                     }
@@ -96,24 +88,28 @@ class FilterFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            _bases.collect { items ->
+            allBases.collect { items ->
                 binding.esBase.updateList(items.map { it.name })
             }
         }
     }
 
+    private fun replaceBuildings(items: List<String>) {
+        buildings.value = emptyList()
+        binding.esBuilding.updateList(items)
+        binding.esBuilding.setText("")
+    }
+
     suspend fun loadBuildings() {
-        _buildings.clear()
-        _bases.value = emptyList()
         withContext(Dispatchers.IO) {
             while (true) {
                 try {
-                    _buildings.addAll(withContext(Dispatchers.IO) {
+                    allBuildings.addAll(withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .listBuildings()
                             .sortedBy { it.name }
                     })
-                    _bases.value = withContext(Dispatchers.IO) {
+                    allBases.value = withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .list(Base)
                             .sortedBy { it.name }
@@ -124,22 +120,6 @@ class FilterFragment : Fragment() {
                     delay(10_000L)
                 }
             }
-        }
-    }
-
-    fun selectDefault() {
-        if (hasInitialized) {
-            return
-        }
-        hasInitialized = true
-        if (_bases.value.isNotEmpty()) {
-            binding.esBase.updateList(_bases.value.map { it.name })
-            binding.esBase.setText("Все")
-        }
-        if (_buildings.isNotEmpty()) {
-            buildings.value = _buildings
-            binding.esBuilding.updateList(_buildings.map { it.name })
-            binding.esBuilding.setText("Все")
         }
     }
 }
