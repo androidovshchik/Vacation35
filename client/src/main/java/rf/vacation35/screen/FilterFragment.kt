@@ -12,7 +12,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.*
+import rf.vacation35.EXTRA_BASE_ID
+import rf.vacation35.EXTRA_BASE_RAW
+import rf.vacation35.EXTRA_BUILDING_ID
+import rf.vacation35.EXTRA_BUILDING_RAW
 import rf.vacation35.databinding.FragmentFilterBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
@@ -90,34 +93,22 @@ class FilterFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             allBases.collect { items ->
-                if (baseId > 0) {
+                val base = items.firstOrNull { it.id.value == baseId }
+                if (base != null) {
+                    val building = allBuildings.firstOrNull { it.id == buildingId }
+                    if (building != null) {
 
+                    }
                 } else {
                     selectAllBases()
-                }
-                if (baseId > 0) {
-
-                } else {
                     selectAllBuildings()
                 }
-                replaceBases(items.map { it.name })
             }
         }
     }
 
-    private fun selectAllBases() {
-        bases.value = emptyList()
-        binding.esBase.updateList(items)
-        binding.esBase.setText("")
-    }
-
-    private fun selectAllBuildings() {
-        bases.value = emptyList()
-        binding.esBase.updateList(items)
-        binding.esBase.setText("")
-    }
-
     private fun replaceBases(items: List<String>) {
+        replaceBuildings(emptyList())
         bases.value = emptyList()
         binding.esBase.updateList(items)
         binding.esBase.setText("")
@@ -127,6 +118,18 @@ class FilterFragment : Fragment() {
         buildings.value = emptyList()
         binding.esBuilding.updateList(items)
         binding.esBuilding.setText("")
+    }
+
+    private fun selectAllBases() {
+        bases.value = allBases.value
+        binding.esBase.updateList(allBases.value.map { it.name })
+        binding.esBase.setText("Все")
+    }
+
+    private fun selectAllBuildings() {
+        buildings.value = allBuildings
+        binding.esBuilding.updateList(allBuildings.map { it.name })
+        binding.esBuilding.setText("Все")
     }
 
     suspend fun loadBuildings() {
