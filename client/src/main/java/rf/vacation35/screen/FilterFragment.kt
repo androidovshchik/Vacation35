@@ -57,19 +57,19 @@ class FilterFragment : Fragment() {
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
+                    replaceBuildings(items = emptyList())
                     bases.value = emptyList()
-                    replaceBuildings(emptyList())
                 }
                 1 -> {
+                    replaceBuildings(items = allBuildings)
                     bases.value = allBases.value
-                    replaceBuildings(allBuildings.map { it.name })
                 }
                 else -> {
                     val base = allBases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
-                        bases.value = listOf(base)
                         val buildings = allBuildings.filter { it.base?.id == base.id.value }
-                        replaceBuildings(buildings.map { it.name })
+                        replaceBuildings(items = buildings)
+                        bases.value = listOf(base)
                     }
                 }
             }
@@ -93,12 +93,16 @@ class FilterFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             allBases.collect { items ->
+                val baseId = baseId
+                val buildingId = buildingId
+                val building = allBuildings.firstOrNull { it.id == buildingId }
+                if (building != null && building.base?.id == baseId) {
+                    replaceBuildings(building, items = allBuildings)
+                } else {
+                    replaceBuildings(items = allBuildings)
+                }
                 val base = items.firstOrNull { it.id.value == baseId }
                 if (base != null) {
-                    val building = allBuildings.firstOrNull { it.id == buildingId }
-                    if (building != null) {
-
-                    }
                 } else {
                     selectAllBases()
                     selectAllBuildings()
@@ -107,17 +111,16 @@ class FilterFragment : Fragment() {
         }
     }
 
-    private fun replaceBases(items: List<String>) {
-        replaceBuildings(emptyList())
-        bases.value = emptyList()
-        binding.esBase.updateList(items)
-        binding.esBase.setText("")
+    private fun replaceBases(value: Base? = null, items: List<Base>) {
+        bases.value = if (value != null) listOf(value) else emptyList()
+        binding.esBase.updateList(items.map { it.name })
+        binding.esBase.setText(value?.name.orEmpty())
     }
 
-    private fun replaceBuildings(items: List<String>) {
-        buildings.value = emptyList()
-        binding.esBuilding.updateList(items)
-        binding.esBuilding.setText("")
+    private fun replaceBuildings(value: Building.Raw? = null, items: List<Building.Raw>) {
+        buildings.value = if (value != null) listOf(value) else emptyList()
+        binding.esBuilding.updateList(items.map { it.name })
+        binding.esBuilding.setText(value?.name.orEmpty())
     }
 
     private fun selectAllBases() {
