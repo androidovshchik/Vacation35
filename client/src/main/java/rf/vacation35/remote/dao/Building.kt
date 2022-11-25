@@ -40,9 +40,8 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw> {
         val color: String,
         val entryTime: LocalTime?,
         val exitTime: LocalTime?,
+        var base: Base.Raw? = null
     ) : Parcelable {
-
-        lateinit var base: Base.Raw
 
         constructor(row: ResultRow): this(
             row[Buildings.id].value,

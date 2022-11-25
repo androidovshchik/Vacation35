@@ -44,9 +44,8 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
         val clientName: String,
         val phone: String,
         val bid: Boolean,
-    ) : ClosedRange<LocalDateTime>, Parcelable {
-
         var building: Building.Raw? = null
+    ) : ClosedRange<LocalDateTime>, Parcelable {
 
         constructor(row: ResultRow): this(
             row[Bookings.id].value,
