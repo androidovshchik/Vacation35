@@ -1,6 +1,8 @@
 package rf.vacation35.remote.dao
 
+import android.os.Parcelable
 import androidx.annotation.Keep
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -8,7 +10,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Users
 
-class User(id: EntityID<Int>) : IntEntity(id) {
+class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw> {
 
     var name by Users.name
 
@@ -22,7 +24,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
 
     var admin by Users.admin
 
-    fun toRaw(): Raw {
+    override fun toRaw(): Raw {
         return Raw(
             id.value,
             name,
@@ -35,6 +37,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
     }
 
     @Keep
+    @Parcelize
     @Serializable
     class Raw(
         val id: Int,
@@ -44,7 +47,7 @@ class User(id: EntityID<Int>) : IntEntity(id) {
         val accessPrice: Boolean = false,
         val accessBooking: Boolean = false,
         val admin: Boolean = false,
-    ) {
+    ) : Parcelable {
 
         constructor(row: ResultRow): this(
             row[Users.id].value,

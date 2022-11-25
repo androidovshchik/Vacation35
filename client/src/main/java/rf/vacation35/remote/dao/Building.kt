@@ -1,5 +1,7 @@
 package rf.vacation35.remote.dao
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -7,7 +9,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Buildings
 import java.time.LocalTime
 
-class Building(id: EntityID<Int>) : IntEntity(id) {
+class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw> {
 
     var base by Base referencedOn Buildings.base
 
@@ -19,7 +21,7 @@ class Building(id: EntityID<Int>) : IntEntity(id) {
 
     var exitTime by Buildings.exitTime
 
-    fun toRaw(): Raw {
+    override fun toRaw(): Raw {
         return Raw(
             id.value,
             name,
@@ -31,13 +33,14 @@ class Building(id: EntityID<Int>) : IntEntity(id) {
         }
     }
 
+    @Parcelize
     class Raw(
         val id: Int,
         val name: String,
         val color: String,
         val entryTime: LocalTime?,
         val exitTime: LocalTime?,
-    ) {
+    ) : Parcelable {
 
         lateinit var base: Base.Raw
 

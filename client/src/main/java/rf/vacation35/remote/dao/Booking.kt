@@ -1,5 +1,7 @@
 package rf.vacation35.remote.dao
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -7,7 +9,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Bookings
 import java.time.LocalDateTime
 
-class Booking(id: EntityID<Long>) : LongEntity(id) {
+class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
 
     var building by Building optionalReferencedOn Bookings.building
 
@@ -21,7 +23,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id) {
 
     var bid by Bookings.bid
 
-    fun toRaw(): Raw {
+    override fun toRaw(): Raw {
         return Raw(
             id.value,
             entryTime,
@@ -34,6 +36,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id) {
         }
     }
 
+    @Parcelize
     class Raw(
         val id: Long,
         override val start: LocalDateTime,
@@ -41,7 +44,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id) {
         val clientName: String,
         val phone: String,
         val bid: Boolean,
-    ) : ClosedRange<LocalDateTime> {
+    ) : ClosedRange<LocalDateTime>, Parcelable {
 
         var building: Building.Raw? = null
 
