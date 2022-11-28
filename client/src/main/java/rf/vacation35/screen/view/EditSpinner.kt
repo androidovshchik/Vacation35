@@ -76,6 +76,7 @@ class PopupAdapter(context: Context) : ArrayAdapter<String>(context, R.layout.su
             override fun publishResults(constraint: CharSequence?, results: FilterResults) {
                 val mObjects = ArrayAdapter::class.java.getDeclaredField("mObjects")
                 mObjects.isAccessible = true
+
                 mObjects.set(mThis, results.values)
                 if (results.count > 0) {
                     notifyDataSetChanged()

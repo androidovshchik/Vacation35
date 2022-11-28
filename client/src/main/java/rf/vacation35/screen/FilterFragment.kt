@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
@@ -93,7 +94,7 @@ class FilterFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            allBases.collectIndexed { i, items ->
+            allBases.drop(1).collectIndexed { i, items ->
                 if (i == 0) {
                     val baseId = baseId
                     val base = items.firstOrNull { it.id.value == baseId }
@@ -145,6 +146,7 @@ class FilterFragment : Fragment() {
         withContext(Dispatchers.IO) {
             while (true) {
                 try {
+                    allBuildings.clear()
                     allBuildings.addAll(withContext(Dispatchers.IO) {
                         DbApi.getInstance()
                             .listBuildings()
