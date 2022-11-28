@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import rf.vacation35.R
+import rf.vacation35.remote.dao.Nameable
 import java.util.*
 
 @SuppressLint("ClickableViewAccessibility")
@@ -29,13 +30,13 @@ class EditSpinner @JvmOverloads constructor(
         }
     }
 
-    fun updateList(items: List<String>) {
+    fun updateList(items: List<Nameable>) {
         adapter.clear()
         adapter.addAll("")
         if (items.isNotEmpty()) {
             adapter.addAll("Все")
         }
-        adapter.addAll(items)
+        adapter.addAll(items.map { it.name })
         adapter.notifyDataSetChanged()
     }
 }

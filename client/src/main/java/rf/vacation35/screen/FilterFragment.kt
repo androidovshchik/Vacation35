@@ -10,6 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
@@ -20,6 +21,7 @@ import rf.vacation35.databinding.FragmentFilterBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
+import rf.vacation35.remote.dao.Nameable
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.max
@@ -40,6 +42,11 @@ class FilterFragment : Fragment() {
 
     private lateinit var binding: FragmentFilterBinding
 
+    private val filteredBuildings: List<Building.Raw> get() {
+        val baseIds = bases.value.map { it.id.value }
+        return allBuildings.filter { it.base?.id in baseIds }
+    }
+
     private val baseId get() = activity?.intent?.getParcelableExtra<Base.Raw>(EXTRA_BASE_RAW)?.id
         ?: activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0)
         ?: 0
@@ -57,32 +64,26 @@ class FilterFragment : Fragment() {
         binding.esBase.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
-                    replaceBuildings(items = emptyList())
                     bases.value = emptyList()
+                    replaceBuildings(items = emptyList())
                 }
                 1 -> {
-                    replaceBuildings(items = allBuildings)
                     bases.value = allBases.value
+                    replaceBuildings(items = allBuildings)
                 }
                 else -> {
                     val base = allBases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
-                        val buildings = allBuildings.filter { it.base?.id == base.id.value }
-                        replaceBuildings(items = buildings)
                         bases.value = listOf(base)
+                        replaceBuildings(items = filteredBuildings)
                     }
                 }
             }
         }
         binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> {
-                    buildings.value = emptyList()
-                }
-                1 -> {
-                    val baseIds = bases.value.map { it.id.value }
-                    buildings.value = allBuildings.filter { it.base?.id in baseIds }
-                }
+                0 -> buildings.value = emptyList()
+                1 -> buildings.value = filteredBuildings
                 else -> {
                     val building = allBuildings.getOrNull(max(0, position - 2))
                     if (building != null) {
@@ -92,46 +93,53 @@ class FilterFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            allBases.collect { items ->
-                val baseId = baseId
-                val buildingId = buildingId
-                val building = allBuildings.firstOrNull { it.id == buildingId }
-                if (building != null && building.base?.id == baseId) {
-                    replaceBuildings(building, items = allBuildings)
+            allBases.collectIndexed { i, items ->
+                if (i == 0) {
+                    val baseId = baseId
+                    val base = items.firstOrNull { it.id.value == baseId }
+                    if (base != null) {
+                        replaceBases(base, items)
+                    } else {
+                        selectAllBases()
+                    }
+                    val buildingId = buildingId
+                    val building = allBuildings.firstOrNull { it.id == buildingId }
+                    if (building != null && building.base?.id == baseId) {
+                        replaceBuildings(building, items = allBuildings)
+                    } else {
+                        val baseIds = bases.value.map { it.id.value }
+                        replaceBuildings(items = allBuildings.filter { it.base?.id in baseIds })
+                        selectAllBuildings()
+                    }
                 } else {
-                    replaceBuildings(items = allBuildings)
-                }
-                val base = items.firstOrNull { it.id.value == baseId }
-                if (base != null) {
-                } else {
-                    selectAllBases()
-                    selectAllBuildings()
+                    binding.esBase.updateList(items)
+                    binding.esBuilding.updateList(filteredBuildings)
                 }
             }
         }
     }
 
-    private fun replaceBases(value: Base? = null, items: List<Base>) {
+    private fun replaceBases(value: Base? = null, items: List<Nameable>) {
         bases.value = if (value != null) listOf(value) else emptyList()
-        binding.esBase.updateList(items.map { it.name })
+        binding.esBase.updateList(items)
         binding.esBase.setText(value?.name.orEmpty())
     }
 
-    private fun replaceBuildings(value: Building.Raw? = null, items: List<Building.Raw>) {
+    private fun replaceBuildings(value: Building.Raw? = null, items: List<Nameable>) {
         buildings.value = if (value != null) listOf(value) else emptyList()
-        binding.esBuilding.updateList(items.map { it.name })
+        binding.esBuilding.updateList(items)
         binding.esBuilding.setText(value?.name.orEmpty())
     }
 
     private fun selectAllBases() {
         bases.value = allBases.value
-        binding.esBase.updateList(allBases.value.map { it.name })
+        binding.esBase.updateList(allBases.value)
         binding.esBase.setText("Все")
     }
 
     private fun selectAllBuildings() {
         buildings.value = allBuildings
-        binding.esBuilding.updateList(allBuildings.map { it.name })
+        binding.esBuilding.updateList(allBuildings)
         binding.esBuilding.setText("Все")
     }
 

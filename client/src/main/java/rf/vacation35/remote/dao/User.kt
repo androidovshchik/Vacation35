@@ -10,9 +10,9 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Users
 
-class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw> {
+class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
 
-    var name by Users.name
+    override var name by Users.name
 
     var login by Users.login
 
@@ -41,13 +41,13 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw> {
     @Serializable
     class Raw(
         val id: Int,
-        val name: String,
+        override val name: String,
         val login: String,
         val password: String,
         val accessPrice: Boolean = false,
         val accessBooking: Boolean = false,
         val admin: Boolean = false,
-    ) : Parcelable {
+    ) : Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Users.id].value,

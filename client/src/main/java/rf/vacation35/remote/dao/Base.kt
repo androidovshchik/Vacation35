@@ -8,9 +8,9 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Bases
 
-class Base(id: EntityID<Int>) : IntEntity(id), Rawable<Base.Raw> {
+class Base(id: EntityID<Int>) : IntEntity(id), Rawable<Base.Raw>, Nameable {
 
-    var name by Bases.name
+    override var name by Bases.name
 
     override fun toRaw(): Raw {
         return Raw(
@@ -22,8 +22,8 @@ class Base(id: EntityID<Int>) : IntEntity(id), Rawable<Base.Raw> {
     @Parcelize
     class Raw(
         val id: Int,
-        val name: String,
-    ) : Parcelable {
+        override val name: String,
+    ) : Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Bases.id].value,

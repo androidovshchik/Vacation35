@@ -9,11 +9,11 @@ import org.jetbrains.exposed.sql.ResultRow
 import rf.vacation35.remote.dsl.Buildings
 import java.time.LocalTime
 
-class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw> {
+class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw>, Nameable {
 
     var base by Base referencedOn Buildings.base
 
-    var name by Buildings.name
+    override var name by Buildings.name
 
     var color by Buildings.color
 
@@ -36,12 +36,12 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw> {
     @Parcelize
     class Raw(
         val id: Int,
-        val name: String,
+        override val name: String,
         val color: String,
         val entryTime: LocalTime?,
         val exitTime: LocalTime?,
         var base: Base.Raw? = null
-    ) : Parcelable {
+    ) : Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Buildings.id].value,
