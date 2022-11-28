@@ -104,12 +104,10 @@ class FilterFragment : Fragment() {
                     }
                     val buildingId = buildingId
                     val building = allBuildings.firstOrNull { it.id == buildingId }
-                    if (building != null && building.base?.id == baseId) {
-                        replaceBuildings(building, items = allBuildings)
-                    } else {
-                        val baseIds = bases.value.map { it.id.value }
-                        replaceBuildings(items = allBuildings.filter { it.base?.id in baseIds })
-                        selectAllBuildings()
+                    when {
+                        building != null && building.base?.id == baseId -> replaceBuildings(building, items = allBuildings)
+                        base != null -> replaceBuildings(items = filteredBuildings)
+                        else -> selectAllBuildings()
                     }
                 } else {
                     binding.esBase.updateList(items)
