@@ -26,8 +26,8 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw>, Nameab
             id.value,
             name,
             color,
-            entryTime,
-            exitTime,
+            entryTime?.let { LocalTime.ofSecondOfDay(it.toLong()) },
+            exitTime?.let { LocalTime.ofSecondOfDay(it.toLong()) },
         ).also {
             it.base = base.toRaw()
         }
@@ -47,8 +47,8 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw>, Nameab
             row[Buildings.id].value,
             row[Buildings.name],
             row[Buildings.color],
-            row[Buildings.entryTime],
-            row[Buildings.exitTime],
+            row[Buildings.entryTime]?.let { LocalTime.ofSecondOfDay(it.toLong()) },
+            row[Buildings.exitTime]?.let { LocalTime.ofSecondOfDay(it.toLong()) },
         ) {
             try {
                 base = Base.Raw(row)

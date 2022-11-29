@@ -1,7 +1,6 @@
 package rf.vacation35.remote.dsl
 
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.javatime.time
 
 object Buildings : IntIdTable("buildings", "bu_id") {
 
@@ -11,7 +10,7 @@ object Buildings : IntIdTable("buildings", "bu_id") {
 
     var color = varchar("bu_color", 20)
 
-    var entryTime = time("bu_entry_time").nullable()
+    var entryTime = integer("bu_entry_time").nullable()
 
-    var exitTime = time("bu_exit_time").nullable()
+    var exitTime = integer("bu_exit_time").nullable()
 }
