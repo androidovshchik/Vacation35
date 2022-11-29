@@ -13,11 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import rf.vacation35.*
 import rf.vacation35.databinding.FragmentBuildingBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -53,6 +50,8 @@ class BuildingListFragment : Fragment() {
     private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
 
     private val progress = ProgressDialog()
+
+    private val filterProgress = ProgressDialog()
 
     private lateinit var binding: FragmentListBinding
 
@@ -134,17 +133,17 @@ class BuildingListFragment : Fragment() {
         super.onStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+            childFragmentManager.with(R.id.fl_fullscreen, filterProgress, {
                 filter.loadBuildings()
             }, {
-                childFragmentManager.removeFragment(progress)
                 view?.snack(it)
-            }, {})
+            })
         }
     }
 
     override fun onDestroyView() {
         childFragmentManager.removeFragment(progress)
+        childFragmentManager.removeFragment(filterProgress)
         super.onDestroyView()
     }
 }
