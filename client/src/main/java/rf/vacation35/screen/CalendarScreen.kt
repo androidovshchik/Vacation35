@@ -176,11 +176,11 @@ class CalendarFragment : Fragment() {
         binding.pbLoading.isVisible = true
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val buildingIds = filter.buildings.value.map { it.id }
+                val ids = filter.buildings.value.map { it.id }
                 val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
                 val end = LocalDateTime.of(maxMonth.atEndOfMonth(), LocalTime.MAX)
                 val bookings = withContext(Dispatchers.IO) {
-                    api.listBookings(buildingIds, start, end)
+                    api.listBookings(ids, start, end)
                 }
                 adapter.mBookings.clear()
                 adapter.mBookings.addAll(bookings)
