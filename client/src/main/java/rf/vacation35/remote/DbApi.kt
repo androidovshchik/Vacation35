@@ -12,6 +12,7 @@ import rf.vacation35.remote.dsl.Bookings
 import rf.vacation35.remote.dsl.Buildings
 import rf.vacation35.remote.dsl.Users
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class DbApi private constructor() {
 
@@ -67,8 +68,10 @@ class DbApi private constructor() {
     }
 
     fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime) = transact {
+        val startTime = start.toEpochSecond(ZoneOffset.UTC)
+        val endTime = end.toEpochSecond(ZoneOffset.UTC)
         Bookings.innerJoin(Buildings, { building }, { Buildings.id })
-            .select { Buildings.id inList buildingIds and (Bookings.entryTime lessEq end and (Bookings.exitTime greaterEq start)) }
+            .select { Buildings.id inList buildingIds and (Bookings.entryTime lessEq endTime and (Bookings.exitTime greaterEq startTime)) }
             .map { Booking.Raw(it) }
             .sortedBy { it.start }
     }

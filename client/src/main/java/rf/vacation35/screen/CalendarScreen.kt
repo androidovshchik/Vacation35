@@ -63,7 +63,7 @@ class CalendarFragment : Fragment() {
 
     private var listenJob: Job? = null
 
-    private var queryJob: Job? = null
+    private var listJob: Job? = null
 
     private var month = YearMonth.now()
 
@@ -174,9 +174,9 @@ class CalendarFragment : Fragment() {
     }
 
     private fun loadBookings() {
-        queryJob?.cancel()
+        listJob?.cancel()
         binding.pbLoading.isVisible = true
-        queryJob = viewLifecycleOwner.lifecycleScope.launch {
+        listJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val buildingIds = filter.buildings.value.map { it.id }
                 val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
