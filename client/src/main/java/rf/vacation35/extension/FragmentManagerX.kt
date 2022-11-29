@@ -25,7 +25,13 @@ fun FragmentManager.hideFragment(id: Int) {
     }
 }
 
-inline fun FragmentManager.with(id: Int, fragment: Fragment, body: () -> Unit, catch: (Throwable) -> Unit) {
+inline fun FragmentManager.with(
+    id: Int,
+    fragment: Fragment,
+    body: () -> Unit,
+    catch: (Throwable) -> Unit,
+    final: () -> Unit = { removeFragment(fragment) }
+) {
     addFragment(id, fragment, false)
     try {
         body()
@@ -33,7 +39,7 @@ inline fun FragmentManager.with(id: Int, fragment: Fragment, body: () -> Unit, c
     } catch (e: Throwable) {
         catch(e)
     } finally {
-        removeFragment(fragment)
+        final()
     }
 }
 
