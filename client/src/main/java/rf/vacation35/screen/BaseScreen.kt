@@ -15,7 +15,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
-import rf.vacation35.EXTRA_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentBaseBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -63,7 +62,7 @@ class BaseListFragment : Fragment() {
                         try {
                             val item = items[bindingAdapterPosition]
                             start<BaseActivity> {
-                                putExtra(EXTRA_ID, item.id.value)
+                                putExtra(EXTRA_BASE_ID, item.id.value)
                             }
                         } catch (ignored: Throwable) {
                         }
@@ -149,7 +148,7 @@ class BaseFragment : Fragment() {
 
     private var findJob: Job? = null
 
-    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
+    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBaseBinding.inflate(inflater, container, false)
@@ -166,7 +165,6 @@ class BaseFragment : Fragment() {
         }
         binding.btnBuildings.setOnClickListener {
             start<BuildingListActivity> {
-                putExtra(EXTRA_ID, base!!.id.value)
                 putExtra(EXTRA_BASE_ID, base!!.id.value)
             }
         }

@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.EXTRA_ID
+import rf.vacation35.EXTRA_USER_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentAccountBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -58,7 +58,7 @@ class AccountListFragment : Fragment() {
                         try {
                             val item = items[bindingAdapterPosition]
                             start<AccountActivity> {
-                                putExtra(EXTRA_ID, item.id.value)
+                                putExtra(EXTRA_USER_ID, item.id.value)
                             }
                         } catch (ignored: Throwable) {
                         }
@@ -140,7 +140,7 @@ class AccountFragment : Fragment() {
 
     private var findJob: Job? = null
 
-    private val userId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
+    private val userId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)

@@ -96,17 +96,21 @@ class FilterFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             allBases.drop(1).collectIndexed { i, items ->
                 if (i == 0) {
-                    val baseId = baseId
-                    val base = items.firstOrNull { it.id.value == baseId }
+                    var baseId = baseId
+                    var base = items.firstOrNull { it.id.value == baseId }
+                    val buildingId = buildingId
+                    val building = allBuildings.firstOrNull { it.id == buildingId }
+                    if (base == null && building != null) {
+                        baseId = building.base?.id ?: 0
+                        base = items.firstOrNull { it.id.value == baseId }
+                    }
                     if (base != null) {
                         selectBases(base, items)
                     } else {
                         selectAllBases()
                     }
-                    val buildingId = buildingId
-                    val building = allBuildings.firstOrNull { it.id == buildingId }
                     when {
-                        building != null && building.base?.id == baseId -> selectBuildings(building, items = allBuildings)
+                        building != null && building.base?.id == baseId -> selectBuildings(building, items = filteredBuildings)
                         base != null -> selectAllBuildings(filteredBuildings)
                         else -> selectAllBuildings(allBuildings)
                     }
