@@ -15,6 +15,7 @@ import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.*
@@ -57,7 +58,7 @@ class BuildingListFragment : Fragment() {
 
     private var startJob: Job? = null
 
-    private var listenJob: Job? = null
+    private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemBuildingBinding, Building.Raw> {
@@ -109,30 +110,32 @@ class BuildingListFragment : Fragment() {
                 binding.fabAdd.isVisible = it.size == 1 && user.admin
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            filter.buildings.drop(1).collect {
+                listJob?.cancel()
+                listJob = launch {
+                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                        val ids = filter.buildings.value.map { it.id }
+                        val items = withContext(Dispatchers.IO) {
+                            api.listBuildings(ids)
+                        }
+                        adapter.items.clear()
+                        adapter.items.addAll(items)
+                        adapter.notifyDataSetChanged()
+                    }, {
+                        getView()?.snack(it)
+                    })
+                }
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        listenJob?.cancel()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 filter.loadBuildings()
-                listenJob = launch {
-                    filter.buildings.collect {
-                        childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                            val ids = filter.buildings.value.map { it.id }
-                            val items = withContext(Dispatchers.IO) {
-                                api.listBuildings(ids)
-                            }
-                            adapter.items.clear()
-                            adapter.items.addAll(items)
-                            adapter.notifyDataSetChanged()
-                        }, {
-                            view?.snack(it)
-                        })
-                    }
-                }
             }, {
                 childFragmentManager.removeFragment(progress)
                 view?.snack(it)

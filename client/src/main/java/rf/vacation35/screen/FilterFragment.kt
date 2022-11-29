@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.drop
@@ -21,7 +20,6 @@ import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
 import rf.vacation35.remote.dao.Nameable
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -142,24 +140,16 @@ class FilterFragment : Fragment() {
 
     suspend fun loadBuildings() {
         withContext(Dispatchers.IO) {
-            while (true) {
-                try {
-                    allBuildings.clear()
-                    allBuildings.addAll(withContext(Dispatchers.IO) {
-                        DbApi.getInstance()
-                            .listBuildings()
-                            .sortedBy { it.name }
-                    })
-                    allBases.value = withContext(Dispatchers.IO) {
-                        DbApi.getInstance()
-                            .list(Base)
-                            .sortedBy { it.name }
-                    }
-                    break
-                } catch (e: Throwable) {
-                    Timber.e(e)
-                    delay(10_000L)
-                }
+            allBuildings.clear()
+            allBuildings.addAll(withContext(Dispatchers.IO) {
+                DbApi.getInstance()
+                    .listBuildings()
+                    .sortedBy { it.name }
+            })
+            allBases.value = withContext(Dispatchers.IO) {
+                DbApi.getInstance()
+                    .list(Base)
+                    .sortedBy { it.name }
             }
         }
     }
