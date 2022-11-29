@@ -66,17 +66,17 @@ class FilterFragment : Fragment() {
             when (position) {
                 0 -> {
                     bases.value = emptyList()
-                    replaceBuildings(items = emptyList())
+                    selectBuildings(items = emptyList())
                 }
                 1 -> {
                     bases.value = allBases.value
-                    replaceBuildings(items = allBuildings)
+                    selectAllBuildings(allBuildings)
                 }
                 else -> {
                     val base = allBases.value.getOrNull(max(0, position - 2))
                     if (base != null) {
                         bases.value = listOf(base)
-                        replaceBuildings(items = filteredBuildings)
+                        selectAllBuildings(filteredBuildings)
                     }
                 }
             }
@@ -86,7 +86,7 @@ class FilterFragment : Fragment() {
                 0 -> buildings.value = emptyList()
                 1 -> buildings.value = filteredBuildings
                 else -> {
-                    val building = allBuildings.getOrNull(max(0, position - 2))
+                    val building = filteredBuildings.getOrNull(max(0, position - 2))
                     if (building != null) {
                         buildings.value = listOf(building)
                     }
@@ -99,16 +99,16 @@ class FilterFragment : Fragment() {
                     val baseId = baseId
                     val base = items.firstOrNull { it.id.value == baseId }
                     if (base != null) {
-                        replaceBases(base, items)
+                        selectBases(base, items)
                     } else {
                         selectAllBases()
                     }
                     val buildingId = buildingId
                     val building = allBuildings.firstOrNull { it.id == buildingId }
                     when {
-                        building != null && building.base?.id == baseId -> replaceBuildings(building, items = allBuildings)
-                        base != null -> replaceBuildings(items = filteredBuildings)
-                        else -> selectAllBuildings()
+                        building != null && building.base?.id == baseId -> selectBuildings(building, items = allBuildings)
+                        base != null -> selectAllBuildings(filteredBuildings)
+                        else -> selectAllBuildings(allBuildings)
                     }
                 } else {
                     binding.esBase.updateList(items)
@@ -118,16 +118,10 @@ class FilterFragment : Fragment() {
         }
     }
 
-    private fun replaceBases(value: Base? = null, items: List<Nameable>) {
+    private fun selectBases(value: Base? = null, items: List<Nameable>) {
         bases.value = if (value != null) listOf(value) else emptyList()
         binding.esBase.updateList(items)
         binding.esBase.setText(value?.name.orEmpty())
-    }
-
-    private fun replaceBuildings(value: Building.Raw? = null, items: List<Nameable>) {
-        buildings.value = if (value != null) listOf(value) else emptyList()
-        binding.esBuilding.updateList(items)
-        binding.esBuilding.setText(value?.name.orEmpty())
     }
 
     private fun selectAllBases() {
@@ -136,9 +130,15 @@ class FilterFragment : Fragment() {
         binding.esBase.setText("Все")
     }
 
-    private fun selectAllBuildings() {
-        buildings.value = allBuildings
-        binding.esBuilding.updateList(allBuildings)
+    private fun selectBuildings(value: Building.Raw? = null, items: List<Nameable>) {
+        buildings.value = if (value != null) listOf(value) else emptyList()
+        binding.esBuilding.updateList(items)
+        binding.esBuilding.setText(value?.name.orEmpty())
+    }
+
+    private fun selectAllBuildings(items: List<Building.Raw>) {
+        buildings.value = items
+        binding.esBuilding.updateList(items)
         binding.esBuilding.setText("Все")
     }
 

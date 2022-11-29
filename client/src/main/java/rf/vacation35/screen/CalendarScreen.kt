@@ -140,7 +140,6 @@ class CalendarFragment : Fragment() {
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 filter.loadBuildings()
-                filter.selectDefault()
                 listenJob = launch {
                     filter.buildings.collect {
                         loadBookings()
