@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.EXTRA_BASE_TITLE
+import rf.vacation35.EXTRA_BASE_ID
 import rf.vacation35.EXTRA_ID
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentBaseBinding
@@ -167,7 +167,7 @@ class BaseFragment : Fragment() {
         binding.btnBuildings.setOnClickListener {
             start<BuildingListActivity> {
                 putExtra(EXTRA_ID, base!!.id.value)
-                putExtra(EXTRA_BASE_TITLE, base!!.name)
+                putExtra(EXTRA_BASE_ID, base!!.id.value)
             }
         }
         binding.btnDelete.setOnClickListener {
@@ -219,12 +219,12 @@ class BaseFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        if (baseId > 0 || base != null) {
+        if (base != null || baseId > 0) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     base = withContext(Dispatchers.IO) {
-                        api.find(Base, baseId)
+                        api.find(Base, base?.id?.value ?: baseId)
                     }
                     base?.let {
                         val user = preferences.user!!
