@@ -105,15 +105,14 @@ class BuildingListFragment : Fragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             filter.bases.collect {
-                binding.fabAdd.isEnabled = it.size == 1
+                val user = preferences.user!!
+                binding.fabAdd.isVisible = it.size == 1 && user.admin
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
-        val user = preferences.user!!
-        binding.fabAdd.isVisible = user.admin
         listenJob?.cancel()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
@@ -208,11 +207,13 @@ class BuildingFragment : Fragment() {
         binding.tilEntry.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 entry = LocalTime.of(hourOfDay, minute)
+                binding.etEntry.setText(timeFormatter.format(entry))
             }, entry?.hour ?: 0, entry?.minute ?: 0, true).show()
         }
         binding.tilExit.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 exit = LocalTime.of(hourOfDay, minute)
+                binding.etExit.setText(timeFormatter.format(exit))
             }, exit?.hour ?: 0, exit?.minute ?: 0, true).show()
         }
         binding.btnBids.setOnClickListener {
@@ -255,15 +256,15 @@ class BuildingFragment : Fragment() {
                                     it.base = Base.findById(baseId)!!
                                     it.name = name
                                     it.color = color
-                                    it.entryTime = entry
-                                    it.exitTime = exit
+                                    it.entryTime = entry.toSecondOfDay()
+                                    it.exitTime = exit.toSecondOfDay()
                                 }
                             } else {
                                 api.update(building!!) {
                                     it.name = name
                                     it.color = color
-                                    it.entryTime = entry
-                                    it.exitTime = exit
+                                    it.entryTime = entry.toSecondOfDay()
+                                    it.exitTime = exit.toSecondOfDay()
                                 }
                             }
                         }
@@ -297,8 +298,8 @@ class BuildingFragment : Fragment() {
                         val user = preferences.user!!
                         binding.vColor.setBackgroundColor(Color.parseColor(it.color))
                         binding.etName.setText(it.name)
-                        binding.etEntry.setText(it.entryTime?.let { time -> timeFormatter.format(time) })
-                        binding.etExit.setText(it.exitTime?.let { time -> timeFormatter.format(time) })
+                        binding.etEntry.setText(it.entryTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
+                        binding.etExit.setText(it.exitTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
                         binding.btnBids.isEnabled = true
                         binding.btnBookings.isEnabled = true
                         binding.btnDelete.isEnabled = user.admin
