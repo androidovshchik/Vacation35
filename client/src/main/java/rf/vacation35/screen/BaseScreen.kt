@@ -156,6 +156,7 @@ class BaseFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val user = preferences.user!!
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -182,7 +183,6 @@ class BaseFragment : Fragment() {
                 }
             }
         }
-        val user = preferences.user!!
         binding.btnSave.isEnabled = baseId <= 0 && user.admin
         binding.btnSave.setOnClickListener {
             try {

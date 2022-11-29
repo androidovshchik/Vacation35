@@ -15,11 +15,9 @@ import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.EXTRA_ID
-import rf.vacation35.R
+import rf.vacation35.*
 import rf.vacation35.databinding.FragmentBuildingBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBuildingBinding
@@ -27,7 +25,6 @@ import rf.vacation35.extension.*
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Building
-import rf.vacation35.timeFormatter
 import splitties.fragments.start
 import splitties.snackbar.snack
 import java.time.LocalTime
@@ -59,9 +56,7 @@ class BuildingListFragment : Fragment() {
 
     private var startJob: Job? = null
 
-    private var listJob: Job? = null
-
-    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
+    private var listenJob: Job? = null
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemBuildingBinding, Building.Raw> {
@@ -83,7 +78,7 @@ class BuildingListFragment : Fragment() {
         onBindViewHolder { item ->
             color.setBackgroundColor(Color.parseColor(item.color))
             name.text = item.name
-            base.text = item.base.name
+            base.text = item.base?.name.orEmpty()
         }
     }
 
@@ -101,35 +96,36 @@ class BuildingListFragment : Fragment() {
             inflateNavMenu()
         }
         binding.rvList.adapter = adapter
-        binding.fabAdd.isVisible = baseId <= 0
         binding.fabAdd.setOnClickListener {
             start<BuildingActivity> {
-                putExtra(EXTRA_ID, baseId)
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            filter.buildings.drop(1).collect {
-                loadBuildings()
+                putExtra(EXTRA_BASE_ID, filter.bases.value)
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin
+        listenJob?.cancel()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
+            childFragmentManager.addFragment(R.id.fl_fullscreen, progress, false)
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                if (baseId > 0) {
-                    val items = withContext(Dispatchers.IO) {
-                        api.listBuildings(baseId)
-                    }
-                    adapter.items.clear()
-                    adapter.items.addAll(items)
-                    adapter.notifyDataSetChanged()
-                } else {
-                    filter.loadBuildings()
-                    if (!filter.selectInitially()) {
-                        loadBuildingsImpl()
+                filter.loadBuildings()
+                listenJob = launch {
+                    filter.buildings.collect {
+                        childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                            val ids = filter.buildings.value.map { it.id }
+                            val items = withContext(Dispatchers.IO) {
+                                api.listBuildings(ids)
+                            }
+                            adapter.items.clear()
+                            adapter.items.addAll(items)
+                            adapter.notifyDataSetChanged()
+                        }, {
+                            view?.snack(it)
+                        })
                     }
                 }
             }, {
@@ -138,18 +134,7 @@ class BuildingListFragment : Fragment() {
         }
     }
 
-    private fun loadBuildings() {
-        listJob?.cancel()
-        listJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                loadBuildingsImpl()
-            }, {
-                view?.snack(it)
-            })
-        }
-    }
-
-    private suspend fun loadBuildingsImpl() {
+    private suspend fun loadBuildings() {
         val ids = filter.buildings.value.map { it.id }
         val items = withContext(Dispatchers.IO) {
             api.listBuildings(ids)
@@ -205,6 +190,7 @@ class BuildingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val user = preferences.user!!
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -220,23 +206,28 @@ class BuildingFragment : Fragment() {
                 }
                 .customShow()
         }
-        binding.tilEntry.isEndIconCheckable = buildingId <= 0
+        binding.tilEntry.isEndIconCheckable = buildingId <= 0 && user.admin
         binding.tilEntry.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 entry = LocalTime.of(hourOfDay, minute)
             }, entry?.hour ?: 0, entry?.minute ?: 0, true).show()
         }
-        binding.tilExit.isEndIconCheckable = buildingId <= 0
+        binding.tilExit.isEndIconCheckable = buildingId <= 0 && user.admin
         binding.tilExit.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 exit = LocalTime.of(hourOfDay, minute)
             }, exit?.hour ?: 0, exit?.minute ?: 0, true).show()
         }
         binding.btnBids.setOnClickListener {
-
+            start<BookingListActivity> {
+                putExtra(EXTRA_BUILDING_ID, building!!.id.value)
+                putExtra(EXTRA_BIDS, true)
+            }
         }
         binding.btnBookings.setOnClickListener {
-
+            start<BookingListActivity> {
+                putExtra(EXTRA_BUILDING_ID, building!!.id.value)
+            }
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
@@ -252,7 +243,7 @@ class BuildingFragment : Fragment() {
                 }
             }
         }
-        binding.btnSave.isEnabled = id <= 0
+        binding.btnSave.isEnabled = buildingId <= 0 && (user.admin || user.accessPrice)
         binding.btnSave.setOnClickListener {
             try {
                 val color = color ?: throw Throwable("Не задан цвет")
@@ -278,6 +269,7 @@ class BuildingFragment : Fragment() {
                                 }
                             }
                         }
+                        @Suppress("NAME_SHADOWING")
                         val user = preferences.user!!
                         binding.toolbar.title = "Постройка"
                         binding.btnBids.isEnabled = true
@@ -296,19 +288,20 @@ class BuildingFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val id = activity?.intent?.getIntExtra(EXTRA_ID, 0) ?: 0
-        if (id > 0 || building != null) {
+        if (building != null || buildingId > 0) {
             findJob?.cancel()
             findJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     building = withContext(Dispatchers.IO) {
-                        api.find(Building, id)
+                        api.find(Building, building?.id?.value ?: buildingId)
                     }
                     building?.let {
                         val user = preferences.user!!
                         binding.vColor.setBackgroundColor(Color.parseColor(it.color))
                         binding.etName.setText(it.name)
+                        binding.tilEntry.isEndIconCheckable = true
                         binding.etEntry.setText(it.entryTime?.let { time -> timeFormatter.format(time) })
+                        binding.tilExit.isEndIconCheckable = true
                         binding.etExit.setText(it.exitTime?.let { time -> timeFormatter.format(time) })
                         binding.btnBids.isEnabled = true
                         binding.btnBookings.isEnabled = true
@@ -316,6 +309,8 @@ class BuildingFragment : Fragment() {
                         binding.btnSave.isEnabled = user.admin || user.accessPrice
                     }
                     if (building == null) {
+                        binding.tilEntry.isEndIconCheckable = false
+                        binding.tilExit.isEndIconCheckable = false
                         binding.btnBids.isEnabled = false
                         binding.btnBookings.isEnabled = false
                         binding.btnDelete.isEnabled = false
