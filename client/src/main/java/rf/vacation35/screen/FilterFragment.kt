@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
-import rf.vacation35.EXTRA_BASE_RAW
 import rf.vacation35.EXTRA_BUILDING_ID
-import rf.vacation35.EXTRA_BUILDING_RAW
 import rf.vacation35.databinding.FragmentFilterBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
@@ -48,13 +46,9 @@ class FilterFragment : Fragment() {
         return allBuildings.filter { it.base?.id in baseIds }
     }
 
-    private val baseId get() = activity?.intent?.getParcelableExtra<Base.Raw>(EXTRA_BASE_RAW)?.id
-        ?: activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0)
-        ?: 0
+    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
 
-    private val buildingId get() = activity?.intent?.getParcelableExtra<Building.Raw>(EXTRA_BUILDING_RAW)?.id
-        ?: activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0)
-        ?: 0
+    private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFilterBinding.inflate(inflater, container, false)
