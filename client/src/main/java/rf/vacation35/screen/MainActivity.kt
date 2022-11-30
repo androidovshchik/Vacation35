@@ -66,7 +66,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 R.id.action_bookings -> {
-                    start<BookingListActivity>()
+                    start<BookingListActivity> {
+                        putExtra(EXTRA_BIDS, false)
+                    }
                 }
                 R.id.action_bases -> {
                     start<BaseListActivity>()

@@ -182,8 +182,8 @@ class CalendarFragment : Fragment() {
 
     private fun loadBookings() {
         listJob?.cancel()
-        binding.pbLoading.isVisible = true
         listJob = viewLifecycleOwner.lifecycleScope.launch {
+            binding.pbLoading.isVisible = true
             try {
                 val ids = bbFragment.buildings.value.map { it.id }
                 val start = minMonth.atDay(1)

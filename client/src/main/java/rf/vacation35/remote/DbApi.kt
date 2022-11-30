@@ -17,6 +17,7 @@ import rf.vacation35.remote.dsl.Bookings
 import rf.vacation35.remote.dsl.Buildings
 import rf.vacation35.remote.dsl.Users
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 class DbApi private constructor() {
 
@@ -75,8 +76,8 @@ class DbApi private constructor() {
     }
 
     fun listBookings(buildingIds: List<Int>, start: LocalDate, end: LocalDate, bids: Boolean? = null) = transact {
-        val startDay = start.toEpochDay()
-        val endNextDay = (end + 1).toEpochDay()
+        val startDay = start.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+        val endNextDay = (end + 1).atStartOfDay().toEpochSecond(ZoneOffset.UTC)
         var where: Op<Boolean> = Buildings.id inList buildingIds
         if (bids != null) {
             where = where and (Bookings.bid eq bids)
