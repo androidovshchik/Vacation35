@@ -23,49 +23,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_base"
+            <fragment
+                android:id="@+id/f_bb"
+                android:name="rf.vacation35.screen.BBVFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <rf.vacation35.screen.view.EditSpinner
-                    android:id="@+id/es_base"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="База отдыха"
-                    android:imeOptions="actionNext"
-                    android:inputType="none"
-                    android:maxLines="1"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="16dp"
-                    android:textSize="15.5sp" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_building"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                app:layout_constraintTop_toBottomOf="@+id/til_base">
-
-                <rf.vacation35.screen.view.EditSpinner
-                    android:id="@+id/es_building"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Постройка"
-                    android:imeOptions="actionNext"
-                    android:inputType="none"
-                    android:maxLines="1"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="16dp"
-                    android:textSize="15.5sp" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_entry"
@@ -75,7 +38,7 @@
                 android:layout_marginTop="12dp"
                 app:endIconDrawable="@drawable/ic_baseline_today_24"
                 app:endIconMode="custom"
-                app:layout_constraintTop_toBottomOf="@+id/til_building">
+                app:layout_constraintTop_toBottomOf="@+id/f_bb">
 
                 <EditText
                     android:id="@+id/et_entry"

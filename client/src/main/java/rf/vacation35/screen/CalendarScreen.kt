@@ -56,7 +56,7 @@ class CalendarFragment : Fragment() {
 
     private val progress = ProgressDialog()
 
-    private val filter by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
+    private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
     private lateinit var binding: FragmentCalendarBinding
 
@@ -131,7 +131,7 @@ class CalendarFragment : Fragment() {
                 }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            filter.buildings.drop(1).collect {
+            bbFragment.buildings.drop(1).collect {
                 loadBookings()
             }
         }
@@ -142,7 +142,7 @@ class CalendarFragment : Fragment() {
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                filter.loadBuildings()
+                bbFragment.loadBuildings()
             }, {
                 view?.snack(it)
             })
@@ -176,7 +176,7 @@ class CalendarFragment : Fragment() {
         binding.pbLoading.isVisible = true
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val ids = filter.buildings.value.map { it.id }
+                val ids = bbFragment.buildings.value.map { it.id }
                 val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
                 val end = LocalDateTime.of(maxMonth.atEndOfMonth(), LocalTime.MAX)
                 val bookings = withContext(Dispatchers.IO) {

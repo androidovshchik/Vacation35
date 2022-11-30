@@ -92,7 +92,7 @@ class BaseListFragment : Fragment() {
         binding.fabAdd.setOnClickListener {
             start<BaseActivity>()
         }
-        childFragmentManager.hideFragment(R.id.f_filter)
+        childFragmentManager.hideFragment(R.id.f_bb)
     }
 
     override fun onStart() {
