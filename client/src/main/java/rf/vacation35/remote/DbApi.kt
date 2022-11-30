@@ -3,6 +3,10 @@ package rf.vacation35.remote
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import rf.vacation35.extension.transact
 import rf.vacation35.remote.dao.Booking
 import rf.vacation35.remote.dao.Building
@@ -67,11 +71,16 @@ class DbApi private constructor() {
             .map { Building.Raw(it) }
     }
 
-    fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime) = transact {
+    fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime, bids: Boolean? = null) = transact {
         val startTime = start.toEpochSecond(ZoneOffset.UTC)
         val endTime = end.toEpochSecond(ZoneOffset.UTC)
+        var where: Op<Boolean> = Buildings.id inList buildingIds
+        if (bids != null) {
+            where = where and (Bookings.bid eq bids)
+        }
+        where = where and (Bookings.entryTime lessEq endTime and (Bookings.exitTime greaterEq startTime))
         Bookings.innerJoin(Buildings, { building }, { Buildings.id })
-            .select { Buildings.id inList buildingIds and (Bookings.entryTime lessEq endTime and (Bookings.exitTime greaterEq startTime)) }
+            .select { where }
             .map { Booking.Raw(it) }
             .sortedBy { it.start }
     }
