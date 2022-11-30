@@ -8,14 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
 import rf.vacation35.EXTRA_BUILDING_ID
-import rf.vacation35.databinding.FragmentFilterBinding
+import rf.vacation35.databinding.FragmentBbhBinding
+import rf.vacation35.databinding.FragmentBbvBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
@@ -24,7 +25,22 @@ import javax.inject.Inject
 import kotlin.math.max
 
 @AndroidEntryPoint
-class FilterFragment : Fragment() {
+class BBVFragment : BBHFragment() {
+
+    override val baseSpinner get() = binding.esBase
+
+    override val buildingSpinner get() = binding.esBuilding
+
+    private lateinit var binding: FragmentBbvBinding
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentBbvBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+}
+
+@AndroidEntryPoint
+open class BBHFragment : Fragment() {
 
     @Inject
     lateinit var api: DbApi
@@ -33,11 +49,11 @@ class FilterFragment : Fragment() {
 
     val buildings = MutableStateFlow(listOf<Building.Raw>())
 
-    private val allBases = MutableStateFlow(listOf<Base>())
+    private val allBases = MutableSharedFlow<List<Base>>()
+
+    private val allBasesValue = mutableListOf<Base>()
 
     private val allBuildings = mutableListOf<Building.Raw>()
-
-    private lateinit var binding: FragmentFilterBinding
 
     private val filteredBuildings: List<Building.Raw> get() {
         val baseIds = bases.value.map { it.id.value }
@@ -48,24 +64,30 @@ class FilterFragment : Fragment() {
 
     private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
 
+    protected open val baseSpinner get() = binding.esBase
+
+    protected open val buildingSpinner get() = binding.esBuilding
+
+    private lateinit var binding: FragmentBbhBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentFilterBinding.inflate(inflater, container, false)
+        binding = FragmentBbhBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.esBase.setOnItemClickListener { _, _, position, _ ->
+        baseSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
                     bases.value = emptyList()
                     selectBuildings(items = emptyList())
                 }
                 1 -> {
-                    bases.value = allBases.value
+                    bases.value = allBasesValue
                     selectAllBuildings(allBuildings)
                 }
                 else -> {
-                    val base = allBases.value.getOrNull(max(0, position - 2))
+                    val base = allBasesValue.getOrNull(max(0, position - 2))
                     if (base != null) {
                         bases.value = listOf(base)
                         selectAllBuildings(filteredBuildings)
@@ -73,7 +95,7 @@ class FilterFragment : Fragment() {
                 }
             }
         }
-        binding.esBuilding.setOnItemClickListener { _, _, position, _ ->
+        buildingSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.value = emptyList()
                 1 -> buildings.value = filteredBuildings
@@ -86,7 +108,7 @@ class FilterFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            allBases.drop(1).collectIndexed { i, items ->
+            allBases.collectIndexed { i, items ->
                 if (i == 0) {
                     var baseId = baseId
                     var base = items.firstOrNull { it.id.value == baseId }
@@ -107,8 +129,8 @@ class FilterFragment : Fragment() {
                         else -> selectAllBuildings(allBuildings)
                     }
                 } else {
-                    binding.esBase.updateList(items)
-                    binding.esBuilding.updateList(filteredBuildings)
+                    baseSpinner.updateList(items)
+                    buildingSpinner.updateList(filteredBuildings)
                 }
             }
         }
@@ -116,26 +138,26 @@ class FilterFragment : Fragment() {
 
     private fun selectBases(value: Base? = null, items: List<Nameable>) {
         bases.value = if (value != null) listOf(value) else emptyList()
-        binding.esBase.updateList(items)
-        binding.esBase.setText(value?.name.orEmpty())
+        baseSpinner.updateList(items)
+        baseSpinner.setText(value?.name.orEmpty())
     }
 
     private fun selectAllBases() {
-        bases.value = allBases.value
-        binding.esBase.updateList(allBases.value)
-        binding.esBase.setText("Все")
+        bases.value = allBasesValue
+        baseSpinner.updateList(allBasesValue)
+        baseSpinner.setText("Все")
     }
 
     private fun selectBuildings(value: Building.Raw? = null, items: List<Nameable>) {
         buildings.value = if (value != null) listOf(value) else emptyList()
-        binding.esBuilding.updateList(items)
-        binding.esBuilding.setText(value?.name.orEmpty())
+        buildingSpinner.updateList(items)
+        buildingSpinner.setText(value?.name.orEmpty())
     }
 
     private fun selectAllBuildings(items: List<Building.Raw>) {
         buildings.value = items
-        binding.esBuilding.updateList(items)
-        binding.esBuilding.setText("Все")
+        buildingSpinner.updateList(items)
+        buildingSpinner.setText("Все")
     }
 
     suspend fun loadBuildings() {
@@ -146,11 +168,13 @@ class FilterFragment : Fragment() {
                     .listBuildings()
                     .sortedBy { it.name }
             })
-            allBases.value = withContext(Dispatchers.IO) {
+            allBasesValue.clear()
+            allBasesValue.addAll(withContext(Dispatchers.IO) {
                 DbApi.getInstance()
                     .list(Base)
                     .sortedBy { it.name }
-            }
+            })
+            allBases.emit(allBasesValue)
         }
     }
 }
