@@ -20,7 +20,6 @@ import rf.vacation35.databinding.FragmentBbvBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
-import rf.vacation35.remote.dao.Nameable
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -55,11 +54,6 @@ open class BBHFragment : Fragment() {
 
     private val allBuildings = mutableListOf<Building.Raw>()
 
-    private val filteredBuildings: List<Building.Raw> get() {
-        val baseIds = bases.value.map { it.id.value }
-        return allBuildings.filter { it.base?.id in baseIds }
-    }
-
     private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
 
     private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
@@ -80,17 +74,17 @@ open class BBHFragment : Fragment() {
             when (position) {
                 0 -> {
                     bases.value = emptyList()
-                    selectBuildings(items = emptyList())
+                    selectBuildings(emptyList())
                 }
                 1 -> {
                     bases.value = allBasesValue
-                    selectAllBuildings(allBuildings)
+                    selectBuildings(allBuildings)
                 }
                 else -> {
                     val base = allBasesValue.getOrNull(max(0, position - 2))
                     if (base != null) {
                         bases.value = listOf(base)
-                        selectAllBuildings(filteredBuildings)
+                        selectBuildings(filterBuildings())
                     }
                 }
             }
@@ -98,9 +92,9 @@ open class BBHFragment : Fragment() {
         buildingSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.value = emptyList()
-                1 -> buildings.value = filteredBuildings
+                1 -> buildings.value = filterBuildings()
                 else -> {
-                    val building = filteredBuildings.getOrNull(max(0, position - 2))
+                    val building = filterBuildings().getOrNull(max(0, position - 2))
                     if (building != null) {
                         buildings.value = listOf(building)
                     }
@@ -115,49 +109,54 @@ open class BBHFragment : Fragment() {
                     val buildingId = buildingId
                     val building = allBuildings.firstOrNull { it.id == buildingId }
                     if (base == null && building != null) {
-                        baseId = building.base?.id ?: 0
+                        baseId = building.base!!.id
                         base = items.firstOrNull { it.id.value == baseId }
                     }
                     if (base != null) {
-                        selectBases(base, items)
+                        selectBases(listOf(base))
                     } else {
-                        selectAllBases()
+                        selectBases(allBasesValue)
                     }
                     when {
-                        building != null && building.base?.id == baseId -> selectBuildings(building, items = filteredBuildings)
-                        base != null -> selectAllBuildings(filteredBuildings)
-                        else -> selectAllBuildings(allBuildings)
+                        building?.base?.id == baseId -> selectBuildings(listOf(building))
+                        base != null -> selectBuildings(filterBuildings())
+                        else -> selectBuildings(allBuildings)
                     }
                 } else {
+                    val bases = bases.value.filter { it in items }
+                    val buildings = filterBuildings(bases)
                     baseSpinner.updateList(items)
                     buildingSpinner.updateList(filteredBuildings)
+                    selectBases(bases.value)
+                    selectBuildings(buildings.value, filteredBuildings)
                 }
             }
         }
     }
 
-    private fun selectBases(value: Base? = null, items: List<Nameable>) {
-        bases.value = if (value != null) listOf(value) else emptyList()
-        baseSpinner.updateList(items)
-        baseSpinner.setText(value?.name.orEmpty())
+    private fun filterBuildings(value: List<Base> = bases.value): List<Building.Raw> {
+        val baseIds = value.map { it.id.value }
+        return allBuildings.filter { it.base!!.id in baseIds }
     }
 
-    private fun selectAllBases() {
-        bases.value = allBasesValue
+    private fun selectBases(value: List<Base>) {
+        bases.value = value
         baseSpinner.updateList(allBasesValue)
-        baseSpinner.setText("Все")
+        baseSpinner.setText(when(value.size) {
+            0 -> ""
+            1 -> value.first().name
+            else -> "Все"
+        })
     }
 
-    private fun selectBuildings(value: Building.Raw? = null, items: List<Nameable>) {
-        buildings.value = if (value != null) listOf(value) else emptyList()
-        buildingSpinner.updateList(items)
-        buildingSpinner.setText(value?.name.orEmpty())
-    }
-
-    private fun selectAllBuildings(items: List<Building.Raw>) {
-        buildings.value = items
-        buildingSpinner.updateList(items)
-        buildingSpinner.setText("Все")
+    private fun selectBuildings(value: List<Building.Raw>) {
+        buildings.value = value
+        buildingSpinner.updateList(filterBuildings())
+        buildingSpinner.setText(when(value.size) {
+            0 -> ""
+            1 -> value.first().name
+            else -> "Все"
+        })
     }
 
     suspend fun loadBuildings() {
