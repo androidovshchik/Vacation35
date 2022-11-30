@@ -128,7 +128,8 @@ open class BBHFragment : Fragment() {
                         else -> selectBuildings(allBuildings)
                     }
                 } else {
-                    selectBases(bases.value.filter { it in items })
+                    val baseIds = items.map { it.id.value }
+                    selectBases(bases.value.filter { it.id.value in baseIds })
                     selectBuildings(filteredBuildings)
                 }
             }
@@ -143,6 +144,7 @@ open class BBHFragment : Fragment() {
             1 -> value.first().name
             else -> "Все"
         })
+        baseSpinner.clearFocus()
     }
 
     private fun selectBuildings(value: List<Building.Raw>) {
@@ -153,6 +155,7 @@ open class BBHFragment : Fragment() {
             1 -> value.first().name
             else -> "Все"
         })
+        buildingSpinner.clearFocus()
     }
 
     suspend fun loadBuildings() {
@@ -169,7 +172,7 @@ open class BBHFragment : Fragment() {
                     .list(Base)
                     .sortedBy { it.name }
             })
-            allBases.emit(allBasesValue)
         }
+        allBases.emit(allBasesValue)
     }
 }

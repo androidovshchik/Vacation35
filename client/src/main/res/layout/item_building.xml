@@ -13,7 +13,7 @@
 
         <View
             android:id="@+id/color"
-            android:layout_width="16dp"
+            android:layout_width="18dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
