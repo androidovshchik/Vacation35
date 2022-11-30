@@ -17,6 +17,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import rf.vacation35.EXTRA_BASE_ID
+import rf.vacation35.EXTRA_BUILDING_ID
 import rf.vacation35.EXTRA_DATE
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentCalendarBinding
@@ -96,7 +98,11 @@ class CalendarFragment : Fragment() {
                     ml.setOnClickListener {
                         try {
                             it as DayView
+                            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
+                            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
                             start<BookingListActivity> {
+                                putExtra(EXTRA_BASE_ID, baseId)
+                                putExtra(EXTRA_BUILDING_ID, buildingId)
                                 putExtra(EXTRA_DATE, it.mValue)
                             }
                         } catch (ignored: Throwable) {
@@ -117,7 +123,12 @@ class CalendarFragment : Fragment() {
         scrollToToday()
         binding.rvCalendar.addOnScrollListener(scrollListener)
         binding.fabAdd.setOnClickListener {
-            start<BookingActivity>()
+            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
+            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
+            start<BookingActivity> {
+                putExtra(EXTRA_BASE_ID, baseId)
+                putExtra(EXTRA_BUILDING_ID, buildingId)
+            }
         }
         updateAccess()
         lifecycleScope.launch {
