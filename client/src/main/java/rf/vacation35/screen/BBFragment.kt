@@ -54,6 +54,11 @@ open class BBHFragment : Fragment() {
 
     private val allBuildings = mutableListOf<Building.Raw>()
 
+    private val filteredBuildings: List<Building.Raw> get() {
+        val baseIds = bases.value.map { it.id.value }
+        return allBuildings.filter { it.base?.id in baseIds }
+    }
+
     private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
 
     private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
@@ -84,7 +89,7 @@ open class BBHFragment : Fragment() {
                     val base = allBasesValue.getOrNull(max(0, position - 2))
                     if (base != null) {
                         bases.value = listOf(base)
-                        selectBuildings(filterBuildings())
+                        selectBuildings(filteredBuildings)
                     }
                 }
             }
@@ -92,9 +97,9 @@ open class BBHFragment : Fragment() {
         buildingSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> buildings.value = emptyList()
-                1 -> buildings.value = filterBuildings()
+                1 -> buildings.value = filteredBuildings
                 else -> {
-                    val building = filterBuildings().getOrNull(max(0, position - 2))
+                    val building = filteredBuildings.getOrNull(max(0, position - 2))
                     if (building != null) {
                         buildings.value = listOf(building)
                     }
@@ -119,24 +124,15 @@ open class BBHFragment : Fragment() {
                     }
                     when {
                         building?.base?.id == baseId -> selectBuildings(listOf(building))
-                        base != null -> selectBuildings(filterBuildings())
+                        base != null -> selectBuildings(filteredBuildings)
                         else -> selectBuildings(allBuildings)
                     }
                 } else {
-                    val bases = bases.value.filter { it in items }
-                    val buildings = filterBuildings(bases)
-                    baseSpinner.updateList(items)
-                    buildingSpinner.updateList(filteredBuildings)
-                    selectBases(bases.value)
-                    selectBuildings(buildings.value, filteredBuildings)
+                    selectBases(bases.value.filter { it in items })
+                    selectBuildings(filteredBuildings)
                 }
             }
         }
-    }
-
-    private fun filterBuildings(value: List<Base> = bases.value): List<Building.Raw> {
-        val baseIds = value.map { it.id.value }
-        return allBuildings.filter { it.base!!.id in baseIds }
     }
 
     private fun selectBases(value: List<Base>) {
@@ -151,7 +147,7 @@ open class BBHFragment : Fragment() {
 
     private fun selectBuildings(value: List<Building.Raw>) {
         buildings.value = value
-        buildingSpinner.updateList(filterBuildings())
+        buildingSpinner.updateList(filteredBuildings)
         buildingSpinner.setText(when(value.size) {
             0 -> ""
             1 -> value.first().name
