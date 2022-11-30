@@ -47,7 +47,7 @@ class BuildingListFragment : Fragment() {
     @Inject
     lateinit var preferences: Preferences
 
-    private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
+    private val filter by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
     private val progress = ProgressDialog()
 

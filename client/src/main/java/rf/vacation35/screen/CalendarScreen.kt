@@ -56,7 +56,7 @@ class CalendarFragment : Fragment() {
 
     private val progress = ProgressDialog()
 
-    private val filter by lazy {  childFragmentManager.findFragmentById(R.id.f_filter) as FilterFragment }
+    private val filter by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
     private lateinit var binding: FragmentCalendarBinding
 

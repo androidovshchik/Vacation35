@@ -39,13 +39,13 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_baseline_add_24"
         app:backgroundTint="?attr/colorAccent"
-        app:layout_constraintBottom_toTopOf="@+id/f_filter"
+        app:layout_constraintBottom_toTopOf="@+id/f_bb"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@android:color/white" />
 
     <fragment
-        android:id="@+id/f_filter"
-        android:name="rf.vacation35.screen.FilterFragment"
+        android:id="@+id/f_bb"
+        android:name="rf.vacation35.screen.BBHFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />
