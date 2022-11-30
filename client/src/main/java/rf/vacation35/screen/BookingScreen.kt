@@ -60,9 +60,15 @@ class BookingListFragment : Fragment() {
 
     private var listJob: Job? = null
 
-    private lateinit var end: LocalDate
+    private var end = LocalDate.now()
 
     private val start get() = end.minusMonths(5)
+
+    private var day: LocalDate? = null
+
+    private val bids get() = activity?.intent?.let {
+        if (it.hasExtra(EXTRA_BIDS)) it.getBooleanExtra(EXTRA_BIDS, false) else null
+    }
 
     private val scrollListener = object : EndlessListener() {
 
@@ -95,10 +101,10 @@ class BookingListFragment : Fragment() {
         }
         onBindViewHolder { item ->
             if (item.bid) {
-                root.setBackgroundColor(0xff616161.toInt())
+                root.setCardBackgroundColor(0xff616161.toInt())
                 times.setTextColor(Color.WHITE)
             } else {
-                root.setBackgroundColor(0)
+                root.setCardBackgroundColor(Color.WHITE)
                 times.setTextColor(Color.BLACK)
             }
             color.setBackgroundColor(Color.parseColor(item.building?.color))
@@ -107,9 +113,9 @@ class BookingListFragment : Fragment() {
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        end = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate? ?: LocalDate.now()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        day = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -122,11 +128,17 @@ class BookingListFragment : Fragment() {
             onBackPressed {
                 activity?.finish()
             }
-            title = "Брони"
+            title = when {
+                bids == true -> "Заявки"
+                day != null -> "Брони на ${dateFormatter.format(day)}"
+                else -> "Брони"
+            }
             inflateNavMenu()
         }
         binding.rvList.adapter = adapter
-        binding.rvList.addOnScrollListener(scrollListener)
+        if (day != null) {
+            binding.rvList.addOnScrollListener(scrollListener)
+        }
         binding.fabAdd.setOnClickListener {
             val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
             val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
@@ -164,7 +176,11 @@ class BookingListFragment : Fragment() {
                 val items = mutableListOf<Booking.Raw>()
                 items.addAll(adapter.items)
                 items.addAll(withContext(Dispatchers.IO) {
-                    api.listBookings(ids, start, end)
+                    if (day != null) {
+                        api.listBookings(ids, day!!, day!!, bids)
+                    } else {
+                        api.listBookings(ids, start, end, bids)
+                    }
                 })
                 adapter.items.clear()
                 adapter.items.addAll(items.distinct())
@@ -216,8 +232,8 @@ class BookingFragment : Fragment() {
 
     private val bookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L) ?: 0L
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         buildingId = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
     }
 
