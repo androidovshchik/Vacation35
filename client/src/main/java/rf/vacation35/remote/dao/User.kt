@@ -39,7 +39,7 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
     @Keep
     @Parcelize
     @Serializable
-    data class Raw(
+    class Raw(
         val id: Int,
         override val name: String,
         val login: String,
@@ -58,6 +58,18 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
             row[Users.accessBooking],
             row[Users.admin],
         )
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+            other as Raw
+            if (id != other.id) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return id
+        }
     }
 
     companion object : IntEntityClass<User>(Users)

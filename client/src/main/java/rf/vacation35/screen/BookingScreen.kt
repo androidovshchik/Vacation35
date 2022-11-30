@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.mohamedabulgasem.datetimepicker.DateTimePicker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.drop
 import rf.vacation35.*
 import rf.vacation35.databinding.FragmentBookingBinding
 import rf.vacation35.databinding.FragmentListBinding
@@ -128,41 +128,24 @@ class BookingListFragment : Fragment() {
         binding.rvList.adapter = adapter
         binding.rvList.addOnScrollListener(scrollListener)
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.singleOrNull()?.id
-            val buildingId = bbFragment.buildings.value.single().id
+            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
+            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
             start<BookingActivity> {
-                if (baseId != null) {
-                    putExtra(EXTRA_BASE_ID, baseId)
-                }
+                putExtra(EXTRA_BASE_ID, baseId)
                 putExtra(EXTRA_BUILDING_ID, buildingId)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.collectIndexed { i, buildings ->
-                val user = preferences.user!!
-                binding.fabAdd.isVisible = buildings.size == 1 && (user.admin || user.accessBooking)
-                if (i > 0) {
-                    listJob?.cancel()
-                    listJob = launch {
-                        childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                            val ids = bbFragment.buildings.value.map { it.id }
-                            val items = withContext(Dispatchers.IO) {
-                                api.listBookings(ids, start, end)
-                            }
-                            adapter.items.clear()
-                            adapter.items.addAll(items)
-                            adapter.notifyDataSetChanged()
-                        }, {
-                            getView()?.snack(it)
-                        })
-                    }
-                }
+            bbFragment.buildings.drop(1).collect {
+                loadBookings()
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin || user.accessBooking
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, bbProgress, {
@@ -176,17 +159,19 @@ class BookingListFragment : Fragment() {
     private fun loadBookings() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val ids = bbFragment.buildings.value.map { it.id }
-                val items = withContext(Dispatchers.IO) {
+                val items = mutableListOf<Booking.Raw>()
+                items.addAll(adapter.items)
+                items.addAll(withContext(Dispatchers.IO) {
                     api.listBookings(ids, start, end)
-                }
+                })
                 adapter.items.clear()
-                adapter.items.addAll(items)
+                adapter.items.addAll(items.distinct())
                 adapter.notifyDataSetChanged()
-            } finally {
-                binding.pbLoading.isVisible = false
-            }
+            }, {
+                view?.snack(it)
+            })
         }
     }
 
