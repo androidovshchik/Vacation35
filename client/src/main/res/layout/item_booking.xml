@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="6dp"
-    tools:cardBackgroundColor="@color/colorBid">
+    tools:cardBackgroundColor="#616161">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -31,12 +31,12 @@
             android:layout_marginTop="2dp"
             android:layout_marginEnd="16dp"
             android:maxLines="1"
-            android:textColor="@android:color/black"
             android:textSize="17sp"
             app:layout_constraintBottom_toTopOf="@+id/building"
             app:layout_constraintStart_toEndOf="@+id/color"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="01.01 00:00 - 01.01 00:00" />
+            tools:text="01.01 00:00 - 01.01 00:00"
+            tools:textColor="@android:color/black" />
 
         <TextView
             android:id="@+id/building"

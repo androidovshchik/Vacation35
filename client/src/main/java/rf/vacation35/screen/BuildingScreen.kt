@@ -98,7 +98,7 @@ class BuildingListFragment : Fragment() {
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.first().id
+            val baseId = bbFragment.bases.value.single().id
             start<BuildingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
             }
@@ -198,6 +198,7 @@ class BuildingFragment : Fragment() {
             title = if (buildingId == 0) "Новая постройка" else "Постройка"
             inflateNavMenu()
         }
+        binding.vColor.isEnabled = user.admin
         binding.vColor.setOnClickListener {
             ColorPickerDialog.Builder(requireActivity())
                 .setColorListener { value, hex ->
@@ -206,12 +207,15 @@ class BuildingFragment : Fragment() {
                 }
                 .customShow()
         }
+        binding.etName.isFocusable = user.admin
+        binding.tilEntry.isEndIconCheckable = user.admin
         binding.tilEntry.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 entry = LocalTime.of(hourOfDay, minute)
                 binding.etEntry.setText(timeFormatter.format(entry))
             }, entry?.hour ?: 0, entry?.minute ?: 0, true).show()
         }
+        binding.tilExit.isEndIconCheckable = user.admin
         binding.tilExit.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
                 exit = LocalTime.of(hourOfDay, minute)
