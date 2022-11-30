@@ -6,7 +6,8 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import rf.vacation35.extension.plus
 import rf.vacation35.extension.transact
 import rf.vacation35.remote.dao.Booking
 import rf.vacation35.remote.dao.Building
@@ -15,8 +16,7 @@ import rf.vacation35.remote.dsl.Bases
 import rf.vacation35.remote.dsl.Bookings
 import rf.vacation35.remote.dsl.Buildings
 import rf.vacation35.remote.dsl.Users
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.LocalDate
 
 class DbApi private constructor() {
 
@@ -74,14 +74,14 @@ class DbApi private constructor() {
             .sortedBy { it.name }
     }
 
-    fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime, bids: Boolean? = null) = transact {
-        val startTime = start.toEpochSecond(ZoneOffset.UTC)
-        val endTime = end.toEpochSecond(ZoneOffset.UTC)
+    fun listBookings(buildingIds: List<Int>, start: LocalDate, end: LocalDate, bids: Boolean? = null) = transact {
+        val startDay = start.toEpochDay()
+        val endNextDay = (end + 1).toEpochDay()
         var where: Op<Boolean> = Buildings.id inList buildingIds
         if (bids != null) {
             where = where and (Bookings.bid eq bids)
         }
-        where = where and (Bookings.entryTime lessEq endTime and (Bookings.exitTime greaterEq startTime))
+        where = where and (Bookings.entryTime less endNextDay and (Bookings.exitTime greaterEq startDay))
         Bookings.innerJoin(Buildings, { building }, { Buildings.id })
             .select { where }
             .map { Booking.Raw(it) }

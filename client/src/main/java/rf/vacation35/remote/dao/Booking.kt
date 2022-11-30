@@ -67,24 +67,11 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
             if (javaClass != other?.javaClass) return false
             other as Raw
             if (id != other.id) return false
-            if (start != other.start) return false
-            if (endInclusive != other.endInclusive) return false
-            if (clientName != other.clientName) return false
-            if (phone != other.phone) return false
-            if (bid != other.bid) return false
-            if (building?.id != other.building?.id) return false
             return true
         }
 
         override fun hashCode(): Int {
-            var result = id.hashCode()
-            result = 31 * result + start.hashCode()
-            result = 31 * result + endInclusive.hashCode()
-            result = 31 * result + clientName.hashCode()
-            result = 31 * result + phone.hashCode()
-            result = 31 * result + bid.hashCode()
-            result = 31 * result + (building?.id?.hashCode() ?: 0)
-            return result
+            return id.hashCode()
         }
     }
 

@@ -29,8 +29,6 @@ import rf.vacation35.screen.view.DayView
 import splitties.dimensions.dip
 import splitties.fragments.start
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.YearMonth
 import javax.inject.Inject
 
@@ -177,8 +175,8 @@ class CalendarFragment : Fragment() {
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val ids = bbFragment.buildings.value.map { it.id }
-                val start = LocalDateTime.of(minMonth.atDay(1), LocalTime.MIN)
-                val end = LocalDateTime.of(maxMonth.atEndOfMonth(), LocalTime.MAX)
+                val start = minMonth.atDay(1)
+                val end = maxMonth.atEndOfMonth()
                 val bookings = withContext(Dispatchers.IO) {
                     api.listBookings(ids, start, end)
                 }
