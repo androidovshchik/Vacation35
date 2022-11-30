@@ -47,11 +47,11 @@ class BuildingListFragment : Fragment() {
     @Inject
     lateinit var preferences: Preferences
 
-    private val filter by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
-
     private val progress = ProgressDialog()
 
-    private val filterProgress = ProgressDialog()
+    private val bbProgress = ProgressDialog()
+
+    private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
     private lateinit var binding: FragmentListBinding
 
@@ -98,23 +98,23 @@ class BuildingListFragment : Fragment() {
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
-            val baseId = filter.bases.value.first().id.value
+            val baseId = bbFragment.bases.value.first().id.value
             start<BuildingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            filter.bases.collect {
+            bbFragment.bases.collect {
                 val user = preferences.user!!
                 binding.fabAdd.isVisible = it.size == 1 && user.admin
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            filter.buildings.drop(1).collect {
+            bbFragment.buildings.drop(1).collect {
                 listJob?.cancel()
                 listJob = launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        val ids = filter.buildings.value.map { it.id }
+                        val ids = bbFragment.buildings.value.map { it.id }
                         val items = withContext(Dispatchers.IO) {
                             api.listBuildings(ids)
                         }
@@ -133,8 +133,8 @@ class BuildingListFragment : Fragment() {
         super.onStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, filterProgress, {
-                filter.loadBuildings()
+            childFragmentManager.with(R.id.fl_fullscreen, bbProgress, {
+                bbFragment.loadBuildings()
             }, {
                 view?.snack(it)
             })
@@ -143,7 +143,7 @@ class BuildingListFragment : Fragment() {
 
     override fun onDestroyView() {
         childFragmentManager.removeFragment(progress)
-        childFragmentManager.removeFragment(filterProgress)
+        childFragmentManager.removeFragment(bbProgress)
         super.onDestroyView()
     }
 }
