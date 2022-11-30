@@ -54,7 +54,8 @@
         android:name="rf.vacation35.screen.BBHFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout="@layout/fragment_bbh" />
 
     <FrameLayout
         android:id="@+id/fl_fullscreen"
