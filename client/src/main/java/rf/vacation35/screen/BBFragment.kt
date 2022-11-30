@@ -44,19 +44,19 @@ open class BBHFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    val bases = MutableStateFlow(listOf<Base>())
+    val bases = MutableStateFlow(listOf<Base.Raw>())
 
     val buildings = MutableStateFlow(listOf<Building.Raw>())
 
-    private val allBases = MutableSharedFlow<List<Base>>()
+    private val allBases = MutableSharedFlow<List<Base.Raw>>()
 
-    private val allBasesValue = mutableListOf<Base>()
+    private val allBasesValue = mutableListOf<Base.Raw>()
 
     private val allBuildings = mutableListOf<Building.Raw>()
 
     private val filteredBuildings: List<Building.Raw> get() {
-        val baseIds = bases.value.map { it.id.value }
-        return allBuildings.filter { it.base?.id in baseIds }
+        val baseIds = bases.value.map { it.id }
+        return allBuildings.filter { it.base!!.id in baseIds }
     }
 
     private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
@@ -110,12 +110,12 @@ open class BBHFragment : Fragment() {
             allBases.collectIndexed { i, items ->
                 if (i == 0) {
                     var baseId = baseId
-                    var base = items.firstOrNull { it.id.value == baseId }
+                    var base = items.firstOrNull { it.id == baseId }
                     val buildingId = buildingId
                     val building = allBuildings.firstOrNull { it.id == buildingId }
                     if (base == null && building != null) {
                         baseId = building.base!!.id
-                        base = items.firstOrNull { it.id.value == baseId }
+                        base = items.firstOrNull { it.id == baseId }
                     }
                     if (base != null) {
                         selectBases(listOf(base))
@@ -128,15 +128,15 @@ open class BBHFragment : Fragment() {
                         else -> selectBuildings(allBuildings)
                     }
                 } else {
-                    val baseIds = items.map { it.id.value }
-                    selectBases(bases.value.filter { it.id.value in baseIds })
+                    val baseIds = items.map { it.id }
+                    selectBases(bases.value.filter { it.id in baseIds })
                     selectBuildings(filteredBuildings)
                 }
             }
         }
     }
 
-    private fun selectBases(value: List<Base>) {
+    private fun selectBases(value: List<Base.Raw>) {
         bases.value = value
         baseSpinner.updateList(allBasesValue)
         baseSpinner.setText(when(value.size) {
@@ -164,13 +164,12 @@ open class BBHFragment : Fragment() {
             allBuildings.addAll(withContext(Dispatchers.IO) {
                 DbApi.getInstance()
                     .listBuildings()
-                    .sortedBy { it.name }
             })
             allBasesValue.clear()
             allBasesValue.addAll(withContext(Dispatchers.IO) {
                 DbApi.getInstance()
                     .list(Base)
-                    .sortedBy { it.name }
+                    .map { it.toRaw() }
             })
         }
         allBases.emit(allBasesValue)

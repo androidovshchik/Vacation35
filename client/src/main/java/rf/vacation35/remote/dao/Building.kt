@@ -34,7 +34,7 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw>, Nameab
     }
 
     @Parcelize
-    class Raw(
+    data class Raw(
         val id: Int,
         override val name: String,
         val color: String,

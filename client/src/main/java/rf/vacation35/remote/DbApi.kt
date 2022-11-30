@@ -62,13 +62,16 @@ class DbApi private constructor() {
                 } else {
                     selectAll()
                 }
-            }.map { Building.Raw(it) }
+            }
+            .map { Building.Raw(it) }
+            .sortedBy { it.name }
     }
 
     fun listBuildings(buildingIds: List<Int>) = transact {
         Buildings.innerJoin(Bases, { base }, { Bases.id })
             .select { Buildings.id inList buildingIds }
             .map { Building.Raw(it) }
+            .sortedBy { it.name }
     }
 
     fun listBookings(buildingIds: List<Int>, start: LocalDateTime, end: LocalDateTime, bids: Boolean? = null) = transact {
@@ -82,7 +85,7 @@ class DbApi private constructor() {
         Bookings.innerJoin(Buildings, { building }, { Buildings.id })
             .select { where }
             .map { Booking.Raw(it) }
-            .sortedBy { it.start }
+            .sortedByDescending { it.endInclusive }
     }
 
     companion object {

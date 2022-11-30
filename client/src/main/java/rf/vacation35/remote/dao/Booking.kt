@@ -38,7 +38,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
     }
 
     @Parcelize
-    class Raw(
+    data class Raw(
         val id: Long,
         override val start: LocalDateTime,
         override val endInclusive: LocalDateTime,

@@ -39,7 +39,7 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
     @Keep
     @Parcelize
     @Serializable
-    class Raw(
+    data class Raw(
         val id: Int,
         override val name: String,
         val login: String,

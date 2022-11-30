@@ -20,7 +20,7 @@ class Base(id: EntityID<Int>) : IntEntity(id), Rawable<Base.Raw>, Nameable {
     }
 
     @Parcelize
-    class Raw(
+    data class Raw(
         val id: Int,
         override val name: String,
     ) : Parcelable, Nameable {
