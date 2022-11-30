@@ -20,10 +20,10 @@ class Base(id: EntityID<Int>) : IntEntity(id), Rawable<Base.Raw>, Nameable {
     }
 
     @Parcelize
-    data class Raw(
+    class Raw(
         val id: Int,
         override val name: String,
-    ) : Parcelable, Nameable {
+    ) : RandomComparable(), Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Bases.id].value,

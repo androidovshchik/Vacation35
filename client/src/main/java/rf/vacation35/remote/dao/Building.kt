@@ -34,14 +34,14 @@ class Building(id: EntityID<Int>) : IntEntity(id), Rawable<Building.Raw>, Nameab
     }
 
     @Parcelize
-    data class Raw(
+    class Raw(
         val id: Int,
         override val name: String,
         val color: String,
         val entryTime: LocalTime?,
         val exitTime: LocalTime?,
         var base: Base.Raw? = null
-    ) : Parcelable, Nameable {
+    ) : RandomComparable(), Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Buildings.id].value,

@@ -39,7 +39,7 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
     @Keep
     @Parcelize
     @Serializable
-    data class Raw(
+    class Raw(
         val id: Int,
         override val name: String,
         val login: String,
@@ -47,7 +47,7 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
         val accessPrice: Boolean = false,
         val accessBooking: Boolean = false,
         val admin: Boolean = false,
-    ) : Parcelable, Nameable {
+    ) : RandomComparable(), Parcelable, Nameable {
 
         constructor(row: ResultRow): this(
             row[Users.id].value,

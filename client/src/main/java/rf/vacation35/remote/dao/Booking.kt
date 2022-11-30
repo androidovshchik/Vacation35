@@ -38,7 +38,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
     }
 
     @Parcelize
-    data class Raw(
+    class Raw(
         val id: Long,
         override val start: LocalDateTime,
         override val endInclusive: LocalDateTime,
@@ -46,7 +46,7 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
         val phone: String,
         val bid: Boolean,
         var building: Building.Raw? = null
-    ) : ClosedRange<LocalDateTime>, Parcelable {
+    ) : RandomComparable(), ClosedRange<LocalDateTime>, Parcelable {
 
         constructor(row: ResultRow): this(
             row[Bookings.id].value,

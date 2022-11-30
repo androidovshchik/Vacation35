@@ -79,7 +79,7 @@ class BuildingListFragment : Fragment() {
         onBindViewHolder { item ->
             color.setBackgroundColor(Color.parseColor(item.color))
             name.text = item.name
-            base.text = item.base?.name.orEmpty()
+            base.text = item.base!!.name
         }
     }
 
@@ -98,7 +98,7 @@ class BuildingListFragment : Fragment() {
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.first().id.value
+            val baseId = bbFragment.bases.value.first().id
             start<BuildingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
             }
