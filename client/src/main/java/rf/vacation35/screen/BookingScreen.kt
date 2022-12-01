@@ -288,7 +288,7 @@ class BookingFragment : Fragment() {
                 val exit = exitDatetime ?: throw Throwable("Не задано время выезда")
                 val clientName = binding.etClientName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя клиента") }
                 val phone = binding.etPhone.text.toString().trim().ifEmpty { throw Throwable("Не задан телефон") }
-                val bid = binding.sActive.isChecked
+                val bid = !binding.sActive.isChecked
                 viewLifecycleOwner.lifecycleScope.launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
@@ -332,9 +332,13 @@ class BookingFragment : Fragment() {
             startJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     bbFragment.loadBuildings()
+                    var buildingId: Int? = null
                     booking = withContext(Dispatchers.IO) {
-                        api.find(Booking, booking?.id?.value ?: bookingId)
+                        api.find(Booking, booking?.id?.value ?: bookingId) {
+                            buildingId = it?.building?.id?.value
+                        }
                     }
+                    bbFragment.select(buildingId = buildingId ?: 0)
                     booking?.let {
                         val user = preferences.user!!
                         entryDatetime = LocalDateTime.ofEpochSecond(it.entryTime, 0, defaultOffset)
@@ -343,7 +347,7 @@ class BookingFragment : Fragment() {
                         binding.etExit.setText(dateTimeFormatter.format(exitDatetime))
                         binding.etClientName.setText(it.clientName)
                         binding.etPhone.setText(it.phone)
-                        binding.sActive.isChecked = it.bid
+                        binding.sActive.isChecked = !it.bid
                         binding.btnDelete.isEnabled = user.admin
                         binding.btnSave.isEnabled = user.admin || user.accessBooking
                     }

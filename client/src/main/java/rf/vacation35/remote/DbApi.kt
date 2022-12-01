@@ -37,8 +37,8 @@ class DbApi private constructor() {
         dao.all().toList()
     }
 
-    fun <ID : Comparable<ID>, T : Entity<ID>> find(dao: EntityClass<ID, T>, id: ID) = transact {
-        dao.findById(id)
+    fun <ID : Comparable<ID>, T : Entity<ID>> find(dao: EntityClass<ID, T>, id: ID, custom: (T?) -> Unit = {}) = transact {
+        dao.findById(id).apply { custom(this) }
     }
 
     fun <T : Entity<*>> create(dao: EntityClass<*, T>, init: (T) -> Unit) = transact {
@@ -51,11 +51,6 @@ class DbApi private constructor() {
 
     fun delete(dao: Entity<*>) = transact {
         dao.delete()
-    }
-
-    fun findUser(login: String, password: String) = transact {
-        User.find { Users.login eq login and (Users.password eq password) }
-            .firstOrNull()
     }
 
     fun listBuildings(baseId: Int? = null) = transact {
@@ -90,6 +85,11 @@ class DbApi private constructor() {
             .select { where }
             .map { Booking.Raw(it) }
             .sortedByDescending { it.endInclusive }
+    }
+
+    fun findUser(login: String, password: String) = transact {
+        User.find { Users.login eq login and (Users.password eq password) }
+            .firstOrNull()
     }
 
     companion object {

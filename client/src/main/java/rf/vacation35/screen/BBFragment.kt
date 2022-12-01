@@ -111,13 +111,13 @@ open class BBHFragment : Fragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            allBases.collectIndexed { i, items ->
+            allBases.collectIndexed { i, _ ->
                 if (i == 0) {
                     if (autofill) {
                         select(baseId, buildingId)
                     }
                 } else {
-                    val baseIds = items.map { it.id }
+                    val baseIds = allBasesValue.map { it.id }
                     selectBases(bases.value.filter { it.id in baseIds })
                     selectBuildings(filteredBuildings)
                 }
@@ -125,8 +125,8 @@ open class BBHFragment : Fragment() {
         }
     }
 
-    fun select(id: Int = 0, buildingId: Int = 0) {
-        var baseId = id
+    fun select(_baseId: Int = 0, buildingId: Int = 0) {
+        var baseId = _baseId
         var base = allBasesValue.firstOrNull { it.id == baseId }
         val building = allBuildings.firstOrNull { it.id == buildingId }
         if (base == null && building != null) {
