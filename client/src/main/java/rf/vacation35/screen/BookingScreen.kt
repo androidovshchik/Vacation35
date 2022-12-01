@@ -1,7 +1,9 @@
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -264,6 +266,16 @@ class BookingFragment : Fragment() {
                 }
                 .build()
                 .show()
+        }
+        binding.fabPhone.setOnClickListener {
+            try {
+                val phone = binding.etPhone.text.toString().trim()
+                val intent = Intent(Intent.ACTION_DIAL)
+                intent.data = Uri.parse("tel:$phone")
+                startActivity(intent)
+            } catch (e: Throwable) {
+                getView()?.snack(e)
+            }
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
