@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.mohamedabulgasem.datetimepicker.DateTimePicker
+import com.redmadrobot.inputmask.MaskedTextChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.drop
@@ -25,9 +26,7 @@ import rf.vacation35.remote.dao.Booking
 import rf.vacation35.remote.dao.Building
 import splitties.fragments.start
 import splitties.snackbar.snack
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -136,7 +135,7 @@ class BookingListFragment : Fragment() {
             inflateNavMenu()
         }
         binding.rvList.adapter = adapter
-        if (day != null) {
+        if (day == null) {
             binding.rvList.addOnScrollListener(scrollListener)
         }
         binding.fabAdd.setOnClickListener {
@@ -173,7 +172,7 @@ class BookingListFragment : Fragment() {
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             childFragmentManager.with(R.id.fl_fullscreen, progress, {
                 val ids = bbFragment.buildings.value.map { it.id }
-                val items = mutableListOf<Booking.Raw>()
+                val items = mutableSetOf<Booking.Raw>()
                 items.addAll(adapter.items)
                 items.addAll(withContext(Dispatchers.IO) {
                     if (day != null) {
@@ -183,7 +182,7 @@ class BookingListFragment : Fragment() {
                     }
                 })
                 adapter.items.clear()
-                adapter.items.addAll(items.distinct())
+                adapter.items.addAll(items)
                 adapter.notifyDataSetChanged()
             }, {
                 view?.snack(it)
@@ -218,6 +217,8 @@ class BookingFragment : Fragment() {
 
     private val progress = ProgressDialog()
 
+    private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
+
     private lateinit var binding: FragmentBookingBinding
 
     private var booking: Booking? = null
@@ -226,7 +227,7 @@ class BookingFragment : Fragment() {
 
     private var exit: LocalDateTime? = null
 
-    private var findJob: Job? = null
+    private var startJob: Job? = null
 
     private var buildingId = 0
 
@@ -248,7 +249,7 @@ class BookingFragment : Fragment() {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (buildingId == 0) "Новая бронь" else "Бронь"
+            title = if (bookingId == 0L) "Новая бронь" else "Бронь"
             inflateNavMenu()
         }
         binding.tilEntry.setEndIconOnClickListener {
@@ -285,10 +286,11 @@ class BookingFragment : Fragment() {
                 }
             }
         }
-        binding.btnSave.isEnabled = buildingId <= 0 && (user.admin || user.accessPrice)
+        MaskedTextChangedListener.installOn(binding.etPhone, "+7([000]) [000]-[00]-[00]")
+        binding.btnSave.isEnabled = bookingId <= 0 && (user.admin || user.accessPrice)
         binding.btnSave.setOnClickListener {
             try {
-                val buildingId = buildingId.takeIf { it > 0 } ?: throw Throwable("Не выбрана постройка")
+                val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
                 val entry = entry ?: throw Throwable("Не задано время заезда")
                 val exit = exit ?: throw Throwable("Не задано время выезда")
                 val clientName = binding.etClientName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя клиента") }
@@ -316,7 +318,7 @@ class BookingFragment : Fragment() {
                         @Suppress("NAME_SHADOWING")
                         val user = preferences.user!!
                         binding.toolbar.title = "Бронь"
-                        binding.btnDelete.isEnabled = user.admin || user.accessBooking
+                        binding.btnDelete.isEnabled = user.admin
                     }, {
                         getView()?.snack(it)
                     })
@@ -331,19 +333,20 @@ class BookingFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         if (booking != null || bookingId > 0) {
-            findJob?.cancel()
-            findJob = viewLifecycleOwner.lifecycleScope.launch {
+            startJob?.cancel()
+            startJob = viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                    bbFragment.loadBuildings()
                     booking = withContext(Dispatchers.IO) {
                         api.find(Booking, booking?.id?.value ?: bookingId)
                     }
                     booking?.let {
                         val user = preferences.user!!
-                        binding.etEntry.setText(timeFormatter.format(LocalDateTime.ofEpochSecond(it.entryTime, 0, ZoneOffset.UTC)))
-                        binding.etExit.setText(timeFormatter.format(LocalDateTime.ofEpochSecond(it.exitTime, 0, ZoneOffset.UTC)))
+                        binding.etEntry.setText(dateTimeFormatter.format(LocalDateTime.ofEpochSecond(it.entryTime, 0, defaultOffset)))
+                        binding.etExit.setText(dateTimeFormatter.format(LocalDateTime.ofEpochSecond(it.exitTime, 0, defaultOffset)))
                         binding.etClientName.setText(it.clientName)
                         binding.etPhone.setText(it.phone)
-                        binding.btnDelete.isEnabled = user.admin || user.accessBooking
+                        binding.btnDelete.isEnabled = user.admin
                         binding.btnSave.isEnabled = user.admin || user.accessBooking
                     }
                     if (booking == null) {

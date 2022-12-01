@@ -6,9 +6,9 @@ import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.ResultRow
+import rf.vacation35.extension.defaultOffset
 import rf.vacation35.remote.dsl.Bookings
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
 
@@ -27,8 +27,8 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
     override fun toRaw(): Raw {
         return Raw(
             id.value,
-            LocalDateTime.ofEpochSecond(entryTime, 0, ZoneOffset.UTC),
-            LocalDateTime.ofEpochSecond(exitTime, 0, ZoneOffset.UTC),
+            LocalDateTime.ofEpochSecond(entryTime, 0, defaultOffset),
+            LocalDateTime.ofEpochSecond(exitTime, 0, defaultOffset),
             clientName,
             phone,
             bid,
@@ -50,8 +50,8 @@ class Booking(id: EntityID<Long>) : LongEntity(id), Rawable<Booking.Raw> {
 
         constructor(row: ResultRow): this(
             row[Bookings.id].value,
-            LocalDateTime.ofEpochSecond(row[Bookings.entryTime], 0, ZoneOffset.UTC),
-            LocalDateTime.ofEpochSecond(row[Bookings.exitTime], 0, ZoneOffset.UTC),
+            LocalDateTime.ofEpochSecond(row[Bookings.entryTime], 0, defaultOffset),
+            LocalDateTime.ofEpochSecond(row[Bookings.exitTime], 0, defaultOffset),
             row[Bookings.clientName],
             row[Bookings.phone],
             row[Bookings.bid],
