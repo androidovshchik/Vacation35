@@ -174,9 +174,9 @@ class BuildingFragment : Fragment() {
 
     private var color: String? = null
 
-    private var entry: LocalTime? = null
+    private var entryTime: LocalTime? = null
 
-    private var exit: LocalTime? = null
+    private var exitTime: LocalTime? = null
 
     private var findJob: Job? = null
 
@@ -211,16 +211,16 @@ class BuildingFragment : Fragment() {
         binding.tilEntry.isEndIconCheckable = user.admin
         binding.tilEntry.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
-                entry = LocalTime.of(hourOfDay, minute)
-                binding.etEntry.setText(timeFormatter.format(entry))
-            }, entry?.hour ?: 0, entry?.minute ?: 0, true).show()
+                entryTime = LocalTime.of(hourOfDay, minute)
+                binding.etEntry.setText(timeFormatter.format(entryTime))
+            }, entryTime?.hour ?: 0, entryTime?.minute ?: 0, true).show()
         }
         binding.tilExit.isEndIconCheckable = user.admin
         binding.tilExit.setEndIconOnClickListener {
             TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
-                exit = LocalTime.of(hourOfDay, minute)
-                binding.etExit.setText(timeFormatter.format(exit))
-            }, exit?.hour ?: 0, exit?.minute ?: 0, true).show()
+                exitTime = LocalTime.of(hourOfDay, minute)
+                binding.etExit.setText(timeFormatter.format(exitTime))
+            }, exitTime?.hour ?: 0, exitTime?.minute ?: 0, true).show()
         }
         binding.btnBids.setOnClickListener {
             start<BookingListActivity> {
@@ -252,8 +252,8 @@ class BuildingFragment : Fragment() {
             try {
                 val color = color ?: throw Throwable("Не задан цвет")
                 val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
-                val entry = entry ?: throw Throwable("Не задано время заезда")
-                val exit = exit ?: throw Throwable("Не задано время выезда")
+                val entry = entryTime ?: throw Throwable("Не задано время заезда")
+                val exit = exitTime ?: throw Throwable("Не задано время выезда")
                 viewLifecycleOwner.lifecycleScope.launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
@@ -305,10 +305,10 @@ class BuildingFragment : Fragment() {
                         color = it.color
                         binding.vColor.setBackgroundColor(Color.parseColor(it.color))
                         binding.etName.setText(it.name)
-                        entry = it.entryTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
-                        binding.etEntry.setText(it.entryTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
-                        exit = it.exitTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
-                        binding.etExit.setText(it.exitTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
+                        entryTime = it.entryTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
+                        binding.etEntry.setText(entryTime?.let { time -> timeFormatter.format(time) })
+                        exitTime = it.exitTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
+                        binding.etExit.setText(exitTime?.let { time -> timeFormatter.format(time) })
                         binding.btnBids.isEnabled = true
                         binding.btnBookings.isEnabled = true
                         binding.btnDelete.isEnabled = user.admin

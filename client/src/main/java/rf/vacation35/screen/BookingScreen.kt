@@ -59,11 +59,11 @@ class BookingListFragment : Fragment() {
 
     private var listJob: Job? = null
 
-    private var end = LocalDate.now()
+    private var endDay = LocalDate.now()
 
-    private val start get() = end.minusMonths(5)
+    private val startDay get() = endDay.minusMonths(5)
 
-    private var day: LocalDate? = null
+    private var specialDay: LocalDate? = null
 
     private val bids get() = activity?.intent?.let {
         if (it.hasExtra(EXTRA_BIDS)) it.getBooleanExtra(EXTRA_BIDS, false) else null
@@ -75,7 +75,7 @@ class BookingListFragment : Fragment() {
         }
 
         override fun onScrolledToBottom() {
-            end = start
+            endDay = startDay
             loadBookings()
         }
     }
@@ -114,7 +114,7 @@ class BookingListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        day = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
+        specialDay = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -129,13 +129,13 @@ class BookingListFragment : Fragment() {
             }
             title = when {
                 bids == true -> "Заявки"
-                day != null -> "Брони на ${dateFormatter.format(day)}"
+                specialDay != null -> "Брони на ${dateFormatter.format(specialDay)}"
                 else -> "Брони"
             }
             inflateNavMenu()
         }
         binding.rvList.adapter = adapter
-        if (day == null) {
+        if (specialDay == null) {
             binding.rvList.addOnScrollListener(scrollListener)
         }
         binding.fabAdd.setOnClickListener {
@@ -175,10 +175,10 @@ class BookingListFragment : Fragment() {
                 val items = mutableSetOf<Booking.Raw>()
                 items.addAll(adapter.items)
                 items.addAll(withContext(Dispatchers.IO) {
-                    if (day != null) {
-                        api.listBookings(ids, day!!, day!!, bids)
+                    if (specialDay != null) {
+                        api.listBookings(ids, specialDay!!, specialDay!!, bids)
                     } else {
-                        api.listBookings(ids, start, end, bids)
+                        api.listBookings(ids, startDay, endDay, bids)
                     }
                 })
                 adapter.items.clear()
@@ -223,20 +223,13 @@ class BookingFragment : Fragment() {
 
     private var booking: Booking? = null
 
-    private var entry: LocalDateTime? = null
+    private var entryDatetime: LocalDateTime? = null
 
-    private var exit: LocalDateTime? = null
+    private var exitDatetime: LocalDateTime? = null
 
     private var startJob: Job? = null
 
-    private var buildingId = 0
-
     private val bookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L) ?: 0L
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        buildingId = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBookingBinding.inflate(inflater, container, false)
@@ -254,20 +247,20 @@ class BookingFragment : Fragment() {
         }
         binding.tilEntry.setEndIconOnClickListener {
             DateTimePicker.Builder(requireActivity())
-                .initialValues(entry?.year, entry?.monthValue, entry?.dayOfMonth, entry?.hour, entry?.minute)
+                .initialValues(entryDatetime?.year, entryDatetime?.monthValue, entryDatetime?.dayOfMonth, entryDatetime?.hour, entryDatetime?.minute)
                 .onDateTimeSetListener { year, month, dayOfMonth, hourOfDay, minute ->
-                    entry = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
-                    binding.etEntry.setText(dateTimeFormatter.format(entry))
+                    entryDatetime = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
+                    binding.etEntry.setText(dateTimeFormatter.format(entryDatetime))
                 }
                 .build()
                 .show()
         }
         binding.tilExit.setEndIconOnClickListener {
             DateTimePicker.Builder(requireActivity())
-                .initialValues(exit?.year, exit?.monthValue, exit?.dayOfMonth, exit?.hour, exit?.minute)
+                .initialValues(exitDatetime?.year, exitDatetime?.monthValue, exitDatetime?.dayOfMonth, exitDatetime?.hour, exitDatetime?.minute)
                 .onDateTimeSetListener { year, month, dayOfMonth, hourOfDay, minute ->
-                    exit = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
-                    binding.etEntry.setText(dateTimeFormatter.format(exit))
+                    exitDatetime = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
+                    binding.etEntry.setText(dateTimeFormatter.format(exitDatetime))
                 }
                 .build()
                 .show()
@@ -291,10 +284,11 @@ class BookingFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             try {
                 val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
-                val entry = entry ?: throw Throwable("Не задано время заезда")
-                val exit = exit ?: throw Throwable("Не задано время выезда")
+                val entry = entryDatetime ?: throw Throwable("Не задано время заезда")
+                val exit = exitDatetime ?: throw Throwable("Не задано время выезда")
                 val clientName = binding.etClientName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя клиента") }
                 val phone = binding.etPhone.text.toString().trim().ifEmpty { throw Throwable("Не задан телефон") }
+                val bid = binding.sActive.isChecked
                 viewLifecycleOwner.lifecycleScope.launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
@@ -305,6 +299,7 @@ class BookingFragment : Fragment() {
                                     it.exitTime = exit.toEpochSecond(ZoneOffset.UTC)
                                     it.clientName = clientName
                                     it.phone = phone
+                                    it.bid = bid
                                 }
                             } else {
                                 api.update(booking!!) {
@@ -312,6 +307,7 @@ class BookingFragment : Fragment() {
                                     it.exitTime = exit.toEpochSecond(ZoneOffset.UTC)
                                     it.clientName = clientName
                                     it.phone = phone
+                                    it.bid = bid
                                 }
                             }
                         }
@@ -327,7 +323,6 @@ class BookingFragment : Fragment() {
                 getView()?.snack(e)
             }
         }
-        context?.updateRecentColors()
     }
 
     override fun onStart() {
@@ -342,10 +337,13 @@ class BookingFragment : Fragment() {
                     }
                     booking?.let {
                         val user = preferences.user!!
-                        binding.etEntry.setText(dateTimeFormatter.format(LocalDateTime.ofEpochSecond(it.entryTime, 0, defaultOffset)))
-                        binding.etExit.setText(dateTimeFormatter.format(LocalDateTime.ofEpochSecond(it.exitTime, 0, defaultOffset)))
+                        entryDatetime = LocalDateTime.ofEpochSecond(it.entryTime, 0, defaultOffset)
+                        binding.etEntry.setText(dateTimeFormatter.format(entryDatetime))
+                        exitDatetime = LocalDateTime.ofEpochSecond(it.exitTime, 0, defaultOffset)
+                        binding.etExit.setText(dateTimeFormatter.format(exitDatetime))
                         binding.etClientName.setText(it.clientName)
                         binding.etPhone.setText(it.phone)
+                        binding.sActive.isChecked = it.bid
                         binding.btnDelete.isEnabled = user.admin
                         binding.btnSave.isEnabled = user.admin || user.accessBooking
                     }
