@@ -302,9 +302,12 @@ class BuildingFragment : Fragment() {
                     }
                     building?.let {
                         val user = preferences.user!!
+                        color = it.color
                         binding.vColor.setBackgroundColor(Color.parseColor(it.color))
                         binding.etName.setText(it.name)
+                        entry = it.entryTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
                         binding.etEntry.setText(it.entryTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
+                        exit = it.exitTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
                         binding.etExit.setText(it.exitTime?.let { time -> timeFormatter.format(LocalTime.ofSecondOfDay(time.toLong())) })
                         binding.btnBids.isEnabled = true
                         binding.btnBookings.isEnabled = true

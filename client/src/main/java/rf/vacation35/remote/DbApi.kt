@@ -26,7 +26,10 @@ class DbApi private constructor() {
             "jdbc:mysql://31.31.198.241:3306/u1617530_vacation35api?characterEncoding=UTF-8&useUnicode=true",
             "com.mysql.jdbc.Driver",
             "u1617530_vacation35",
-            "vRf8F661mq0\$"
+            "vRf8F661mq0\$",
+            databaseConfig = DatabaseConfig {
+                defaultRepetitionAttempts = 1
+            }
         )
     }
 
