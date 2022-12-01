@@ -30,6 +30,7 @@ import rf.vacation35.remote.dao.Booking
 import rf.vacation35.screen.view.DayView
 import splitties.dimensions.dip
 import splitties.fragments.start
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
@@ -194,6 +195,8 @@ class CalendarFragment : Fragment() {
                 adapter.mBookings.clear()
                 adapter.mBookings.addAll(bookings)
                 adapter.notifyDataSetChanged()
+            } catch (e: Throwable) {
+                Timber.e(e)
             } finally {
                 binding.pbLoading.isVisible = false
             }

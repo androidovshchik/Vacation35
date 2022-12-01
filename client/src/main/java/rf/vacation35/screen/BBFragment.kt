@@ -26,6 +26,8 @@ import kotlin.math.max
 @AndroidEntryPoint
 class BBVFragment : BBHFragment() {
 
+    override val autofill = false
+
     override val baseSpinner get() = binding.esBase
 
     override val buildingSpinner get() = binding.esBuilding
@@ -43,6 +45,8 @@ open class BBHFragment : Fragment() {
 
     @Inject
     lateinit var api: DbApi
+
+    protected open val autofill = true
 
     val bases = MutableStateFlow(listOf<Base.Raw>())
 
@@ -109,23 +113,8 @@ open class BBHFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             allBases.collectIndexed { i, items ->
                 if (i == 0) {
-                    var baseId = baseId
-                    var base = items.firstOrNull { it.id == baseId }
-                    val buildingId = buildingId
-                    val building = allBuildings.firstOrNull { it.id == buildingId }
-                    if (base == null && building != null) {
-                        baseId = building.base!!.id
-                        base = items.firstOrNull { it.id == baseId }
-                    }
-                    if (base != null) {
-                        selectBases(listOf(base))
-                    } else {
-                        selectBases(allBasesValue)
-                    }
-                    when {
-                        building?.base?.id == baseId -> selectBuildings(listOf(building))
-                        base != null -> selectBuildings(filteredBuildings)
-                        else -> selectBuildings(allBuildings)
+                    if (autofill) {
+                        select(baseId, buildingId)
                     }
                 } else {
                     val baseIds = items.map { it.id }
@@ -133,6 +122,26 @@ open class BBHFragment : Fragment() {
                     selectBuildings(filteredBuildings)
                 }
             }
+        }
+    }
+
+    fun select(id: Int = 0, buildingId: Int = 0) {
+        var baseId = id
+        var base = allBasesValue.firstOrNull { it.id == baseId }
+        val building = allBuildings.firstOrNull { it.id == buildingId }
+        if (base == null && building != null) {
+            baseId = building.base!!.id
+            base = allBasesValue.firstOrNull { it.id == baseId }
+        }
+        if (base != null) {
+            selectBases(listOf(base))
+        } else {
+            selectBases(allBasesValue)
+        }
+        when {
+            building?.base?.id == baseId -> selectBuildings(listOf(building))
+            base != null -> selectBuildings(filteredBuildings)
+            else -> selectBuildings(allBuildings)
         }
     }
 

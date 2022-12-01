@@ -28,7 +28,7 @@ class DbApi private constructor() {
             "u1617530_vacation35",
             "vRf8F661mq0\$",
             databaseConfig = DatabaseConfig {
-                defaultRepetitionAttempts = 1
+                defaultRepetitionAttempts = 0
             }
         )
     }
