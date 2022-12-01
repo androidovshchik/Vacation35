@@ -1,8 +1,9 @@
 package rf.vacation35.remote.dsl
 
 import org.jetbrains.exposed.dao.id.IntIdTable
+import rf.vacation35.BuildConfig
 
-object Buildings : IntIdTable("buildings", "bu_id") {
+object Buildings : IntIdTable("${if (BuildConfig.DEBUG) "_" else ""}buildings", "bu_id") {
 
     val base = reference("bu_base", Bases)
 
