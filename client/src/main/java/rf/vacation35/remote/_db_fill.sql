@@ -1,4 +1,9 @@
 INSERT INTO
+    _users(u_name, u_login, u_password, u_access_booking, u_access_price, u_admin)
+VALUES
+    ('Админ', 'admin', 'отпуск35рф', TRUE, TRUE, TRUE);
+
+INSERT INTO
     _bases(ba_name)
 VALUES
     ('ТестБ1'),

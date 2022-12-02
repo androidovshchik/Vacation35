@@ -14,11 +14,6 @@ CREATE TABLE users(
     PRIMARY KEY (u_id)
 ) ENGINE=InnoDB CHARACTER SET=UTF8;
 
-INSERT INTO
-    users(u_name, u_login, u_password, u_access_booking, u_access_price, u_admin)
-VALUES
-    ('Админ', 'admin', 'отпуск35рф', TRUE, TRUE, TRUE);
-
 CREATE TABLE bases(
     ba_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
     ba_name VARCHAR(60) NOT NULL,
