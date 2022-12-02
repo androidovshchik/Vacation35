@@ -1,7 +1,6 @@
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.drop
@@ -24,7 +22,6 @@ import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
 import splitties.fragments.start
 import splitties.snackbar.snack
-import java.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -170,12 +167,6 @@ class BuildingFragment : AbstractFragment() {
 
     private var building: Building? = null
 
-    private var color: String? = null
-
-    private var entryTime: LocalTime? = null
-
-    private var exitTime: LocalTime? = null
-
     private var findJob: Job? = null
 
     private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
@@ -196,30 +187,10 @@ class BuildingFragment : AbstractFragment() {
             title = if (buildingId == 0) "Новая постройка" else "Постройка"
             inflateNavMenu()
         }
-        binding.vColor.isEnabled = user.admin
-        binding.vColor.setOnClickListener {
-            ColorPickerDialog.Builder(requireActivity())
-                .setColorListener { value, hex ->
-                    color = hex
-                    binding.vColor.setBackgroundColor(value)
-                }
-                .customShow()
-        }
+        binding.pColor.isEnabled = user.admin
         binding.etName.isFocusable = user.admin
         binding.tilEntry.isEndIconCheckable = user.admin
-        binding.tilEntry.setEndIconOnClickListener {
-            TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
-                entryTime = LocalTime.of(hourOfDay, minute)
-                binding.etEntry.setText(timeFormatter.format(entryTime))
-            }, entryTime?.hour ?: 0, entryTime?.minute ?: 0, true).show()
-        }
         binding.tilExit.isEndIconCheckable = user.admin
-        binding.tilExit.setEndIconOnClickListener {
-            TimePickerDialog(requireActivity(), { _, hourOfDay, minute ->
-                exitTime = LocalTime.of(hourOfDay, minute)
-                binding.etExit.setText(timeFormatter.format(exitTime))
-            }, exitTime?.hour ?: 0, exitTime?.minute ?: 0, true).show()
-        }
         binding.btnBids.setOnClickListener {
             start<BookingListActivity> {
                 putExtra(EXTRA_BUILDING_ID, building!!.id.value)
@@ -248,10 +219,10 @@ class BuildingFragment : AbstractFragment() {
         binding.btnSave.isEnabled = buildingId <= 0 && (user.admin || user.accessPrice)
         binding.btnSave.setOnClickListener {
             try {
-                val color = color ?: throw Throwable("Не задан цвет")
-                val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
-                val entry = entryTime ?: throw Throwable("Не задано время заезда")
-                val exit = exitTime ?: throw Throwable("Не задано время выезда")
+                val color = binding.pColor.mColor ?: throw Throwable("Не задан цвет")
+                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
+                val entry = binding.tilEntry.mTime ?: throw Throwable("Не задано время заезда")
+                val exit = binding.tilExit.mTime ?: throw Throwable("Не задано время выезда")
                 viewLifecycleOwner.lifecycleScope.launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
@@ -286,7 +257,6 @@ class BuildingFragment : AbstractFragment() {
                 getView()?.snack(e)
             }
         }
-        context?.updateRecentColors()
     }
 
     override fun onStart() {
@@ -300,13 +270,10 @@ class BuildingFragment : AbstractFragment() {
                     }
                     building?.let {
                         val user = preferences.user!!
-                        color = it.color
-                        binding.vColor.setBackgroundColor(Color.parseColor(it.color))
+                        binding.pColor.mColor = it.color
                         binding.etName.setText(it.name)
-                        entryTime = it.entryTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
-                        binding.etEntry.setText(entryTime?.let { time -> timeFormatter.format(time) })
-                        exitTime = it.exitTime?.let { time -> LocalTime.ofSecondOfDay(time.toLong()) }
-                        binding.etExit.setText(exitTime?.let { time -> timeFormatter.format(time) })
+                        binding.tilEntry.setTime(it.entryTime)
+                        binding.tilExit.setTime(it.exitTime)
                         binding.btnBids.isEnabled = true
                         binding.btnBookings.isEnabled = true
                         binding.btnDelete.isEnabled = user.admin

@@ -170,9 +170,9 @@ class AccountFragment : AbstractFragment() {
         binding.btnSave.isEnabled = userId <= 0
         binding.btnSave.setOnClickListener {
             try {
-                val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
-                val login = binding.etLogin.text.toString().trim().ifEmpty { throw Throwable("Не задан логин") }
-                val password = binding.etPassword.text.toString().trim().ifEmpty { throw Throwable("Не задан пароль") }
+                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
+                val login = binding.etLogin.value.ifEmpty { throw Throwable("Не задан логин") }
+                val password = binding.etPassword.value.ifEmpty { throw Throwable("Не задан пароль") }
                 val accessBooking = binding.cbBookings.isChecked
                 val accessPrice = binding.cbPrices.isChecked
                 val admin = binding.cbAdmin.isChecked

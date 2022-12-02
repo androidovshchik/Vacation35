@@ -16,6 +16,10 @@ class TimeInputLayout @JvmOverloads constructor(
 ) : TextInputLayout(context, attrs, defStyleAttr) {
 
     var mTime: LocalTime? = null
+        set(value) {
+            field = value
+            mEditText.setText(value?.let { timeFormatter.format(it) })
+        }
 
     private val mEditText = EditText(context).apply {
         isFocusable = false
@@ -30,8 +34,11 @@ class TimeInputLayout @JvmOverloads constructor(
             val initTime = mTime ?: LocalTime.now()
             TimePickerDialog(context, { _, hourOfDay, minute ->
                 mTime = LocalTime.of(hourOfDay, minute)
-                mEditText.setText(timeFormatter.format(mTime))
             }, initTime.hour, initTime.minute, true).show()
         }
+    }
+
+    fun setTime(value: Int?) {
+        mTime = value?.let { LocalTime.ofSecondOfDay(it.toLong()) }
     }
 }

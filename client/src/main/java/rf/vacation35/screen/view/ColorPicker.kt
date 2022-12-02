@@ -21,7 +21,7 @@ import org.json.JSONArray
 import rf.vacation35.R
 import rf.vacation35.extension.getIdRes
 
-class ColorView : View {
+class ColorPicker : View {
 
     var mColor: String? = null
         set(value) {

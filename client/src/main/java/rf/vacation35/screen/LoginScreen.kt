@@ -12,10 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.R
 import rf.vacation35.databinding.FragmentLoginBinding
-import rf.vacation35.extension.addFragment
-import rf.vacation35.extension.removeFragment
-import rf.vacation35.extension.snack
-import rf.vacation35.extension.with
+import rf.vacation35.extension.*
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import splitties.fragments.start
@@ -61,8 +58,8 @@ class LoginFragment : AbstractFragment() {
             title = "Авторизация"
         }
         binding.btnLogin.setOnClickListener {
-            val login = binding.etLogin.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
+            val login = binding.etLogin.value
+            val password = binding.etPassword.value
             viewLifecycleOwner.lifecycleScope.launch {
                 childFragmentManager.with(R.id.fl_fullscreen, progress, {
                     val user = withContext(Dispatchers.IO) {

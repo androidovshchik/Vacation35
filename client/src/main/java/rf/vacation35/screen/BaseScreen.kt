@@ -184,7 +184,7 @@ class BaseFragment : AbstractFragment() {
         binding.btnSave.isEnabled = baseId <= 0 && user.admin
         binding.btnSave.setOnClickListener {
             try {
-                val name = binding.etName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя") }
+                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
                 viewLifecycleOwner.lifecycleScope.launch {
                     childFragmentManager.with(R.id.fl_fullscreen, progress, {
                         withContext(Dispatchers.IO) {
