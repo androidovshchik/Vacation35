@@ -1,7 +1,9 @@
-package rf.vacation35.extension
+package rf.vacation35.screen.view
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -17,8 +19,43 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
 import rf.vacation35.R
+import rf.vacation35.extension.getIdRes
 
-fun ColorPickerDialog.Builder.customShow() {
+class ColorView : View {
+
+    var mColor: String? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                setBackgroundColor(Color.parseColor(value))
+            } else {
+                setBackgroundResource(R.drawable.rect)
+            }
+        }
+
+    @JvmOverloads
+    constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(context, attrs, defStyleAttr)
+
+    @Suppress("unused")
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
+
+    init {
+        setBackgroundResource(R.drawable.rect)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            foreground = ContextCompat.getDrawable(context, context.getIdRes(android.R.attr.selectableItemBackground))
+        }
+        setOnClickListener {
+            ColorPickerDialog.Builder(context)
+                .setColorListener { _, hex ->
+                    mColor = hex
+                }
+                .customShow()
+        }
+        context.updateRecentColors()
+    }
+}
+
+private fun ColorPickerDialog.Builder.customShow() {
     with(build()) {
         // Create Dialog Instance
         val dialog = AlertDialog.Builder(context)
@@ -84,7 +121,7 @@ fun ColorPickerDialog.Builder.customShow() {
     }
 }
 
-fun Context.updateRecentColors() {
+private fun Context.updateRecentColors() {
     val preferences = getSharedPreferences("com.github.dhaval2404.colorpicker", Context.MODE_PRIVATE)
     preferences.edit()
         .putString("recent_colors", JSONArray(resources.getStringArray(R.array.colors)).toString())

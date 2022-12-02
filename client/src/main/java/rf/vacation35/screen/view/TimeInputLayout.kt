@@ -12,7 +12,7 @@ import java.time.LocalTime
 class TimeInputLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.autoCompleteTextViewStyle
+    defStyleAttr: Int = R.attr.textInputStyle
 ) : TextInputLayout(context, attrs, defStyleAttr) {
 
     var mTime: LocalTime? = null

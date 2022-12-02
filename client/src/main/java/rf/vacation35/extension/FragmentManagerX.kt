@@ -3,6 +3,7 @@ package rf.vacation35.extension
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import kotlinx.coroutines.CancellationException
+import timber.log.Timber
 
 val FragmentManager.topFragment: Fragment?
     get() = findFragmentByTag((backStackEntryCount - 1).toString())
@@ -37,6 +38,7 @@ inline fun FragmentManager.with(
         body()
     } catch (_: CancellationException) {
     } catch (e: Throwable) {
+        Timber.e(e)
         catch(e)
     } finally {
         final()

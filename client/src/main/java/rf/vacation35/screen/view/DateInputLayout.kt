@@ -12,7 +12,7 @@ import java.time.LocalDate
 class DateInputLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.autoCompleteTextViewStyle
+    defStyleAttr: Int = R.attr.textInputStyle
 ) : TextInputLayout(context, attrs, defStyleAttr) {
 
     var mDate: LocalDate? = null

@@ -2,7 +2,6 @@ package rf.vacation35.screen.view
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.InputType
 import android.util.AttributeSet
 import android.widget.ArrayAdapter
 import android.widget.Filter
@@ -22,7 +21,8 @@ class EditSpinner @JvmOverloads constructor(
 
     init {
         threshold = 1
-        inputType = InputType.TYPE_NULL
+        isFocusable = false
+        maxLines = 1
         setAdapter(adapter)
         setOnTouchListener { _, _ ->
             showDropDown()
