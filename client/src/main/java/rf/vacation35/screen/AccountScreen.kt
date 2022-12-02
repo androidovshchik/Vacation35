@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +25,7 @@ import splitties.snackbar.snack
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AccountListActivity : AppCompatActivity() {
+class AccountListActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +36,7 @@ class AccountListActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class AccountListFragment : Fragment() {
+class AccountListFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi
@@ -116,7 +114,7 @@ class AccountListFragment : Fragment() {
 }
 
 @AndroidEntryPoint
-class AccountActivity : AppCompatActivity() {
+class AccountActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,7 +125,7 @@ class AccountActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class AccountFragment : Fragment() {
+class AccountFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi

@@ -8,9 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.mohamedabulgasem.datetimepicker.DateTimePicker
 import com.redmadrobot.inputmask.MaskedTextChangedListener
@@ -32,7 +30,7 @@ import java.time.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BookingListActivity : AppCompatActivity() {
+class BookingListActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +39,7 @@ class BookingListActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class BookingListFragment : Fragment() {
+class BookingListFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi
@@ -200,7 +198,7 @@ class BookingListFragment : Fragment() {
 }
 
 @AndroidEntryPoint
-class BookingActivity : AppCompatActivity() {
+class BookingActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -209,7 +207,7 @@ class BookingActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class BookingFragment : Fragment() {
+class BookingFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi

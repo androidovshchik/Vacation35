@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +28,7 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BuildingListActivity : AppCompatActivity() {
+class BuildingListActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +37,7 @@ class BuildingListActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class BuildingListFragment : Fragment() {
+class BuildingListFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi
@@ -149,7 +147,7 @@ class BuildingListFragment : Fragment() {
 }
 
 @AndroidEntryPoint
-class BuildingActivity : AppCompatActivity() {
+class BuildingActivity : AbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,7 +156,7 @@ class BuildingActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-class BuildingFragment : Fragment() {
+class BuildingFragment : AbstractFragment() {
 
     @Inject
     lateinit var api: DbApi

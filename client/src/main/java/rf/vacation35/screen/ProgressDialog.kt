@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
 import rf.vacation35.databinding.DialogProgressBinding
 
 @AndroidEntryPoint
-class ProgressDialog : Fragment() {
+class ProgressDialog : AbstractFragment() {
 
     private lateinit var binding: DialogProgressBinding
 
