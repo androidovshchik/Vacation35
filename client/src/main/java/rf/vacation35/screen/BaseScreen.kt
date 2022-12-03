@@ -5,11 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
@@ -18,12 +16,9 @@ import rf.vacation35.databinding.FragmentBaseBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBaseBinding
 import rf.vacation35.extension.*
-import rf.vacation35.local.Preferences
-import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import splitties.fragments.start
 import splitties.snackbar.snack
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BaseListActivity : AbstractActivity() {
@@ -37,19 +32,7 @@ class BaseListActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class BaseListFragment : AbstractFragment() {
-
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
-    private lateinit var binding: FragmentListBinding
-
-    private var listJob: Job? = null
+class BaseListFragment : AbstractFragment<FragmentListBinding>() {
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemBaseBinding, Base> {
@@ -93,28 +76,18 @@ class BaseListFragment : AbstractFragment() {
         childFragmentManager.hideFragment(R.id.f_bb)
     }
 
-    override fun onStart() {
-        super.onStart()
-        val user = preferences.user!!
-        binding.fabAdd.isVisible = user.admin
-        listJob?.cancel()
-        listJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+    override fun readOnStart() {
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
                 val items = withContext(Dispatchers.IO) {
                     api.list(Base)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(items)
                 adapter.notifyDataSetChanged()
-            }, {
-                view?.snack(it)
-            })
+            }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }
 
@@ -130,23 +103,9 @@ class BaseActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class BaseFragment : AbstractFragment() {
-
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
-    private lateinit var binding: FragmentBaseBinding
+class BaseFragment : AbstractFragment<FragmentBaseBinding>() {
 
     private var base: Base? = null
-
-    private var findJob: Job? = null
-
-    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBaseBinding.inflate(inflater, container, false)
@@ -159,7 +118,7 @@ class BaseFragment : AbstractFragment() {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (baseId == 0) "Новая база отдыха" else "База отдыха"
+            title = if (argBaseId == 0) "Новая база отдыха" else "База отдыха"
             inflateNavMenu()
         }
         binding.btnBuildings.setOnClickListener {
@@ -169,81 +128,77 @@ class BaseFragment : AbstractFragment() {
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            api.delete(base!!)
-                        }
-                        activity?.finish()
-                    }, {
-                        getView()?.snack(it)
-                    })
+                delete()
+            }
+        }
+        binding.btnSave.isEnabled = argBaseId <= 0 && user.admin
+        binding.btnSave.setOnClickListener {
+            upsert()
+        }
+    }
+
+    override fun readOnStart() {
+        if (base == null && argBaseId <= 0) {
+            return
+        }
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
+                base = withContext(Dispatchers.IO) {
+                    api.find(Base, base?.id?.value ?: argBaseId)
+                }
+                base?.let {
+                    val user = preferences.user!!
+                    binding.etName.setText(it.name)
+                    binding.btnBuildings.isEnabled = true
+                    binding.btnDelete.isEnabled = user.admin
+                    binding.btnSave.isEnabled = user.admin
+                }
+                if (base == null) {
+                    binding.btnBuildings.isEnabled = false
+                    binding.btnDelete.isEnabled = false
+                    binding.btnSave.isEnabled = false
+                    view?.snack("База отдыха не найдена")
                 }
             }
         }
-        binding.btnSave.isEnabled = baseId <= 0 && user.admin
-        binding.btnSave.setOnClickListener {
-            try {
-                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            if (base == null) {
-                                base = api.create(Base) {
-                                    it.name = name
-                                }
-                            } else {
-                                api.update(base!!) {
-                                    it.name = name
-                                }
+    }
+
+    override fun upsert() {
+        try {
+            val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
+            viewLifecycleOwner.lifecycleScope.launch {
+                useProgress(::upsert) {
+                    withContext(Dispatchers.IO) {
+                        if (base == null) {
+                            base = api.insert(Base) {
+                                it.name = name
+                            }
+                        } else {
+                            api.update(base!!) {
+                                it.name = name
                             }
                         }
-                        @Suppress("NAME_SHADOWING")
-                        val user = preferences.user!!
-                        binding.toolbar.title = "База отдыха"
-                        binding.btnBuildings.isEnabled = true
-                        binding.btnDelete.isEnabled = user.admin
-                    }, {
-                        getView()?.snack(it)
-                    })
+                    }
+                    val user = preferences.user!!
+                    binding.toolbar.title = "База отдыха"
+                    binding.btnBuildings.isEnabled = true
+                    binding.btnDelete.isEnabled = user.admin
                 }
-            } catch (e: Throwable) {
-                getView()?.snack(e)
             }
+        } catch (e: Throwable) {
+            view?.snack(e)
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (base != null || baseId > 0) {
-            findJob?.cancel()
-            findJob = viewLifecycleOwner.lifecycleScope.launch {
-                childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                    base = withContext(Dispatchers.IO) {
-                        api.find(Base, base?.id?.value ?: baseId)
-                    }
-                    base?.let {
-                        val user = preferences.user!!
-                        binding.etName.setText(it.name)
-                        binding.btnBuildings.isEnabled = true
-                        binding.btnDelete.isEnabled = user.admin
-                        binding.btnSave.isEnabled = user.admin
-                    }
-                    if (base == null) {
-                        binding.btnBuildings.isEnabled = false
-                        binding.btnDelete.isEnabled = false
-                        binding.btnSave.isEnabled = false
-                        view?.snack("База отдыха не найдена")
-                    }
-                }, {
-                    view?.snack(it)
-                })
+    override fun delete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::delete) {
+                withContext(Dispatchers.IO) {
+                    api.delete(base!!)
+                }
+                activity?.finish()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }

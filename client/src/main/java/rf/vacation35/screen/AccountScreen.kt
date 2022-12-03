@@ -134,6 +134,9 @@ class AccountFragment : AbstractFragment<FragmentAccountBinding>() {
     }
 
     override fun readOnStart() {
+        if (user == null && argUserId <= 0) {
+            return
+        }
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::readOnStart) {
