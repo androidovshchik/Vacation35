@@ -10,14 +10,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.R
 import rf.vacation35.databinding.FragmentLoginBinding
-import rf.vacation35.extension.*
-import rf.vacation35.local.Preferences
-import rf.vacation35.remote.DbApi
+import rf.vacation35.extension.addFragment
+import rf.vacation35.extension.value
 import splitties.fragments.start
 import splitties.snackbar.snack
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AbstractActivity() {
@@ -32,14 +29,6 @@ class LoginActivity : AbstractActivity() {
 
 @AndroidEntryPoint
 class LoginFragment : AbstractFragment() {
-
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
 
     private lateinit var binding: FragmentLoginBinding
 
@@ -58,30 +47,27 @@ class LoginFragment : AbstractFragment() {
             title = "Авторизация"
         }
         binding.btnLogin.setOnClickListener {
-            val login = binding.etLogin.value
-            val password = binding.etPassword.value
-            viewLifecycleOwner.lifecycleScope.launch {
-                childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                    val user = withContext(Dispatchers.IO) {
-                        api.findUser(login, password)
-                    }
-                    if (user != null) {
-                        preferences.user = user.toRaw()
-                        start<MainActivity> {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        }
-                    } else {
-                        getView()?.snack("Неверные данные для входа")
-                    }
-                }, {
-                    getView()?.snack(it)
-                })
-            }
+            login()
         }
     }
 
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
+    private fun login() {
+        val login = binding.etLogin.value
+        val password = binding.etPassword.value
+        viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::login) {
+                val user = withContext(Dispatchers.IO) {
+                    api.findUser(login, password)
+                }
+                if (user != null) {
+                    preferences.user = user.toRaw()
+                    start<MainActivity> {
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    }
+                } else {
+                    view?.snack("Неверные данные для входа")
+                }
+            }
+        }
     }
 }

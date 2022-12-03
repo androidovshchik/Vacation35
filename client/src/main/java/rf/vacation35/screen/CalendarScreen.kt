@@ -22,8 +22,6 @@ import rf.vacation35.R
 import rf.vacation35.databinding.FragmentCalendarBinding
 import rf.vacation35.databinding.ItemMonthBinding
 import rf.vacation35.extension.*
-import rf.vacation35.local.Preferences
-import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Booking
 import rf.vacation35.screen.view.DayView
 import splitties.dimensions.dip
@@ -31,7 +29,6 @@ import splitties.fragments.start
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class CalendarActivity : AbstractActivity() {
@@ -47,19 +44,7 @@ class CalendarActivity : AbstractActivity() {
 @AndroidEntryPoint
 class CalendarFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
-
-    private lateinit var binding: FragmentCalendarBinding
-
-    private var startJob: Job? = null
 
     private var listJob: Job? = null
 
@@ -112,6 +97,8 @@ class CalendarFragment : AbstractFragment() {
         }
     }
 
+    private lateinit var binding: FragmentCalendarBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentCalendarBinding.inflate(inflater, container, false)
         return binding.root
@@ -145,15 +132,12 @@ class CalendarFragment : AbstractFragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun readOnStart() {
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+            useProgress(::readOnStart) {
                 bbFragment.loadBuildings()
-            }, {
-                view?.snack(it)
-            })
+            }
         }
     }
 
@@ -204,11 +188,6 @@ class CalendarFragment : AbstractFragment() {
     private fun updateAccess() {
         val user = preferences.user!!
         binding.fabAdd.isVisible = user.admin || user.accessBooking
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }
 

@@ -82,7 +82,7 @@ abstract class AbstractFragment : Fragment() {
         body: () -> Unit
     ) {
         childFragmentManager.use(R.id.fl_fullscreen, fragment, body, {
-            view?.snackForever("Ошибка отправки") {
+            view?.snackForever("Ошибка при запросе") {
                 action("Повторить", retry)
                 action("Отмена") {
                     dismiss()
