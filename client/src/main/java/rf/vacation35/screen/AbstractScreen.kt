@@ -4,10 +4,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import rf.vacation35.*
+import rf.vacation35.extension.removeFragment
+import rf.vacation35.extension.snack
+import rf.vacation35.extension.with
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
@@ -17,7 +21,11 @@ abstract class AbstractActivity : AppCompatActivity() {
 
 }
 
-abstract class AbstractFragment : Fragment() {
+abstract class AbstractFragment<B : ViewBinding> : Fragment() {
+
+    protected lateinit var binding: B
+
+    protected val progress = ProgressDialog()
 
     private var startJob: Job? = null
 
@@ -47,7 +55,18 @@ abstract class AbstractFragment : Fragment() {
         if (now - startTime > startDelay) {
             startTime = now
             startJob?.cancel()
-            startJob = lifecycleScope.launch(block = block)
+            startJob = viewLifecycleOwner.lifecycleScope.launch(block = block)
         }
+    }
+
+    protected suspend inline fun useProgress(fragment: Fragment = progress, body: () -> Unit) {
+        childFragmentManager.with(R.id.fl_fullscreen, fragment, body, {
+            view?.snack(it)
+        })
+    }
+
+    override fun onDestroyView() {
+        childFragmentManager.removeFragment(progress)
+        super.onDestroyView()
     }
 }

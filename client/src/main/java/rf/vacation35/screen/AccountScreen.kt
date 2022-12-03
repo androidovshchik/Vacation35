@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_USER_ID
@@ -36,16 +35,10 @@ class AccountListActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class AccountListFragment : AbstractFragment() {
+class AccountListFragment : AbstractFragment<FragmentListBinding>() {
 
     @Inject
     lateinit var api: DbApi
-
-    private val progress = ProgressDialog()
-
-    private lateinit var binding: FragmentListBinding
-
-    private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemAccountBinding, User> {
@@ -92,24 +85,16 @@ class AccountListFragment : AbstractFragment() {
 
     override fun onStart() {
         super.onStart()
-        listJob?.cancel()
-        listJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+        launchStartJobIfNeeded {
+            useProgress {
                 val items = withContext(Dispatchers.IO) {
                     api.list(User)
                 }
                 adapter.items.clear()
                 adapter.items.addAll(items)
                 adapter.notifyDataSetChanged()
-            }, {
-                view?.snack(it)
-            })
+            }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }
 
@@ -125,20 +110,12 @@ class AccountActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class AccountFragment : AbstractFragment() {
+class AccountFragment : AbstractFragment<FragmentAccountBinding>() {
 
     @Inject
     lateinit var api: DbApi
 
-    private val progress = ProgressDialog()
-
-    private lateinit var binding: FragmentAccountBinding
-
     private var user: User? = null
-
-    private var findJob: Job? = null
-
-    private val userId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0) ?: 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
@@ -150,24 +127,22 @@ class AccountFragment : AbstractFragment() {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (userId == 0) "Новый пользователь" else "Пользователь"
+            title = if (argUserId == 0) "Новый пользователь" else "Пользователь"
             inflateNavMenu()
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                    useProgress {
                         withContext(Dispatchers.IO) {
                             api.delete(user!!)
                         }
                         activity?.finish()
-                    }, {
-                        getView()?.snack(it)
-                    })
+                    }
                 }
             }
         }
-        binding.btnSave.isEnabled = userId <= 0
+        binding.btnSave.isEnabled = argUserId <= 0
         binding.btnSave.setOnClickListener {
             try {
                 val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
@@ -177,7 +152,7 @@ class AccountFragment : AbstractFragment() {
                 val accessPrice = binding.cbPrices.isChecked
                 val admin = binding.cbAdmin.isChecked
                 viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
+                    useProgress {
                         withContext(Dispatchers.IO) {
                             if (user == null) {
                                 user = api.create(User) {
@@ -201,9 +176,7 @@ class AccountFragment : AbstractFragment() {
                         }
                         binding.toolbar.title = "Пользователь"
                         binding.btnDelete.isEnabled = true
-                    }, {
-                        getView()?.snack(it)
-                    })
+                    }
                 }
             } catch (e: Throwable) {
                 getView()?.snack(e)
@@ -213,12 +186,11 @@ class AccountFragment : AbstractFragment() {
 
     override fun onStart() {
         super.onStart()
-        if (userId > 0 || user != null) {
-            findJob?.cancel()
-            findJob = viewLifecycleOwner.lifecycleScope.launch {
-                childFragmentManager.with(R.id.fl_fullscreen, progress, {
+        if (user != null || argUserId > 0) {
+            launchStartJobIfNeeded {
+                useProgress {
                     user = withContext(Dispatchers.IO) {
-                        api.find(User, userId)
+                        api.find(User, user?.id?.value ?: argUserId)
                     }
                     user?.let {
                         binding.etName.setText(it.name)
@@ -233,15 +205,8 @@ class AccountFragment : AbstractFragment() {
                     if (user == null) {
                         view?.snack("Пользователь не найден")
                     }
-                }, {
-                    view?.snack(it)
-                })
+                }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }
