@@ -3,7 +3,6 @@ package rf.vacation35.screen
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import rf.vacation35.*
@@ -25,15 +24,13 @@ abstract class AbstractActivity : AppCompatActivity() {
 }
 
 @AndroidEntryPoint
-abstract class AbstractFragment<B : ViewBinding> : Fragment() {
+abstract class AbstractFragment : Fragment() {
 
     @Inject
     lateinit var api: DbApi
 
     @Inject
     lateinit var preferences: Preferences
-
-    protected lateinit var binding: B
 
     protected val progress = ProgressDialog()
 
@@ -85,7 +82,7 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
         body: () -> Unit
     ) {
         childFragmentManager.use(R.id.fl_fullscreen, fragment, body, {
-            view?.snackForever("Не удалось выполнить запрос") {
+            view?.snackForever("Ошибка отправки") {
                 action("Повторить", retry)
                 action("Отмена") {
                     dismiss()

@@ -32,7 +32,7 @@ class BaseListActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class BaseListFragment : AbstractFragment<FragmentListBinding>() {
+class BaseListFragment : AbstractFragment() {
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemBaseBinding, Base> {
@@ -55,6 +55,8 @@ class BaseListFragment : AbstractFragment<FragmentListBinding>() {
             name.text = item.name
         }
     }
+
+    private lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
@@ -103,9 +105,11 @@ class BaseActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class BaseFragment : AbstractFragment<FragmentBaseBinding>() {
+class BaseFragment : AbstractFragment() {
 
     private var base: Base? = null
+
+    private lateinit var binding: FragmentBaseBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBaseBinding.inflate(inflater, container, false)

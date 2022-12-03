@@ -33,7 +33,7 @@ class AccountListActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class AccountListFragment : AbstractFragment<FragmentListBinding>() {
+class AccountListFragment : AbstractFragment() {
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemAccountBinding, User> {
@@ -57,6 +57,8 @@ class AccountListFragment : AbstractFragment<FragmentListBinding>() {
             login.text = "@${item.login}"
         }
     }
+
+    private lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
@@ -105,9 +107,11 @@ class AccountActivity : AbstractActivity() {
 }
 
 @AndroidEntryPoint
-class AccountFragment : AbstractFragment<FragmentAccountBinding>() {
+class AccountFragment : AbstractFragment() {
 
     private var user: User? = null
+
+    private lateinit var binding: FragmentAccountBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentAccountBinding.inflate(inflater, container, false)
