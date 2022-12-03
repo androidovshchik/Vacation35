@@ -1,7 +1,6 @@
 package rf.vacation35.screen
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,10 +9,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import rf.vacation35.BuildConfig
 import rf.vacation35.EXTRA_BIDS
 import rf.vacation35.R
@@ -24,7 +20,6 @@ import rf.vacation35.extension.areYouSure
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import splitties.activities.start
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -101,28 +96,6 @@ class MainActivity : AbstractActivity() {
                 }
                 with(binding.navView.menu) {
                     findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
-                }
-            }
-        }
-        lifecycleScope.launch {
-            while (!isFinishing) {
-                try {
-                    val oldUser = preferences.user!!
-                    val newUser = withContext(Dispatchers.IO) {
-                        api.findUser(oldUser.login, oldUser.password)
-                    }
-                    if (newUser != null) {
-                        preferences.user = newUser.toRaw()
-                    } else if (!isFinishing) {
-                        preferences.user = null
-                        start<LoginActivity> {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        }
-                    }
-                } catch (e: Throwable) {
-                    Timber.e(e)
-                } finally {
-                    delay(60_000L)
                 }
             }
         }
