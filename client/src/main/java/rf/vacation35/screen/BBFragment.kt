@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import rf.vacation35.EXTRA_BASE_ID
-import rf.vacation35.EXTRA_BUILDING_ID
 import rf.vacation35.databinding.FragmentBbhBinding
 import rf.vacation35.databinding.FragmentBbvBinding
 import rf.vacation35.remote.DbApi
@@ -57,10 +55,6 @@ open class BBHFragment : AbstractFragment() {
         val baseIds = bases.value.map { it.id }
         return allBuildings.filter { it.base!!.id in baseIds }
     }
-
-    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
-
-    private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
 
     protected open val baseSpinner get() = binding.esBase
 
@@ -109,7 +103,7 @@ open class BBHFragment : AbstractFragment() {
             allBases.collectIndexed { i, _ ->
                 if (i == 0) {
                     if (autofill) {
-                        select(baseId, buildingId)
+                        select(argBaseId, argBuildingId)
                     }
                 } else {
                     val baseIds = allBasesValue.map { it.id }

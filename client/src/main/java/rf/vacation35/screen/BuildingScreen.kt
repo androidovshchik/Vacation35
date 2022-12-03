@@ -16,13 +16,10 @@ import rf.vacation35.databinding.FragmentBuildingBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBuildingBinding
 import rf.vacation35.extension.*
-import rf.vacation35.local.Preferences
-import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
 import splitties.fragments.start
 import splitties.snackbar.snack
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BuildingListActivity : AbstractActivity() {
@@ -36,21 +33,9 @@ class BuildingListActivity : AbstractActivity() {
 @AndroidEntryPoint
 class BuildingListFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
-    private val bbProgress = ProgressDialog()
-
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
-    private lateinit var binding: FragmentListBinding
-
-    private var startJob: Job? = null
+    private val bbProgress = ProgressDialog()
 
     private var listJob: Job? = null
 
@@ -77,6 +62,8 @@ class BuildingListFragment : AbstractFragment() {
             base.text = item.base!!.name
         }
     }
+
+    private lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
@@ -106,38 +93,37 @@ class BuildingListFragment : AbstractFragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             bbFragment.buildings.drop(1).collect {
-                listJob?.cancel()
-                listJob = launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        val ids = bbFragment.buildings.value.map { it.id }
-                        val items = withContext(Dispatchers.IO) {
-                            api.listBuildings(ids)
-                        }
-                        adapter.items.clear()
-                        adapter.items.addAll(items)
-                        adapter.notifyDataSetChanged()
-                    }, {
-                        getView()?.snack(it)
-                    })
-                }
+                loadBuildings()
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun readOnStart() {
+        super.readOnStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, bbProgress, {
+            useProgress(::readOnStart) {
                 bbFragment.loadBuildings()
-            }, {
-                view?.snack(it)
-            })
+            }
+        }
+    }
+
+    private fun loadBuildings() {
+        listJob?.cancel()
+        listJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::loadBuildings, bbFragment) {
+                val ids = bbFragment.buildings.value.map { it.id }
+                val items = withContext(Dispatchers.IO) {
+                    api.listBuildings(ids)
+                }
+                adapter.items.clear()
+                adapter.items.addAll(items)
+                adapter.notifyDataSetChanged()
+            }
         }
     }
 
     override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
         childFragmentManager.removeFragment(bbProgress)
         super.onDestroyView()
     }
@@ -155,23 +141,9 @@ class BuildingActivity : AbstractActivity() {
 @AndroidEntryPoint
 class BuildingFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
-    private lateinit var binding: FragmentBuildingBinding
-
     private var building: Building? = null
 
-    private var findJob: Job? = null
-
-    private val baseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
-
-    private val buildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
+    private lateinit var binding: FragmentBuildingBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBuildingBinding.inflate(inflater, container, false)
@@ -184,7 +156,7 @@ class BuildingFragment : AbstractFragment() {
             onBackPressed {
                 activity?.finish()
             }
-            title = if (buildingId == 0) "Новая постройка" else "Постройка"
+            title = if (argBuildingId == 0) "Новая постройка" else "Постройка"
             inflateNavMenu()
         }
         binding.pColor.isEnabled = user.admin
@@ -204,97 +176,94 @@ class BuildingFragment : AbstractFragment() {
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            api.delete(building!!)
-                        }
-                        activity?.finish()
-                    }, {
-                        getView()?.snack(it)
-                    })
+                delete()
+            }
+        }
+        binding.btnSave.isEnabled = argBuildingId <= 0 && (user.admin || user.accessPrice)
+        binding.btnSave.setOnClickListener {
+            upsert()
+        }
+    }
+
+    override fun readOnStart() {
+        super.readOnStart()
+        if (building == null && argBuildingId <= 0) {
+            return
+        }
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
+                building = withContext(Dispatchers.IO) {
+                    api.find(Building, building?.id?.value ?: argBuildingId)
+                }
+                building?.let {
+                    val user = preferences.user!!
+                    binding.pColor.mColor = it.color
+                    binding.etName.setText(it.name)
+                    binding.tilEntry.setTime(it.entryTime)
+                    binding.tilExit.setTime(it.exitTime)
+                    binding.btnBids.isEnabled = true
+                    binding.btnBookings.isEnabled = true
+                    binding.btnDelete.isEnabled = user.admin
+                    binding.btnSave.isEnabled = user.admin || user.accessPrice
+                }
+                if (building == null) {
+                    binding.btnBids.isEnabled = false
+                    binding.btnBookings.isEnabled = false
+                    binding.btnDelete.isEnabled = false
+                    binding.btnSave.isEnabled = false
+                    view?.snack("Постройка не найдена")
                 }
             }
         }
-        binding.btnSave.isEnabled = buildingId <= 0 && (user.admin || user.accessPrice)
-        binding.btnSave.setOnClickListener {
-            try {
-                val color = binding.pColor.mColor ?: throw Throwable("Не задан цвет")
-                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
-                val entry = binding.tilEntry.mTime ?: throw Throwable("Не задано время заезда")
-                val exit = binding.tilExit.mTime ?: throw Throwable("Не задано время выезда")
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            if (building == null) {
-                                building = api.create(Building) {
-                                    it.base = Base.findById(baseId)!!
-                                    it.name = name
-                                    it.color = color
-                                    it.entryTime = entry.toSecondOfDay()
-                                    it.exitTime = exit.toSecondOfDay()
-                                }
-                            } else {
-                                api.update(building!!) {
-                                    it.name = name
-                                    it.color = color
-                                    it.entryTime = entry.toSecondOfDay()
-                                    it.exitTime = exit.toSecondOfDay()
-                                }
+    }
+
+    override fun upsert() {
+        try {
+            val color = binding.pColor.mColor ?: throw Throwable("Не задан цвет")
+            val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
+            val entry = binding.tilEntry.mTime ?: throw Throwable("Не задано время заезда")
+            val exit = binding.tilExit.mTime ?: throw Throwable("Не задано время выезда")
+            viewLifecycleOwner.lifecycleScope.launch {
+                useProgress(::upsert) {
+                    withContext(Dispatchers.IO) {
+                        if (building == null) {
+                            building = api.insert(Building) {
+                                it.base = Base.findById(argBaseId)!!
+                                it.name = name
+                                it.color = color
+                                it.entryTime = entry.toSecondOfDay()
+                                it.exitTime = exit.toSecondOfDay()
+                            }
+                        } else {
+                            api.update(building!!) {
+                                it.name = name
+                                it.color = color
+                                it.entryTime = entry.toSecondOfDay()
+                                it.exitTime = exit.toSecondOfDay()
                             }
                         }
-                        @Suppress("NAME_SHADOWING")
-                        val user = preferences.user!!
-                        binding.toolbar.title = "Постройка"
-                        binding.btnBids.isEnabled = true
-                        binding.btnBookings.isEnabled = true
-                        binding.btnDelete.isEnabled = user.admin
-                    }, {
-                        getView()?.snack(it)
-                    })
+                    }
+                    val user = preferences.user!!
+                    binding.toolbar.title = "Постройка"
+                    binding.btnBids.isEnabled = true
+                    binding.btnBookings.isEnabled = true
+                    binding.btnDelete.isEnabled = user.admin
                 }
-            } catch (e: Throwable) {
-                getView()?.snack(e)
             }
+        } catch (e: Throwable) {
+            view?.snack(e)
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (building != null || buildingId > 0) {
-            findJob?.cancel()
-            findJob = viewLifecycleOwner.lifecycleScope.launch {
-                childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                    building = withContext(Dispatchers.IO) {
-                        api.find(Building, building?.id?.value ?: buildingId)
-                    }
-                    building?.let {
-                        val user = preferences.user!!
-                        binding.pColor.mColor = it.color
-                        binding.etName.setText(it.name)
-                        binding.tilEntry.setTime(it.entryTime)
-                        binding.tilExit.setTime(it.exitTime)
-                        binding.btnBids.isEnabled = true
-                        binding.btnBookings.isEnabled = true
-                        binding.btnDelete.isEnabled = user.admin
-                        binding.btnSave.isEnabled = user.admin || user.accessPrice
-                    }
-                    if (building == null) {
-                        binding.btnBids.isEnabled = false
-                        binding.btnBookings.isEnabled = false
-                        binding.btnDelete.isEnabled = false
-                        binding.btnSave.isEnabled = false
-                        view?.snack("Постройка не найдена")
-                    }
-                }, {
-                    view?.snack(it)
-                })
+    override fun delete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::delete) {
+                withContext(Dispatchers.IO) {
+                    api.delete(building!!)
+                }
+                activity?.finish()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }

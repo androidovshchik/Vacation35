@@ -26,7 +26,7 @@ fun FragmentManager.hideFragment(id: Int) {
     }
 }
 
-inline fun FragmentManager.with(
+inline fun FragmentManager.use(
     id: Int,
     fragment: Fragment,
     body: () -> Unit,
