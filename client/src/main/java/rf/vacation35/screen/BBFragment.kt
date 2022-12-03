@@ -19,7 +19,6 @@ import rf.vacation35.databinding.FragmentBbvBinding
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
-import javax.inject.Inject
 import kotlin.math.max
 
 @AndroidEntryPoint
@@ -41,9 +40,6 @@ class BBVFragment : BBHFragment() {
 
 @AndroidEntryPoint
 open class BBHFragment : AbstractFragment() {
-
-    @Inject
-    lateinit var api: DbApi
 
     protected open val autofill = true
 
@@ -146,7 +142,7 @@ open class BBHFragment : AbstractFragment() {
 
     private fun selectBases(value: List<Base.Raw>) {
         bases.value = value
-        baseSpinner.updateList(allBasesValue)
+        baseSpinner.updatePopup(allBasesValue)
         baseSpinner.setText(when(value.size) {
             0 -> ""
             1 -> value.first().name
@@ -157,7 +153,7 @@ open class BBHFragment : AbstractFragment() {
 
     private fun selectBuildings(value: List<Building.Raw>) {
         buildings.value = value
-        buildingSpinner.updateList(filteredBuildings)
+        buildingSpinner.updatePopup(filteredBuildings)
         buildingSpinner.setText(when(value.size) {
             0 -> ""
             1 -> value.first().name

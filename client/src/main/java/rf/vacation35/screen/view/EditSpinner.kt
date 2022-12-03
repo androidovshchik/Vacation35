@@ -30,7 +30,7 @@ class EditSpinner @JvmOverloads constructor(
         }
     }
 
-    fun updateList(items: List<Nameable>) {
+    fun updatePopup(items: List<Nameable>) {
         adapter.clear()
         adapter.addAll("")
         if (items.isNotEmpty()) {

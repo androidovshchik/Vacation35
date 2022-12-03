@@ -7,6 +7,7 @@ import android.widget.EditText
 import com.google.android.material.textfield.TextInputLayout
 import rf.vacation35.R
 import rf.vacation35.dateFormatter
+import java.time.Duration
 import java.time.LocalDate
 
 class DateInputLayout @JvmOverloads constructor(
@@ -16,6 +17,10 @@ class DateInputLayout @JvmOverloads constructor(
 ) : TextInputLayout(context, attrs, defStyleAttr) {
 
     var mDate: LocalDate? = null
+        set(value) {
+            field = value
+            mEditText.setText(value?.let { dateFormatter.format(it) })
+        }
 
     private val mEditText = EditText(context).apply {
         isFocusable = false
@@ -30,8 +35,11 @@ class DateInputLayout @JvmOverloads constructor(
             val initDate = mDate ?: LocalDate.now()
             DatePickerDialog(context, { _, year, month, dayOfMonth ->
                 mDate = LocalDate.of(year, month, dayOfMonth)
-                mEditText.setText(dateFormatter.format(mDate))
             }, initDate.year, initDate.monthValue, initDate.dayOfMonth).show()
         }
+    }
+
+    fun setDate(value: Long?) {
+        mDate = value?.let { LocalDate.ofEpochDay(Duration.ofSeconds(it).toDays()) }
     }
 }

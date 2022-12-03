@@ -41,7 +41,7 @@ class DbApi private constructor() {
         dao.findById(id).apply { custom(this) }
     }
 
-    fun <T : Entity<*>> create(dao: EntityClass<*, T>, init: (T) -> Unit) = transact {
+    fun <T : Entity<*>> insert(dao: EntityClass<*, T>, init: (T) -> Unit) = transact {
         dao.new(init)
     }
 
