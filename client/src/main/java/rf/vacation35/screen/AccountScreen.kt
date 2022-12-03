@@ -17,11 +17,9 @@ import rf.vacation35.databinding.FragmentAccountBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemAccountBinding
 import rf.vacation35.extension.*
-import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.User
 import splitties.fragments.start
 import splitties.snackbar.snack
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AccountListActivity : AbstractActivity() {
@@ -36,9 +34,6 @@ class AccountListActivity : AbstractActivity() {
 
 @AndroidEntryPoint
 class AccountListFragment : AbstractFragment<FragmentListBinding>() {
-
-    @Inject
-    lateinit var api: DbApi
 
     @SuppressLint("SetTextI18n")
     private val adapter = abstractAdapter<ItemAccountBinding, User> {
@@ -83,10 +78,10 @@ class AccountListFragment : AbstractFragment<FragmentListBinding>() {
         childFragmentManager.hideFragment(R.id.f_bb)
     }
 
-    override fun onStart() {
-        super.onStart()
-        launchStartJobIfNeeded {
-            useProgress {
+    override fun readOnStart() {
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
                 val items = withContext(Dispatchers.IO) {
                     api.list(User)
                 }
@@ -112,9 +107,6 @@ class AccountActivity : AbstractActivity() {
 @AndroidEntryPoint
 class AccountFragment : AbstractFragment<FragmentAccountBinding>() {
 
-    @Inject
-    lateinit var api: DbApi
-
     private var user: User? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -132,80 +124,86 @@ class AccountFragment : AbstractFragment<FragmentAccountBinding>() {
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    useProgress {
-                        withContext(Dispatchers.IO) {
-                            api.delete(user!!)
-                        }
-                        activity?.finish()
-                    }
-                }
+                delete()
             }
         }
         binding.btnSave.isEnabled = argUserId <= 0
         binding.btnSave.setOnClickListener {
-            try {
-                val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
-                val login = binding.etLogin.value.ifEmpty { throw Throwable("Не задан логин") }
-                val password = binding.etPassword.value.ifEmpty { throw Throwable("Не задан пароль") }
-                val accessBooking = binding.cbBookings.isChecked
-                val accessPrice = binding.cbPrices.isChecked
-                val admin = binding.cbAdmin.isChecked
-                viewLifecycleOwner.lifecycleScope.launch {
-                    useProgress {
-                        withContext(Dispatchers.IO) {
-                            if (user == null) {
-                                user = api.create(User) {
-                                    it.name = name
-                                    it.login = login
-                                    it.password = password
-                                    it.accessBooking = accessBooking
-                                    it.accessPrice = accessPrice
-                                    it.admin = admin
-                                }
-                            } else {
-                                api.update(user!!) {
-                                    it.name = name
-                                    it.login = login
-                                    it.password = password
-                                    it.accessBooking = accessBooking
-                                    it.accessPrice = accessPrice
-                                    it.admin = admin
-                                }
-                            }
-                        }
-                        binding.toolbar.title = "Пользователь"
-                        binding.btnDelete.isEnabled = true
-                    }
+            upsert()
+        }
+    }
+
+    override fun readOnStart() {
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
+                user = withContext(Dispatchers.IO) {
+                    api.find(User, user?.id?.value ?: argUserId)
                 }
-            } catch (e: Throwable) {
-                getView()?.snack(e)
+                user?.let {
+                    binding.etName.setText(it.name)
+                    binding.etLogin.setText(it.login)
+                    binding.etPassword.setText(it.password)
+                    binding.cbBookings.isChecked = it.accessBooking
+                    binding.cbPrices.isChecked = it.accessPrice
+                    binding.cbAdmin.isChecked = it.admin
+                    binding.btnDelete.isEnabled = true
+                    binding.btnSave.isEnabled = true
+                }
+                if (user == null) {
+                    view?.snack("Пользователь не найден")
+                }
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (user != null || argUserId > 0) {
-            launchStartJobIfNeeded {
-                useProgress {
-                    user = withContext(Dispatchers.IO) {
-                        api.find(User, user?.id?.value ?: argUserId)
+    override fun upsert() {
+        try {
+            val name = binding.etName.value.ifEmpty { throw Throwable("Не задано имя") }
+            val login = binding.etLogin.value.ifEmpty { throw Throwable("Не задан логин") }
+            val password = binding.etPassword.value.ifEmpty { throw Throwable("Не задан пароль") }
+            val accessBooking = binding.cbBookings.isChecked
+            val accessPrice = binding.cbPrices.isChecked
+            val admin = binding.cbAdmin.isChecked
+            viewLifecycleOwner.lifecycleScope.launch {
+                useProgress(::upsert) {
+                    withContext(Dispatchers.IO) {
+                        if (user == null) {
+                            user = api.insert(User) {
+                                it.name = name
+                                it.login = login
+                                it.password = password
+                                it.accessBooking = accessBooking
+                                it.accessPrice = accessPrice
+                                it.admin = admin
+                            }
+                        } else {
+                            api.update(user!!) {
+                                it.name = name
+                                it.login = login
+                                it.password = password
+                                it.accessBooking = accessBooking
+                                it.accessPrice = accessPrice
+                                it.admin = admin
+                            }
+                        }
                     }
-                    user?.let {
-                        binding.etName.setText(it.name)
-                        binding.etLogin.setText(it.login)
-                        binding.etPassword.setText(it.password)
-                        binding.cbBookings.isChecked = it.accessBooking
-                        binding.cbPrices.isChecked = it.accessPrice
-                        binding.cbAdmin.isChecked = it.admin
-                        binding.btnDelete.isEnabled = true
-                        binding.btnSave.isEnabled = true
-                    }
-                    if (user == null) {
-                        view?.snack("Пользователь не найден")
-                    }
+                    binding.toolbar.title = "Пользователь"
+                    binding.btnDelete.isEnabled = true
                 }
+            }
+        } catch (e: Throwable) {
+            view?.snack(e)
+        }
+    }
+
+    override fun delete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::delete) {
+                withContext(Dispatchers.IO) {
+                    api.delete(user!!)
+                }
+                activity?.finish()
             }
         }
     }

@@ -3,14 +3,12 @@ package rf.vacation35.screen
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
-import rf.vacation35.extension.with
+import rf.vacation35.extension.use
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import splitties.snackbar.action
@@ -39,9 +37,9 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
 
     protected val progress = ProgressDialog()
 
-    private var startJob: Job? = null
+    protected var startJob: Job? = null
 
-    protected open var startTime = 0L
+    private var startTime = 0L
 
     protected var argDate: LocalDate? = null
         private set
@@ -68,14 +66,11 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
         val now = System.currentTimeMillis()
         if (now - startTime > startDelay) {
             startTime = now
-            startJob?.cancel()
-            startJob = viewLifecycleOwner.lifecycleScope.launch {
-                readOnStart()
-            }
+            readOnStart()
         }
     }
 
-    protected open suspend fun readOnStart() {
+    protected open fun readOnStart() {
     }
 
     protected open fun upsert() {
@@ -84,12 +79,12 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
     protected open fun delete() {
     }
 
-    protected suspend inline fun useProgress(
+    protected inline fun useProgress(
         retry: KFunction0<Unit>,
         fragment: Fragment = progress,
         body: () -> Unit
     ) {
-        childFragmentManager.with(R.id.fl_fullscreen, fragment, body, {
+        childFragmentManager.use(R.id.fl_fullscreen, fragment, body, {
             view?.snackForever("Не удалось выполнить запрос") {
                 action("Повторить", retry)
                 action("Отмена") {
