@@ -5,15 +5,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.CoroutineScope
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
-import rf.vacation35.extension.snack
 import rf.vacation35.extension.with
+import rf.vacation35.local.Preferences
+import rf.vacation35.remote.DbApi
+import splitties.snackbar.action
+import splitties.snackbar.snackForever
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.reflect.KFunction0
 
 private val startDelay = TimeUnit.SECONDS.toMillis(60)
 
@@ -21,7 +26,14 @@ abstract class AbstractActivity : AppCompatActivity() {
 
 }
 
+@AndroidEntryPoint
 abstract class AbstractFragment<B : ViewBinding> : Fragment() {
+
+    @Inject
+    lateinit var api: DbApi
+
+    @Inject
+    lateinit var preferences: Preferences
 
     protected lateinit var binding: B
 
@@ -29,9 +41,10 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
 
     private var startJob: Job? = null
 
-    private var startTime = 0L
+    protected open var startTime = 0L
 
     protected var argDate: LocalDate? = null
+        private set
 
     protected val argUserId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0) ?: 0
 
@@ -50,18 +63,39 @@ abstract class AbstractFragment<B : ViewBinding> : Fragment() {
         argDate = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
     }
 
-    protected fun launchStartJobIfNeeded(block: suspend CoroutineScope.() -> Unit) {
+    override fun onStart() {
+        super.onStart()
         val now = System.currentTimeMillis()
         if (now - startTime > startDelay) {
             startTime = now
             startJob?.cancel()
-            startJob = viewLifecycleOwner.lifecycleScope.launch(block = block)
+            startJob = viewLifecycleOwner.lifecycleScope.launch {
+                readOnStart()
+            }
         }
     }
 
-    protected suspend inline fun useProgress(fragment: Fragment = progress, body: () -> Unit) {
+    protected open suspend fun readOnStart() {
+    }
+
+    protected open fun upsert() {
+    }
+
+    protected open fun delete() {
+    }
+
+    protected suspend inline fun useProgress(
+        retry: KFunction0<Unit>,
+        fragment: Fragment = progress,
+        body: () -> Unit
+    ) {
         childFragmentManager.with(R.id.fl_fullscreen, fragment, body, {
-            view?.snack(it)
+            view?.snackForever("Не удалось выполнить запрос") {
+                action("Повторить", retry)
+                action("Отмена") {
+                    dismiss()
+                }
+            }
         })
     }
 
