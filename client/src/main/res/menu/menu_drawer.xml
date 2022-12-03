@@ -3,20 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
     <group
-        android:id="@+id/g_temp"
+        android:id="@+id/g_global"
         android:checkableBehavior="none">
-        <item
-            android:id="@+id/action_bids"
-            android:icon="@drawable/ic_baseline_calendar_today_24"
-            android:title="Заявки" />
         <item
             android:id="@+id/action_bookings"
             android:icon="@drawable/ic_baseline_calendar_month_24"
             android:title="Брони" />
-    </group>
-    <group
-        android:id="@+id/g_global"
-        android:checkableBehavior="none">
         <item
             android:id="@+id/action_buildings"
             android:icon="@drawable/ic_baseline_home_24"
@@ -29,6 +21,10 @@
             android:id="@+id/action_users"
             android:icon="@drawable/ic_baseline_people_alt_24"
             android:title="Пользователи" />
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="Настройки" />
     </group>
     <group
         android:id="@+id/g_auth"

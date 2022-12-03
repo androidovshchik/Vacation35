@@ -1,27 +1,38 @@
 package rf.vacation35.screen
 
 import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
 import rf.vacation35.extension.use
-import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
+import rf.vacation35.remote.dao.User
 import splitties.snackbar.action
-import splitties.snackbar.snackForever
+import splitties.snackbar.longSnack
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.reflect.KFunction0
 
-private val startDelay = TimeUnit.SECONDS.toMillis(60)
-
 abstract class AbstractActivity : AppCompatActivity() {
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }
 
 @AndroidEntryPoint
@@ -30,14 +41,13 @@ abstract class AbstractFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    @Inject
-    lateinit var preferences: Preferences
+    protected val viewModel: MainViewModel by viewModels()
 
     protected val progress = ProgressDialog()
 
     protected var startJob: Job? = null
 
-    protected var startTime = 0L
+    private var startTime = 0L
 
     protected var argDate: LocalDate? = null
         private set
@@ -57,6 +67,18 @@ abstract class AbstractFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         argDate = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
+    }
+
+    @CallSuper
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            viewModel.user.collect {
+                onUserChanged(it)
+            }
+        }
+    }
+
+    protected open fun onUserChanged(user: User.Raw) {
     }
 
     override fun onStart() {
@@ -83,11 +105,8 @@ abstract class AbstractFragment : Fragment() {
         body: () -> Unit
     ) {
         childFragmentManager.use(R.id.fl_fullscreen, fragment, body, {
-            view?.snackForever("Ошибка при запросе") {
+            view?.longSnack("Ошибка при запросе") {
                 action("Повторить", retry)
-                action("Отмена") {
-                    dismiss()
-                }
             }
         })
     }
