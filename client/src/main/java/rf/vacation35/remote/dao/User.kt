@@ -64,11 +64,24 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
             if (javaClass != other?.javaClass) return false
             other as Raw
             if (id != other.id) return false
+            if (name != other.name) return false
+            if (login != other.login) return false
+            if (password != other.password) return false
+            if (accessPrice != other.accessPrice) return false
+            if (accessBooking != other.accessBooking) return false
+            if (admin != other.admin) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return id
+            var result = id
+            result = 31 * result + name.hashCode()
+            result = 31 * result + login.hashCode()
+            result = 31 * result + password.hashCode()
+            result = 31 * result + accessPrice.hashCode()
+            result = 31 * result + accessBooking.hashCode()
+            result = 31 * result + admin.hashCode()
+            return result
         }
     }
 
