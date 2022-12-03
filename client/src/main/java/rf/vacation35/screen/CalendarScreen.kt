@@ -116,15 +116,6 @@ class CalendarFragment : AbstractFragment() {
                 putExtra(EXTRA_BUILDING_ID, buildingId)
             }
         }
-        updateAccess()
-        lifecycleScope.launch {
-            preferences.asFlow()
-                .collect {
-                    if (it == "user") {
-                        updateAccess()
-                    }
-                }
-        }
         viewLifecycleOwner.lifecycleScope.launch {
             bbFragment.buildings.drop(1).collect {
                 loadBookings()
@@ -132,7 +123,14 @@ class CalendarFragment : AbstractFragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin || user.accessBooking
+    }
+
     override fun readOnStart() {
+        super.readOnStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::readOnStart) {
@@ -183,11 +181,6 @@ class CalendarFragment : AbstractFragment() {
                 binding.pbLoading.isVisible = false
             }
         }
-    }
-
-    private fun updateAccess() {
-        val user = preferences.user!!
-        binding.fabAdd.isVisible = user.admin || user.accessBooking
     }
 }
 

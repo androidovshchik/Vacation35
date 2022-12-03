@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -78,7 +79,14 @@ class BaseListFragment : AbstractFragment() {
         childFragmentManager.hideFragment(R.id.f_bb)
     }
 
+    override fun onStart() {
+        super.onStart()
+        val user = preferences.user!!
+        binding.fabAdd.isVisible = user.admin
+    }
+
     override fun readOnStart() {
+        super.readOnStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::readOnStart) {
@@ -142,6 +150,7 @@ class BaseFragment : AbstractFragment() {
     }
 
     override fun readOnStart() {
+        super.readOnStart()
         if (base == null && argBaseId <= 0) {
             return
         }

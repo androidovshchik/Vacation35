@@ -1,6 +1,7 @@
 package rf.vacation35.screen
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +37,7 @@ abstract class AbstractFragment : Fragment() {
 
     protected var startJob: Job? = null
 
-    private var startTime = 0L
+    protected var startTime = 0L
 
     protected var argDate: LocalDate? = null
         private set
@@ -60,14 +61,14 @@ abstract class AbstractFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        val now = System.currentTimeMillis()
-        if (now - startTime > startDelay) {
-            startTime = now
+        if (System.currentTimeMillis() - startTime > startDelay) {
             readOnStart()
         }
     }
 
+    @CallSuper
     protected open fun readOnStart() {
+        startTime = System.currentTimeMillis()
     }
 
     protected open fun upsert() {

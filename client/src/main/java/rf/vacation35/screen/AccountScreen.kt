@@ -138,6 +138,7 @@ class AccountFragment : AbstractFragment() {
     }
 
     override fun readOnStart() {
+        super.readOnStart()
         if (user == null && argUserId <= 0) {
             return
         }
