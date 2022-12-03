@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
@@ -35,19 +36,17 @@ class MainActivity : AbstractActivity() {
     @Inject
     lateinit var preferences: Preferences
 
+    private val viewModel: MainViewModel by viewModels()
+
     private val calendar = CalendarFragment()
 
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var header: DrawerHeaderBinding
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (preferences.user == null) {
-            start<LoginActivity>()
-            finish()
-            return
-        }
         binding = ActivityMainBinding.inflate(layoutInflater)
         header = DrawerHeaderBinding.bind(binding.navView.getHeaderView(0))
         setContentView(binding.root)
@@ -80,6 +79,7 @@ class MainActivity : AbstractActivity() {
                 }
                 R.id.action_logout -> {
                     areYouSure {
+                        preferences.user = null
                         start<LoginActivity>()
                         finish()
                     }
@@ -93,14 +93,16 @@ class MainActivity : AbstractActivity() {
             supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
         }
 
-        updateAccess()
         lifecycleScope.launch {
-            preferences.asFlow()
-                .collect {
-                    if (it == "user") {
-                        updateAccess()
-                    }
+            viewModel.user.collect {
+                with(header) {
+                    login.text = "@${it.login}"
+                    name.text = it.name
                 }
+                with(binding.navView.menu) {
+                    findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
+                }
+            }
         }
         lifecycleScope.launch {
             while (!isFinishing) {
@@ -112,6 +114,7 @@ class MainActivity : AbstractActivity() {
                     if (newUser != null) {
                         preferences.user = newUser.toRaw()
                     } else if (!isFinishing) {
+                        preferences.user = null
                         start<LoginActivity> {
                             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }
@@ -122,18 +125,6 @@ class MainActivity : AbstractActivity() {
                     delay(60_000L)
                 }
             }
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun updateAccess() {
-        val user = preferences.user!!
-        with(header) {
-            login.text = "@${user.login}"
-            name.text = user.name
-        }
-        with(binding.navView.menu) {
-            findItem(R.id.action_users).isVisible = user.admin || BuildConfig.DEBUG
         }
     }
 

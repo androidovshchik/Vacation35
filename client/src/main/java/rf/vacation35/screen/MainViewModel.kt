@@ -36,7 +36,9 @@ class MainViewModel @Inject constructor(preferences: Preferences) : ViewModel() 
             preferences.asFlow()
                 .filter { it == "user" }
                 .collect {
-                    user.value = preferences.user!!
+                    preferences.user?.let {
+                        user.value = it
+                    }
                 }
         }
         viewModelScope.launch {
