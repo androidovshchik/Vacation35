@@ -6,10 +6,11 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
@@ -41,8 +42,6 @@ abstract class AbstractFragment : Fragment() {
     @Inject
     lateinit var api: DbApi
 
-    protected val viewModel: MainViewModel by viewModels()
-
     protected val progress = ProgressDialog()
 
     protected var startJob: Job? = null
@@ -52,27 +51,38 @@ abstract class AbstractFragment : Fragment() {
     protected var argDate: LocalDate? = null
         private set
 
-    protected val argUserId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0) ?: 0
+    protected val argUserId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0)
+        ?: arguments?.getInt(EXTRA_USER_ID, 0)
+        ?: 0L
 
-    protected val argBaseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0) ?: 0
+    protected val argBaseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0)
+        ?: arguments?.getInt(EXTRA_BASE_ID, 0)
+        ?: 0L
 
-    protected val argBuildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0) ?: 0
+    protected val argBuildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0)
+        ?: arguments?.getInt(EXTRA_BUILDING_ID, 0)
+        ?: 0L
 
-    protected val argBookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L) ?: 0L
+    protected val argBookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L)
+        ?: arguments?.getLong(EXTRA_BOOKING_ID, 0L)
+        ?: 0L
 
-    protected val argBids get() = activity?.intent?.let {
-        if (it.hasExtra(EXTRA_BIDS)) it.getBooleanExtra(EXTRA_BIDS, false) else null
+    protected val argBids get() = when {
+        activity?.intent?.hasExtra(EXTRA_BIDS) == true -> activity?.intent?.getBooleanExtra(EXTRA_BIDS, false)
+        arguments?.containsKey(EXTRA_BIDS) == true -> arguments?.getBoolean(EXTRA_BIDS, false)
+        else -> null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        argDate = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
+        argDate = (activity?.intent?.getSerializableExtra(EXTRA_DATE)
+            ?: arguments?.getSerializable(EXTRA_BUILDING_ID)) as LocalDate?
     }
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            viewModel.user.collect {
+            user.collect {
                 onUserChanged(it)
             }
         }
@@ -83,7 +93,7 @@ abstract class AbstractFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        if (System.currentTimeMillis() - startTime > startDelay) {
+        if (System.currentTimeMillis() - startTime > onStartDelay) {
             readOnStart()
         }
     }
@@ -114,5 +124,10 @@ abstract class AbstractFragment : Fragment() {
     override fun onDestroyView() {
         childFragmentManager.removeFragment(progress)
         super.onDestroyView()
+    }
+
+    companion object {
+
+        val user = MutableSharedFlow<User.Raw>(1, 1, BufferOverflow.DROP_OLDEST)
     }
 }
