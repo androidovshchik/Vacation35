@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
@@ -129,6 +129,6 @@ abstract class AbstractFragment : Fragment() {
 
     companion object {
 
-        val user = MutableSharedFlow<User.Raw>(1)
+        val user = MutableStateFlow<User.Raw>(User.Dummy())
     }
 }

@@ -8,8 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.bbErrorDelay
@@ -18,10 +16,8 @@ import rf.vacation35.checkUserDelay
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
-import rf.vacation35.remote.dao.Building
 import splitties.activities.start
 import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,14 +26,6 @@ class MainViewModel @Inject constructor(
     api: DbApi,
     preferences: Preferences
 ) : ViewModel() {
-
-    val user = MutableStateFlow(preferences.user!!)
-
-    val bases = MutableSharedFlow<List<Base.Raw>>()
-
-    val allBases = CopyOnWriteArrayList<Base.Raw>()
-
-    val allBuildings = CopyOnWriteArrayList<Building.Raw>()
 
     init {
         viewModelScope.launch {
@@ -48,16 +36,18 @@ class MainViewModel @Inject constructor(
                         api.findUser(oldUser.login, oldUser.password)
                             ?.toRaw()
                     }
-                    if (newUser != null) {
-                        preferences.user = newUser
-                        user.value = newUser
-                    } else {
-                        preferences.user = null
-                        context.start<LoginActivity> {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    when {
+                        newUser == null -> {
+                            preferences.user = null
+                            context.start<LoginActivity> {
+                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            break
                         }
-                        break
+                        newUser != oldUser -> {
+                            preferences.user = newUser
+                            AbstractFragment.user.value = newUser
+                        }
                     }
                 } catch (e: Throwable) {
                     Timber.e(e)
@@ -69,20 +59,13 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             while (true) {
                 try {
-                    withContext(Dispatchers.IO) {
-                        allBuildings.clear()
-                        allBuildings.addAll(withContext(Dispatchers.IO) {
-                            DbApi.getInstance()
-                                .listBuildings()
-                        })
-                        allBases.clear()
-                        allBases.addAll(withContext(Dispatchers.IO) {
-                            DbApi.getInstance()
-                                .list(Base)
-                                .map { it.toRaw() }
-                        })
+                    BBFragment.allBases.value = withContext(Dispatchers.IO) {
+                        api.list(Base)
+                            .map { it.toRaw() }
                     }
-                    bases.emit(allBases)
+                    BBFragment.allBuildings.value = withContext(Dispatchers.IO) {
+                        api.listBuildings()
+                    }
                     delay(bbRepeatDelay)
                 } catch (e: Throwable) {
                     Timber.e(e)
