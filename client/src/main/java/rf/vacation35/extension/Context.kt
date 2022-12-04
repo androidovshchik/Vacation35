@@ -1,6 +1,8 @@
 package rf.vacation35.extension
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.DialogInterface
 import android.util.TypedValue
 import androidx.annotation.AttrRes
@@ -17,6 +19,9 @@ fun Context.dp(value: Float) = dp(value)
 fun Context.sp(value: Int): Float = value * resources.displayMetrics.scaledDensity
 
 fun Context.sp(value: Float): Float = value * resources.displayMetrics.scaledDensity
+
+tailrec fun Context.getActivity(): Activity? = this as? Activity
+    ?: (this as? ContextWrapper)?.baseContext?.getActivity()
 
 fun Context.getIdRes(@AttrRes id: Int): Int {
     val value = TypedValue()

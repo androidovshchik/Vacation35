@@ -82,8 +82,8 @@ class CalendarFragment : AbstractFragment() {
                     ml.setOnClickListener {
                         try {
                             it as DayView
-                            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
-                            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
+                            val baseId = bbFragment.bases.value?.singleOrNull()?.id ?: 0
+                            val buildingId = bbFragment.buildings.value?.singleOrNull()?.id ?: 0
                             start<BookingListActivity> {
                                 putExtra(EXTRA_BASE_ID, baseId)
                                 putExtra(EXTRA_BUILDING_ID, buildingId)
@@ -110,16 +110,24 @@ class CalendarFragment : AbstractFragment() {
         scrollToToday()
         binding.rvCalendar.addOnScrollListener(scrollListener)
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
-            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
+            val baseId = bbFragment.bases.value?.singleOrNull()?.id ?: 0
+            val buildingId = bbFragment.buildings.value?.singleOrNull()?.id ?: 0
             start<BookingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
                 putExtra(EXTRA_BUILDING_ID, buildingId)
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.collect {
-                loadBookings()
+        bbFragment.buildings.observe(viewLifecycleOwner) {
+            loadBookings()
+        }
+    }
+
+    override fun readOnStart() {
+        super.readOnStart()
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
+                bbFragment.loadBaseBuildings()
             }
         }
     }
@@ -155,7 +163,7 @@ class CalendarFragment : AbstractFragment() {
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             binding.pbLoading.isVisible = true
             try {
-                val ids = bbFragment.buildings.value.map { it.id }
+                val ids = bbFragment.buildings.value?.map { it.id }.orEmpty()
                 val start = minMonth.atDay(1)
                 val end = maxMonth.atEndOfMonth()
                 val bookings = withContext(Dispatchers.IO) {

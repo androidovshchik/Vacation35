@@ -70,8 +70,6 @@ abstract class AbstractFragment : Fragment() {
         else -> null
     }
 
-    protected val mThis get() = this
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         argDate = (activity?.intent?.getSerializableExtra(EXTRA_DATE)

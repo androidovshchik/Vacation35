@@ -72,7 +72,7 @@ class AccountListFragment : AbstractFragment() {
                 activity?.finish()
             }
             title = "Пользователи"
-            inflateNavMenu(mThis)
+            inflateNavMenu<AccountListFragment>()
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
@@ -127,7 +127,7 @@ class AccountFragment : AbstractFragment() {
                 activity?.finish()
             }
             title = if (argUserId == 0) "Новый пользователь" else "Пользователь"
-            inflateNavMenu(mThis)
+            inflateNavMenu<AccountFragment>()
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
