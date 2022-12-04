@@ -224,7 +224,7 @@ class BookingFragment : AbstractFragment() {
                         buildingId = it?.building?.id?.value
                     }
                 }
-                bbFragment.selectAll(buildingId = buildingId ?: 0)
+                bbFragment.selectBoth(buildingId = buildingId ?: 0)
                 booking?.let {
                     val user = user.value
                     binding.dilEntry.setDate(it.entryTime)

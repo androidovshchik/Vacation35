@@ -100,8 +100,7 @@ class MainActivity : AbstractActivity() {
                 }
             }
         }
-
-        viewModel.init()
+        viewModel.checkupUser()
     }
 
     private fun logout() {
