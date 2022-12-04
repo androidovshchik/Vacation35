@@ -85,7 +85,9 @@ class User(id: EntityID<Int>) : IntEntity(id), Rawable<User.Raw>, Nameable {
         }
     }
 
-    class Dummy : Raw(0, "", "", "", false, false, false)
+    class Temp : Raw(0, "", "", "", false, false, false)
+
+    class None : Raw(0, "", "", "", false, false, false)
 
     companion object : IntEntityClass<User>(Users)
 }

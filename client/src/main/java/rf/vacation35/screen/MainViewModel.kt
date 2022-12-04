@@ -1,11 +1,8 @@
 package rf.vacation35.screen
 
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,18 +13,17 @@ import rf.vacation35.checkUserDelay
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
-import splitties.activities.start
+import rf.vacation35.remote.dao.User
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    @ApplicationContext context: Context,
-    api: DbApi,
-    preferences: Preferences
+    private val api: DbApi,
+    private val preferences: Preferences
 ) : ViewModel() {
 
-    init {
+    fun init() {
         viewModelScope.launch {
             while (true) {
                 try {
@@ -43,9 +39,7 @@ class MainViewModel @Inject constructor(
                         AbstractFragment.user.value = newUser
                     } else {
                         preferences.user = null
-                        context.start<LoginActivity> {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
+                        AbstractFragment.user.value = User.None()
                         break
                     }
                 } catch (e: Throwable) {

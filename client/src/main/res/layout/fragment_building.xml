@@ -22,13 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <View
-                android:id="@+id/v_color"
+            <rf.vacation35.screen.view.ColorPicker
+                android:id="@+id/p_color"
                 android:layout_width="54dp"
                 android:layout_height="54dp"
                 android:layout_marginHorizontal="16dp"
-                android:background="@drawable/rect"
-                android:foreground="?attr/selectableItemBackground"
                 app:layout_constraintBottom_toBottomOf="@+id/til_name"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/til_name" />
@@ -40,7 +38,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/v_color"
+                app:layout_constraintStart_toEndOf="@+id/p_color"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <EditText
@@ -54,47 +52,23 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <rf.vacation35.screen.view.TimeInputLayout
                 android:id="@+id/til_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:endIconDrawable="@drawable/ic_baseline_access_time_24"
-                app:endIconMode="custom"
-                app:layout_constraintTop_toBottomOf="@+id/til_name">
+                android:hint="Время заезда"
+                app:layout_constraintTop_toBottomOf="@+id/til_name" />
 
-                <EditText
-                    android:id="@+id/et_entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:hint="Время заезда"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <rf.vacation35.screen.view.TimeInputLayout
                 android:id="@+id/til_exit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:endIconDrawable="@drawable/ic_baseline_access_time_24"
-                app:endIconMode="custom"
-                app:layout_constraintTop_toBottomOf="@+id/til_entry">
-
-                <EditText
-                    android:id="@+id/et_exit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:hint="Время выезда"
-                    android:imeOptions="actionNext"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:hint="Время выезда"
+                app:layout_constraintTop_toBottomOf="@+id/til_entry" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bids"

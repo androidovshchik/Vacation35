@@ -31,47 +31,23 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout="@layout/fragment_bbv" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_entry"
+            <rf.vacation35.screen.view.DateInputLayout
+                android:id="@+id/dil_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:endIconDrawable="@drawable/ic_baseline_today_24"
-                app:endIconMode="custom"
-                app:layout_constraintTop_toBottomOf="@+id/f_bb">
+                android:hint="Время заезда"
+                app:layout_constraintTop_toBottomOf="@+id/f_bb" />
 
-                <EditText
-                    android:id="@+id/et_entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Время заезда"
-                    android:imeOptions="actionNext"
-                    android:inputType="datetime"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_exit"
+            <rf.vacation35.screen.view.DateInputLayout
+                android:id="@+id/dil_exit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:endIconDrawable="@drawable/ic_baseline_today_24"
-                app:endIconMode="custom"
-                app:layout_constraintTop_toBottomOf="@+id/til_entry">
-
-                <EditText
-                    android:id="@+id/et_exit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Время выезда"
-                    android:imeOptions="actionDone"
-                    android:inputType="datetime"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+                android:hint="Время выезда"
+                app:layout_constraintTop_toBottomOf="@+id/dil_entry" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_client_name"
@@ -79,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
-                app:layout_constraintTop_toBottomOf="@+id/til_exit">
+                app:layout_constraintTop_toBottomOf="@+id/dil_exit">
 
                 <EditText
                     android:id="@+id/et_client_name"

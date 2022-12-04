@@ -34,8 +34,6 @@ class BuildingListFragment : AbstractFragment() {
 
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
-    private val bbProgress = ProgressDialog()
-
     private var listJob: Job? = null
 
     @SuppressLint("SetTextI18n")
@@ -87,6 +85,7 @@ class BuildingListFragment : AbstractFragment() {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             bbFragment.bases.collect {
+                val user = user.value
                 binding.fabAdd.isVisible = it.size == 1 && user.admin
             }
         }
@@ -100,7 +99,7 @@ class BuildingListFragment : AbstractFragment() {
     private fun loadBuildings() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
-            useProgress(::loadBuildings, bbFragment) {
+            useProgress(::loadBuildings) {
                 val ids = bbFragment.buildings.value.map { it.id }
                 val items = withContext(Dispatchers.IO) {
                     api.listBuildings(ids)
@@ -110,11 +109,6 @@ class BuildingListFragment : AbstractFragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(bbProgress)
-        super.onDestroyView()
     }
 }
 
@@ -141,6 +135,7 @@ class BuildingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = user.value
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -186,6 +181,7 @@ class BuildingFragment : AbstractFragment() {
                     api.find(Building, building?.id?.value ?: argBuildingId)
                 }
                 building?.let {
+                    val user = user.value
                     binding.pColor.mColor = it.color
                     binding.etName.setText(it.name)
                     binding.tilEntry.setTime(it.entryTime)
@@ -232,6 +228,7 @@ class BuildingFragment : AbstractFragment() {
                             }
                         }
                     }
+                    val user = user.value
                     binding.toolbar.title = "Постройка"
                     binding.btnBids.isEnabled = true
                     binding.btnBookings.isEnabled = true

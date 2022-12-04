@@ -19,6 +19,7 @@ import rf.vacation35.extension.addFragment
 import rf.vacation35.extension.areYouSure
 import rf.vacation35.local.Preferences
 import rf.vacation35.remote.DbApi
+import rf.vacation35.remote.dao.User
 import splitties.activities.start
 import javax.inject.Inject
 
@@ -69,9 +70,7 @@ class MainActivity : AbstractActivity() {
                 }
                 R.id.action_logout -> {
                     areYouSure {
-                        preferences.user = null
-                        start<LoginActivity>()
-                        finish()
+                        logout()
                     }
                 }
                 R.id.action_settings -> {
@@ -88,15 +87,27 @@ class MainActivity : AbstractActivity() {
 
         lifecycleScope.launch {
             AbstractFragment.user.collect {
-                with(header) {
-                    login.text = "@${it.login}"
-                    name.text = it.name
-                }
-                with(binding.navView.menu) {
-                    findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
+                if (it !is User.None) {
+                    with(header) {
+                        login.text = "@${it.login}"
+                        name.text = it.name
+                    }
+                    with(binding.navView.menu) {
+                        findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
+                    }
+                } else {
+                    logout()
                 }
             }
         }
+
+        viewModel.init()
+    }
+
+    private fun logout() {
+        preferences.user = null
+        start<LoginActivity>()
+        finish()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

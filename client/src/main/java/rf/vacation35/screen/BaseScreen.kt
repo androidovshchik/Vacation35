@@ -126,6 +126,7 @@ class BaseFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = user.value
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -161,6 +162,7 @@ class BaseFragment : AbstractFragment() {
                     api.find(Base, base?.id?.value ?: argBaseId)
                 }
                 base?.let {
+                    val user = user.value
                     binding.etName.setText(it.name)
                     binding.btnBuildings.isEnabled = true
                     binding.btnDelete.isEnabled = user.admin
@@ -192,6 +194,7 @@ class BaseFragment : AbstractFragment() {
                             }
                         }
                     }
+                    val user = user.value
                     binding.toolbar.title = "База отдыха"
                     binding.btnBuildings.isEnabled = true
                     binding.btnDelete.isEnabled = user.admin

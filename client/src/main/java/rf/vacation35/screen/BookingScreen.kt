@@ -39,8 +39,6 @@ class BookingListFragment : AbstractFragment() {
 
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
-    private val bbProgress = ProgressDialog()
-
     private var listJob: Job? = null
 
     private var endDay = LocalDate.now()
@@ -153,11 +151,6 @@ class BookingListFragment : AbstractFragment() {
             }
         }
     }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(bbProgress)
-        super.onDestroyView()
-    }
 }
 
 @AndroidEntryPoint
@@ -187,6 +180,7 @@ class BookingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val user = user.value
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -232,6 +226,7 @@ class BookingFragment : AbstractFragment() {
                 }
                 bbFragment.selectAll(buildingId = buildingId ?: 0)
                 booking?.let {
+                    val user = user.value
                     binding.dilEntry.setDate(it.entryTime)
                     binding.dilExit.setDate(it.exitTime)
                     binding.etClientName.setText(it.clientName)
@@ -279,6 +274,7 @@ class BookingFragment : AbstractFragment() {
                             }
                         }
                     }
+                    val user = user.value
                     binding.toolbar.title = "Бронь"
                     binding.btnDelete.isEnabled = user.admin
                 }
