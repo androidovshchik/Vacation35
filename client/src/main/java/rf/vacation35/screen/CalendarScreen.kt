@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rf.vacation35.EXTRA_BASE_ID
@@ -23,6 +22,7 @@ import rf.vacation35.databinding.FragmentCalendarBinding
 import rf.vacation35.databinding.ItemMonthBinding
 import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.Booking
+import rf.vacation35.remote.dao.User
 import rf.vacation35.screen.view.DayView
 import splitties.dimensions.dip
 import splitties.fragments.start
@@ -105,6 +105,7 @@ class CalendarFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.rvCalendar.adapter = adapter
         scrollToToday()
         binding.rvCalendar.addOnScrollListener(scrollListener)
@@ -117,26 +118,14 @@ class CalendarFragment : AbstractFragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.drop(1).collect {
+            bbFragment.buildings.collect {
                 loadBookings()
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val user = preferences.user!!
+    override fun onUserChanged(user: User.Raw) {
         binding.fabAdd.isVisible = user.admin || user.accessBooking
-    }
-
-    override fun readOnStart() {
-        super.readOnStart()
-        startJob?.cancel()
-        startJob = viewLifecycleOwner.lifecycleScope.launch {
-            useProgress(::readOnStart) {
-                bbFragment.loadBuildings()
-            }
-        }
     }
 
     fun scrollToToday() {

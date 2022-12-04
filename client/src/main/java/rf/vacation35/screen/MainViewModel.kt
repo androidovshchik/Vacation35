@@ -36,18 +36,17 @@ class MainViewModel @Inject constructor(
                         api.findUser(oldUser.login, oldUser.password)
                             ?.toRaw()
                     }
-                    when {
-                        newUser == null -> {
-                            preferences.user = null
-                            context.start<LoginActivity> {
-                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            break
-                        }
-                        newUser != oldUser -> {
+                    if (newUser != null) {
+                        if (newUser != oldUser) {
                             preferences.user = newUser
-                            AbstractFragment.user.value = newUser
                         }
+                        AbstractFragment.user.value = newUser
+                    } else {
+                        preferences.user = null
+                        context.start<LoginActivity> {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        break
                     }
                 } catch (e: Throwable) {
                     Timber.e(e)
