@@ -10,24 +10,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.mohamedabulgasem.datetimepicker.DateTimePicker
 import com.redmadrobot.inputmask.MaskedTextChangedListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.drop
 import rf.vacation35.*
 import rf.vacation35.databinding.FragmentBookingBinding
 import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBookingBinding
 import rf.vacation35.extension.*
-import rf.vacation35.local.Preferences
-import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Booking
 import rf.vacation35.remote.dao.Building
+import rf.vacation35.remote.dao.User
 import splitties.fragments.start
 import splitties.snackbar.snack
 import java.time.*
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BookingListActivity : AbstractActivity() {
@@ -41,33 +37,15 @@ class BookingListActivity : AbstractActivity() {
 @AndroidEntryPoint
 class BookingListFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
-    private val bbProgress = ProgressDialog()
-
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
-    private lateinit var binding: FragmentListBinding
-
-    private var startJob: Job? = null
+    private val bbProgress = ProgressDialog()
 
     private var listJob: Job? = null
 
     private var endDay = LocalDate.now()
 
     private val startDay get() = endDay.minusMonths(5)
-
-    private var specialDay: LocalDate? = null
-
-    private val bids get() = activity?.intent?.let {
-        if (it.hasExtra(EXTRA_BIDS)) it.getBooleanExtra(EXTRA_BIDS, false) else null
-    }
 
     private val scrollListener = object : EndlessListener() {
 
@@ -103,7 +81,7 @@ class BookingListFragment : AbstractFragment() {
                 root.setCardBackgroundColor(0xff616161.toInt())
                 times.setTextColor(Color.WHITE)
             } else {
-                root.setCardBackgroundColor(Color.WHITE)
+                root.setCardBackgroundColor(0)
                 times.setTextColor(Color.BLACK)
             }
             color.setBackgroundColor(Color.parseColor(item.building?.color))
@@ -112,10 +90,7 @@ class BookingListFragment : AbstractFragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        specialDay = activity?.intent?.getSerializableExtra(EXTRA_DATE) as LocalDate?
-    }
+    private lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentListBinding.inflate(inflater, container, false)
@@ -123,19 +98,20 @@ class BookingListFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = when {
-                bids == true -> "Заявки"
-                specialDay != null -> "Брони на ${dateFormatter.format(specialDay)}"
+                argBids == true -> "Заявки"
+                argDate != null -> "Брони на ${dateFormatter.format(argDate)}"
                 else -> "Брони"
             }
-            inflateNavMenu()
+            inflateNavMenu(mThis)
         }
         binding.rvList.adapter = adapter
-        if (specialDay == null) {
+        if (argDate == null) {
             binding.rvList.addOnScrollListener(scrollListener)
         }
         binding.fabAdd.setOnClickListener {
@@ -147,51 +123,38 @@ class BookingListFragment : AbstractFragment() {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.drop(1).collect {
+            bbFragment.buildings.collect {
                 loadBookings()
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val user = preferences.user!!
+    override fun onUserChanged(user: User.Raw) {
         binding.fabAdd.isVisible = user.admin || user.accessBooking
-        startJob?.cancel()
-        startJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, bbProgress, {
-                bbFragment.loadBuildings()
-            }, {
-                view?.snack(it)
-            })
-        }
     }
 
     private fun loadBookings() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
-            childFragmentManager.with(R.id.fl_fullscreen, progress, {
+            useProgress(::loadBookings) {
                 val ids = bbFragment.buildings.value.map { it.id }
                 val items = mutableSetOf<Booking.Raw>()
                 items.addAll(adapter.items)
                 items.addAll(withContext(Dispatchers.IO) {
-                    if (specialDay != null) {
-                        api.listBookings(ids, specialDay!!, specialDay!!, bids)
+                    if (argDate != null) {
+                        api.listBookings(ids, argDate!!, argDate!!, argBids)
                     } else {
-                        api.listBookings(ids, startDay, endDay, bids)
+                        api.listBookings(ids, startDay, endDay, argBids)
                     }
                 })
                 adapter.items.clear()
                 adapter.items.addAll(items)
                 adapter.notifyDataSetChanged()
-            }, {
-                view?.snack(it)
-            })
+            }
         }
     }
 
     override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
         childFragmentManager.removeFragment(bbProgress)
         super.onDestroyView()
     }
@@ -209,25 +172,11 @@ class BookingActivity : AbstractActivity() {
 @AndroidEntryPoint
 class BookingFragment : AbstractFragment() {
 
-    @Inject
-    lateinit var api: DbApi
-
-    @Inject
-    lateinit var preferences: Preferences
-
-    private val progress = ProgressDialog()
-
     private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
 
     private lateinit var binding: FragmentBookingBinding
 
     private var booking: Booking? = null
-
-    private var entryDatetime: LocalDateTime? = null
-
-    private var exitDatetime: LocalDateTime? = null
-
-    private var startJob: Job? = null
 
     private val bookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L) ?: 0L
 
@@ -237,37 +186,17 @@ class BookingFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val user = preferences.user!!
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (bookingId == 0L) "Новая бронь" else "Бронь"
-            inflateNavMenu()
-        }
-        binding.tilEntry.setEndIconOnClickListener {
-            DateTimePicker.Builder(requireActivity())
-                .initialValues(entryDatetime?.year, entryDatetime?.monthValue, entryDatetime?.dayOfMonth, entryDatetime?.hour, entryDatetime?.minute)
-                .onDateTimeSetListener { year, month, dayOfMonth, hourOfDay, minute ->
-                    entryDatetime = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
-                    binding.etEntry.setText(dateTimeFormatter.format(entryDatetime))
-                }
-                .build()
-                .show()
-        }
-        binding.tilExit.setEndIconOnClickListener {
-            DateTimePicker.Builder(requireActivity())
-                .initialValues(exitDatetime?.year, exitDatetime?.monthValue, exitDatetime?.dayOfMonth, exitDatetime?.hour, exitDatetime?.minute)
-                .onDateTimeSetListener { year, month, dayOfMonth, hourOfDay, minute ->
-                    exitDatetime = LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute)
-                    binding.etEntry.setText(dateTimeFormatter.format(exitDatetime))
-                }
-                .build()
-                .show()
+            inflateNavMenu(mThis)
         }
         binding.fabPhone.setOnClickListener {
             try {
-                val phone = binding.etPhone.text.toString().trim()
+                val phone = binding.etPhone.value
                 val intent = Intent(Intent.ACTION_DIAL)
                 intent.data = Uri.parse("tel:$phone")
                 startActivity(intent)
@@ -277,105 +206,96 @@ class BookingFragment : AbstractFragment() {
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            api.delete(booking!!)
-                        }
-                        activity?.finish()
-                    }, {
-                        getView()?.snack(it)
-                    })
-                }
+                delete()
             }
         }
         MaskedTextChangedListener.installOn(binding.etPhone, "+7([000]) [000]-[00]-[00]")
         binding.btnSave.isEnabled = bookingId <= 0 && (user.admin || user.accessPrice)
         binding.btnSave.setOnClickListener {
-            try {
-                val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
-                val entry = entryDatetime ?: throw Throwable("Не задано время заезда")
-                val exit = exitDatetime ?: throw Throwable("Не задано время выезда")
-                val clientName = binding.etClientName.text.toString().trim().ifEmpty { throw Throwable("Не задано имя клиента") }
-                val phone = binding.etPhone.text.toString().trim().ifEmpty { throw Throwable("Не задан телефон") }
-                val bid = !binding.sActive.isChecked
-                viewLifecycleOwner.lifecycleScope.launch {
-                    childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                        withContext(Dispatchers.IO) {
-                            if (booking == null) {
-                                booking = api.create(Booking) {
-                                    it.building = Building.findById(buildingId)!!
-                                    it.entryTime = entry.toEpochSecond(ZoneOffset.UTC)
-                                    it.exitTime = exit.toEpochSecond(ZoneOffset.UTC)
-                                    it.clientName = clientName
-                                    it.phone = phone
-                                    it.bid = bid
-                                }
-                            } else {
-                                api.update(booking!!) {
-                                    it.entryTime = entry.toEpochSecond(ZoneOffset.UTC)
-                                    it.exitTime = exit.toEpochSecond(ZoneOffset.UTC)
-                                    it.clientName = clientName
-                                    it.phone = phone
-                                    it.bid = bid
-                                }
+            upsert()
+        }
+    }
+
+    override fun readOnStart() {
+        super.readOnStart()
+        if (booking == null && argBookingId <= 0) {
+            return
+        }
+        startJob?.cancel()
+        startJob = viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::readOnStart) {
+                var buildingId: Int? = null
+                booking = withContext(Dispatchers.IO) {
+                    api.find(Booking, booking?.id?.value ?: bookingId) {
+                        buildingId = it?.building?.id?.value
+                    }
+                }
+                bbFragment.selectAll(buildingId = buildingId ?: 0)
+                booking?.let {
+                    binding.dilEntry.setDate(it.entryTime)
+                    binding.dilExit.setDate(it.exitTime)
+                    binding.etClientName.setText(it.clientName)
+                    binding.etPhone.setText(it.phone)
+                    binding.sActive.isChecked = !it.bid
+                    binding.btnDelete.isEnabled = user.admin
+                    binding.btnSave.isEnabled = user.admin || user.accessBooking
+                }
+                if (booking == null) {
+                    binding.btnDelete.isEnabled = false
+                    binding.btnSave.isEnabled = false
+                    view?.snack("Бронь не найдена")
+                }
+            }
+        }
+    }
+
+    override fun upsert() {
+        try {
+            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
+            val entry = binding.dilEntry.mDate ?: throw Throwable("Не задано время заезда")
+            val exit = binding.dilExit.mDate ?: throw Throwable("Не задано время выезда")
+            val clientName = binding.etClientName.value.ifEmpty { throw Throwable("Не задано имя клиента") }
+            val phone = binding.etPhone.value.ifEmpty { throw Throwable("Не задан телефон") }
+            val bid = !binding.sActive.isChecked
+            viewLifecycleOwner.lifecycleScope.launch {
+                useProgress(::upsert) {
+                    withContext(Dispatchers.IO) {
+                        if (booking == null) {
+                            booking = api.insert(Booking) {
+                                it.building = Building.findById(buildingId)!!
+                                it.entryTime = entry.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+                                it.exitTime = exit.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+                                it.clientName = clientName
+                                it.phone = phone
+                                it.bid = bid
+                            }
+                        } else {
+                            api.update(booking!!) {
+                                it.entryTime = entry.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+                                it.exitTime = exit.atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+                                it.clientName = clientName
+                                it.phone = phone
+                                it.bid = bid
                             }
                         }
-                        @Suppress("NAME_SHADOWING")
-                        val user = preferences.user!!
-                        binding.toolbar.title = "Бронь"
-                        binding.btnDelete.isEnabled = user.admin
-                    }, {
-                        getView()?.snack(it)
-                    })
+                    }
+                    binding.toolbar.title = "Бронь"
+                    binding.btnDelete.isEnabled = user.admin
                 }
-            } catch (e: Throwable) {
-                getView()?.snack(e)
             }
+        } catch (e: Throwable) {
+            view?.snack(e)
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (booking != null || bookingId > 0) {
-            startJob?.cancel()
-            startJob = viewLifecycleOwner.lifecycleScope.launch {
-                childFragmentManager.with(R.id.fl_fullscreen, progress, {
-                    bbFragment.loadBuildings()
-                    var buildingId: Int? = null
-                    booking = withContext(Dispatchers.IO) {
-                        api.find(Booking, booking?.id?.value ?: bookingId) {
-                            buildingId = it?.building?.id?.value
-                        }
-                    }
-                    bbFragment.select(buildingId = buildingId ?: 0)
-                    booking?.let {
-                        val user = preferences.user!!
-                        entryDatetime = LocalDateTime.ofEpochSecond(it.entryTime, 0, defaultOffset)
-                        binding.etEntry.setText(dateTimeFormatter.format(entryDatetime))
-                        exitDatetime = LocalDateTime.ofEpochSecond(it.exitTime, 0, defaultOffset)
-                        binding.etExit.setText(dateTimeFormatter.format(exitDatetime))
-                        binding.etClientName.setText(it.clientName)
-                        binding.etPhone.setText(it.phone)
-                        binding.sActive.isChecked = !it.bid
-                        binding.btnDelete.isEnabled = user.admin
-                        binding.btnSave.isEnabled = user.admin || user.accessBooking
-                    }
-                    if (booking == null) {
-                        binding.btnDelete.isEnabled = false
-                        binding.btnSave.isEnabled = false
-                        view?.snack("Бронь не найдена")
-                    }
-                }, {
-                    view?.snack(it)
-                })
+    override fun delete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            useProgress(::delete) {
+                withContext(Dispatchers.IO) {
+                    api.delete(booking!!)
+                }
+                activity?.finish()
             }
         }
-
-    }
-
-    override fun onDestroyView() {
-        childFragmentManager.removeFragment(progress)
-        super.onDestroyView()
     }
 }
