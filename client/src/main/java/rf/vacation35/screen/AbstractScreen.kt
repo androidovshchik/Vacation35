@@ -6,11 +6,9 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import rf.vacation35.*
 import rf.vacation35.extension.removeFragment
 import rf.vacation35.extension.use
@@ -82,10 +80,8 @@ abstract class AbstractFragment : Fragment() {
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launch {
-            user.collect {
-                onUserChanged(it)
-            }
+        user.observe(viewLifecycleOwner) {
+            onUserChanged(it)
         }
     }
 
@@ -129,6 +125,6 @@ abstract class AbstractFragment : Fragment() {
 
     companion object {
 
-        val user = MutableStateFlow<User.Raw>(User.Temp())
+        val user = MutableLiveData<User.Raw>()
     }
 }

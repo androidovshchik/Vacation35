@@ -7,9 +7,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import rf.vacation35.BuildConfig
 import rf.vacation35.EXTRA_BIDS
 import rf.vacation35.R
@@ -81,26 +79,24 @@ class MainActivity : AbstractActivity() {
             true
         }
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
-        }
-
-        lifecycleScope.launch {
-            AbstractFragment.user.collect {
-                if (it !is User.None) {
-                    with(header) {
-                        login.text = "@${it.login}"
-                        name.text = it.name
-                    }
-                    with(binding.navView.menu) {
-                        findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
-                    }
-                } else {
-                    logout()
+        AbstractFragment.user.observe(this) {
+            if (it !is User.None) {
+                with(header) {
+                    login.text = "@${it.login}"
+                    name.text = it.name
                 }
+                with(binding.navView.menu) {
+                    findItem(R.id.action_users).isVisible = it.admin || BuildConfig.DEBUG
+                }
+            } else {
+                logout()
             }
         }
         viewModel.checkupUser()
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.addFragment(R.id.fl_container, calendar, false)
+        }
     }
 
     private fun logout() {
