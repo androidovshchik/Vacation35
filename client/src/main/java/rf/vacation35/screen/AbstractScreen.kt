@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import rf.vacation35.*
@@ -53,15 +52,15 @@ abstract class AbstractFragment : Fragment() {
 
     protected val argUserId get() = activity?.intent?.getIntExtra(EXTRA_USER_ID, 0)
         ?: arguments?.getInt(EXTRA_USER_ID, 0)
-        ?: 0L
+        ?: 0
 
     protected val argBaseId get() = activity?.intent?.getIntExtra(EXTRA_BASE_ID, 0)
         ?: arguments?.getInt(EXTRA_BASE_ID, 0)
-        ?: 0L
+        ?: 0
 
     protected val argBuildingId get() = activity?.intent?.getIntExtra(EXTRA_BUILDING_ID, 0)
         ?: arguments?.getInt(EXTRA_BUILDING_ID, 0)
-        ?: 0L
+        ?: 0
 
     protected val argBookingId get() = activity?.intent?.getLongExtra(EXTRA_BOOKING_ID, 0L)
         ?: arguments?.getLong(EXTRA_BOOKING_ID, 0L)
@@ -72,6 +71,8 @@ abstract class AbstractFragment : Fragment() {
         arguments?.containsKey(EXTRA_BIDS) == true -> arguments?.getBoolean(EXTRA_BIDS, false)
         else -> null
     }
+
+    protected val mThis get() = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +129,6 @@ abstract class AbstractFragment : Fragment() {
 
     companion object {
 
-        val user = MutableSharedFlow<User.Raw>(1, 1, BufferOverflow.DROP_OLDEST)
+        val user = MutableSharedFlow<User.Raw>(1)
     }
 }

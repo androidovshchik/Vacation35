@@ -53,11 +53,6 @@ class MainActivity : AbstractActivity() {
 
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.action_bids -> {
-                    start<BookingListActivity> {
-                        putExtra(EXTRA_BIDS, true)
-                    }
-                }
                 R.id.action_bookings -> {
                     start<BookingListActivity> {
                         putExtra(EXTRA_BIDS, false)
@@ -79,6 +74,9 @@ class MainActivity : AbstractActivity() {
                         finish()
                     }
                 }
+                R.id.action_settings -> {
+
+                }
             }
             binding.drawer.closeDrawer(GravityCompat.START)
             true
@@ -89,7 +87,7 @@ class MainActivity : AbstractActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.user.collect {
+            AbstractFragment.user.collect {
                 with(header) {
                     login.text = "@${it.login}"
                     name.text = it.name
@@ -110,6 +108,12 @@ class MainActivity : AbstractActivity() {
         when (item.itemId) {
             R.id.action_today -> {
                 calendar.scrollToToday()
+                return true
+            }
+            R.id.action_bids -> {
+                start<BookingListActivity> {
+                    putExtra(EXTRA_BIDS, true)
+                }
                 return true
             }
         }

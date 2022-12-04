@@ -66,12 +66,13 @@ class AccountListFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = "Пользователи"
-            inflateNavMenu()
+            inflateNavMenu(mThis)
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
@@ -81,6 +82,7 @@ class AccountListFragment : AbstractFragment() {
     }
 
     override fun readOnStart() {
+        super.readOnStart()
         startJob?.cancel()
         startJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::readOnStart) {
@@ -119,12 +121,13 @@ class AccountFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (argUserId == 0) "Новый пользователь" else "Пользователь"
-            inflateNavMenu()
+            inflateNavMenu(mThis)
         }
         binding.btnDelete.setOnClickListener {
             context?.areYouSure {
