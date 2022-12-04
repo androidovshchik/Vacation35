@@ -74,25 +74,21 @@ class BuildingListFragment : AbstractFragment() {
                 activity?.finish()
             }
             title = "Постройки"
-            inflateNavMenu(mThis)
+            inflateNavMenu<BuildingListFragment>()
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.single().id
+            val baseId = bbFragment.bases.value!!.single().id
             start<BuildingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.bases.collect {
-                val user = user.value
-                binding.fabAdd.isVisible = it.size == 1 && user.admin
-            }
+        bbFragment.bases.observe(viewLifecycleOwner) {
+            val user = user.value!!
+            binding.fabAdd.isVisible = it.size == 1 && user.admin
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.collect {
-                loadBuildings()
-            }
+        bbFragment.buildings.observe(viewLifecycleOwner) {
+            loadBuildings()
         }
     }
 
@@ -100,7 +96,7 @@ class BuildingListFragment : AbstractFragment() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::loadBuildings) {
-                val ids = bbFragment.buildings.value.map { it.id }
+                val ids = bbFragment.buildings.value?.map { it.id }.orEmpty()
                 val items = withContext(Dispatchers.IO) {
                     api.listBuildings(ids)
                 }
@@ -135,13 +131,13 @@ class BuildingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = user.value
+        val user = user.value!!
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (argBuildingId == 0) "Новая постройка" else "Постройка"
-            inflateNavMenu(mThis)
+            inflateNavMenu<BuildingFragment>()
         }
         binding.pColor.isEnabled = user.admin
         binding.etName.isFocusable = user.admin
@@ -181,7 +177,7 @@ class BuildingFragment : AbstractFragment() {
                     api.find(Building, building?.id?.value ?: argBuildingId)
                 }
                 building?.let {
-                    val user = user.value
+                    val user = user.value!!
                     binding.pColor.mColor = it.color
                     binding.etName.setText(it.name)
                     binding.tilEntry.setTime(it.entryTime)
@@ -228,7 +224,7 @@ class BuildingFragment : AbstractFragment() {
                             }
                         }
                     }
-                    val user = user.value
+                    val user = user.value!!
                     binding.toolbar.title = "Постройка"
                     binding.btnBids.isEnabled = true
                     binding.btnBookings.isEnabled = true

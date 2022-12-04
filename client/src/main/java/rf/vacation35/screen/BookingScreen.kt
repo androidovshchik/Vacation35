@@ -106,24 +106,22 @@ class BookingListFragment : AbstractFragment() {
                 argDate != null -> "Брони на ${dateFormatter.format(argDate)}"
                 else -> "Брони"
             }
-            inflateNavMenu(mThis)
+            inflateNavMenu<BookingListFragment>()
         }
         binding.rvList.adapter = adapter
         if (argDate == null) {
             binding.rvList.addOnScrollListener(scrollListener)
         }
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value.singleOrNull()?.id ?: 0
-            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: 0
+            val baseId = bbFragment.bases.value?.singleOrNull()?.id ?: 0
+            val buildingId = bbFragment.buildings.value?.singleOrNull()?.id ?: 0
             start<BookingActivity> {
                 putExtra(EXTRA_BASE_ID, baseId)
                 putExtra(EXTRA_BUILDING_ID, buildingId)
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            bbFragment.buildings.collect {
-                loadBookings()
-            }
+        bbFragment.buildings.observe(viewLifecycleOwner) {
+            loadBookings()
         }
     }
 
@@ -135,7 +133,7 @@ class BookingListFragment : AbstractFragment() {
         listJob?.cancel()
         listJob = viewLifecycleOwner.lifecycleScope.launch {
             useProgress(::loadBookings) {
-                val ids = bbFragment.buildings.value.map { it.id }
+                val ids = bbFragment.buildings.value?.map { it.id }.orEmpty()
                 val items = mutableSetOf<Booking.Raw>()
                 items.addAll(adapter.items)
                 items.addAll(withContext(Dispatchers.IO) {
@@ -180,13 +178,13 @@ class BookingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = user.value
+        val user = user.value!!
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (bookingId == 0L) "Новая бронь" else "Бронь"
-            inflateNavMenu(mThis)
+            inflateNavMenu<BookingFragment>()
         }
         binding.fabPhone.setOnClickListener {
             try {
@@ -226,7 +224,7 @@ class BookingFragment : AbstractFragment() {
                 }
                 bbFragment.selectBoth(buildingId = buildingId ?: 0)
                 booking?.let {
-                    val user = user.value
+                    val user = user.value!!
                     binding.dilEntry.setDate(it.entryTime)
                     binding.dilExit.setDate(it.exitTime)
                     binding.etClientName.setText(it.clientName)
@@ -246,7 +244,7 @@ class BookingFragment : AbstractFragment() {
 
     override fun upsert() {
         try {
-            val buildingId = bbFragment.buildings.value.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
+            val buildingId = bbFragment.buildings.value?.singleOrNull()?.id ?: throw Throwable("Не выбрана постройка")
             val entry = binding.dilEntry.mDate ?: throw Throwable("Не задано время заезда")
             val exit = binding.dilExit.mDate ?: throw Throwable("Не задано время выезда")
             val clientName = binding.etClientName.value.ifEmpty { throw Throwable("Не задано имя клиента") }
@@ -274,7 +272,7 @@ class BookingFragment : AbstractFragment() {
                             }
                         }
                     }
-                    val user = user.value
+                    val user = user.value!!
                     binding.toolbar.title = "Бронь"
                     binding.btnDelete.isEnabled = user.admin
                 }
