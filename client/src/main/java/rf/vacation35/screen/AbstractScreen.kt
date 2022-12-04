@@ -72,6 +72,8 @@ abstract class AbstractFragment : Fragment() {
         else -> null
     }
 
+    protected val user get() = AbstractFragment.user.value
+
     protected val mThis get() = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +85,7 @@ abstract class AbstractFragment : Fragment() {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         lifecycleScope.launch {
-            user.collect {
+            AbstractFragment.user.collect {
                 onUserChanged(it)
             }
         }

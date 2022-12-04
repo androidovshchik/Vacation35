@@ -18,6 +18,7 @@ import rf.vacation35.databinding.FragmentListBinding
 import rf.vacation35.databinding.ItemBaseBinding
 import rf.vacation35.extension.*
 import rf.vacation35.remote.dao.Base
+import rf.vacation35.remote.dao.User
 import splitties.fragments.start
 import splitties.snackbar.snack
 
@@ -65,12 +66,13 @@ class BaseListFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = "Базы отдыха"
-            inflateNavMenu()
+            inflateNavMenu(mThis)
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
@@ -79,9 +81,7 @@ class BaseListFragment : AbstractFragment() {
         childFragmentManager.hideFragment(R.id.f_bb)
     }
 
-    override fun onStart() {
-        super.onStart()
-        val user = preferences.user!!
+    override fun onUserChanged(user: User.Raw) {
         binding.fabAdd.isVisible = user.admin
     }
 
@@ -125,13 +125,13 @@ class BaseFragment : AbstractFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val user = preferences.user!!
+        super.onViewCreated(view, savedInstanceState)
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
             }
             title = if (argBaseId == 0) "Новая база отдыха" else "База отдыха"
-            inflateNavMenu()
+            inflateNavMenu(mThis)
         }
         binding.btnBuildings.setOnClickListener {
             start<BuildingListActivity> {
@@ -161,7 +161,6 @@ class BaseFragment : AbstractFragment() {
                     api.find(Base, base?.id?.value ?: argBaseId)
                 }
                 base?.let {
-                    val user = preferences.user!!
                     binding.etName.setText(it.name)
                     binding.btnBuildings.isEnabled = true
                     binding.btnDelete.isEnabled = user.admin
@@ -193,7 +192,6 @@ class BaseFragment : AbstractFragment() {
                             }
                         }
                     }
-                    val user = preferences.user!!
                     binding.toolbar.title = "База отдыха"
                     binding.btnBuildings.isEnabled = true
                     binding.btnDelete.isEnabled = user.admin
