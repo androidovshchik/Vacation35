@@ -4,22 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.MutableLiveData
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import rf.vacation35.databinding.FragmentBbhBinding
 import rf.vacation35.databinding.FragmentBbvBinding
+import rf.vacation35.remote.DbApi
 import rf.vacation35.remote.dao.Base
 import rf.vacation35.remote.dao.Building
 import rf.vacation35.screen.view.EditSpinner
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 
 @AndroidEntryPoint
 class BBVFragment : BBFragment() {
-
-    override val autofill = false
 
     override val baseSpinner get() = binding.esBase
 
@@ -36,8 +36,6 @@ class BBVFragment : BBFragment() {
 @AndroidEntryPoint
 class BBHFragment : BBFragment() {
 
-    override val autofill = true
-
     override val baseSpinner get() = binding.esBase
 
     override val buildingSpinner get() = binding.esBuilding
@@ -53,19 +51,21 @@ class BBHFragment : BBFragment() {
 @AndroidEntryPoint
 abstract class BBFragment : AbstractFragment() {
 
-    protected abstract val autofill: Boolean
-
     protected abstract val baseSpinner: EditSpinner
 
     protected abstract val buildingSpinner: EditSpinner
 
-    val bases = MutableStateFlow(listOf<Base.Raw>())
+    val bases = MutableLiveData<List<Base.Raw>>()
 
-    val buildings = MutableStateFlow(listOf<Building.Raw>())
+    val buildings = MutableLiveData<List<Building.Raw>>()
+
+    private var baseId: Int? = null
+
+    private var buildingId: Int? = null
 
     private val filteredBuildings: List<Building.Raw> get() {
-        val baseIds = bases.value.map { it.id }
-        return allBuildings.value.filter { it.base!!.id in baseIds }
+        val baseIds = bases.value?.map { it.id }.orEmpty()
+        return allBuildings.filter { it.base!!.id in baseIds }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,15 +73,18 @@ abstract class BBFragment : AbstractFragment() {
         baseSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
+                    baseId = null
                     bases.value = emptyList()
                     selectBuildings(emptyList())
                 }
                 1 -> {
-                    bases.value = allBases.value
-                    selectBuildings(allBuildings.value)
+                    baseId = null
+                    bases.value = allBases
+                    selectBuildings(allBuildings)
                 }
                 else -> {
-                    val base = allBases.value.getOrNull(max(0, position - 2))
+                    val base = allBases.getOrNull(max(0, position - 2))
+                    baseId = base?.id
                     if (base != null) {
                         bases.value = listOf(base)
                         selectBuildings(filteredBuildings)
@@ -91,55 +94,52 @@ abstract class BBFragment : AbstractFragment() {
         }
         buildingSpinner.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> buildings.value = emptyList()
-                1 -> buildings.value = filteredBuildings
+                0 -> {
+                    buildingId = null
+                    buildings.value = emptyList()
+                }
+                1 -> {
+                    buildingId = null
+                    buildings.value = filteredBuildings
+                }
                 else -> {
                     val building = filteredBuildings.getOrNull(max(0, position - 2))
+                    buildingId = building?.id
                     if (building != null) {
                         buildings.value = listOf(building)
                     }
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
-            allBuildings.collectIndexed { i, _ ->
-                if (i == 0) {
-                    if (autofill) {
-                        selectAll(argBaseId, argBuildingId)
-                    }
-                } else {
-                    val baseIds = allBases.value.map { it.id }
-                    selectBases(bases.value.filter { it.id in baseIds })
-                    selectBuildings(filteredBuildings)
-                }
-            }
+        allBoth.observe(viewLifecycleOwner) {
+            selectBoth(baseId ?: argBaseId, buildingId ?: argBuildingId)
         }
     }
 
-    fun selectAll(baseId: Int = 0, buildingId: Int = 0) {
+    fun selectBoth(baseId: Int = 0, buildingId: Int = 0) {
         @Suppress("NAME_SHADOWING")
         var baseId = baseId
-        var base = allBases.value.firstOrNull { it.id == baseId }
-        val building = allBuildings.value.firstOrNull { it.id == buildingId }
+        var base = allBases.firstOrNull { it.id == baseId }
+        val building = allBuildings.firstOrNull { it.id == buildingId }
         if (base == null && building != null) {
             baseId = building.base!!.id
-            base = allBases.value.firstOrNull { it.id == baseId }
+            base = allBases.firstOrNull { it.id == baseId }
         }
         if (base != null) {
             selectBases(listOf(base))
         } else {
-            selectBases(allBases.value)
+            selectBases(allBases)
         }
         when {
             building?.base?.id == baseId -> selectBuildings(listOf(building))
             base != null -> selectBuildings(filteredBuildings)
-            else -> selectBuildings(allBuildings.value)
+            else -> selectBuildings(allBuildings)
         }
     }
 
     private fun selectBases(value: List<Base.Raw>) {
         bases.value = value
-        baseSpinner.updatePopup(allBases.value)
+        baseSpinner.updatePopup(allBases)
         baseSpinner.setText(when(value.size) {
             0 -> ""
             1 -> value.first().name
@@ -159,10 +159,29 @@ abstract class BBFragment : AbstractFragment() {
         buildingSpinner.clearFocus()
     }
 
+    suspend fun loadBaseBuildings() {
+        withContext(Dispatchers.IO) {
+            allBuildings.clear()
+            allBuildings.addAll(withContext(Dispatchers.IO) {
+                DbApi.getInstance()
+                    .listBuildings()
+            })
+            allBases.clear()
+            allBases.addAll(withContext(Dispatchers.IO) {
+                DbApi.getInstance()
+                    .list(Base)
+                    .map { it.toRaw() }
+            })
+        }
+        allBoth.value = Unit
+    }
+
     companion object {
 
-        val allBases = MutableStateFlow<List<Base.Raw>>(emptyList())
+        val allBoth = MutableLiveData<Unit>()
 
-        val allBuildings = MutableStateFlow<List<Building.Raw>>(emptyList())
+        val allBases = CopyOnWriteArrayList<Base.Raw>()
+
+        val allBuildings = CopyOnWriteArrayList<Building.Raw>()
     }
 }

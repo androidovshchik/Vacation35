@@ -51,7 +51,9 @@ class ColorPicker : View {
                 }
                 .customShow()
         }
-        context.updateRecentColors()
+        if (!isInEditMode) {
+            context.updateRecentColors()
+        }
     }
 }
 

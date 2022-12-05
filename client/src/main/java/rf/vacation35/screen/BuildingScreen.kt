@@ -84,7 +84,7 @@ class BuildingListFragment : AbstractFragment() {
             }
         }
         bbFragment.bases.observe(viewLifecycleOwner) {
-            val user = user.value!!
+            val user = user.value
             binding.fabAdd.isVisible = it.size == 1 && user.admin
         }
         bbFragment.buildings.observe(viewLifecycleOwner) {
@@ -131,7 +131,7 @@ class BuildingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = user.value!!
+        val user = user.value
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -177,7 +177,7 @@ class BuildingFragment : AbstractFragment() {
                     api.find(Building, building?.id?.value ?: argBuildingId)
                 }
                 building?.let {
-                    val user = user.value!!
+                    val user = user.value
                     binding.pColor.mColor = it.color
                     binding.etName.setText(it.name)
                     binding.tilEntry.setTime(it.entryTime)
@@ -224,7 +224,7 @@ class BuildingFragment : AbstractFragment() {
                             }
                         }
                     }
-                    val user = user.value!!
+                    val user = user.value
                     binding.toolbar.title = "Постройка"
                     binding.btnBids.isEnabled = true
                     binding.btnBookings.isEnabled = true

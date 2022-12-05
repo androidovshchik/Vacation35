@@ -79,7 +79,7 @@ class BookingListFragment : AbstractFragment() {
                 root.setCardBackgroundColor(0xff616161.toInt())
                 times.setTextColor(Color.WHITE)
             } else {
-                root.setCardBackgroundColor(0)
+                root.setCardBackgroundColor(Color.WHITE)
                 times.setTextColor(Color.BLACK)
             }
             color.setBackgroundColor(Color.parseColor(item.building?.color))
@@ -163,7 +163,7 @@ class BookingActivity : AbstractActivity() {
 @AndroidEntryPoint
 class BookingFragment : AbstractFragment() {
 
-    private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBHFragment }
+    private val bbFragment by lazy { childFragmentManager.findFragmentById(R.id.f_bb) as BBVFragment }
 
     private lateinit var binding: FragmentBookingBinding
 
@@ -178,7 +178,7 @@ class BookingFragment : AbstractFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = user.value!!
+        val user = user.value
         with(binding.toolbar) {
             onBackPressed {
                 activity?.finish()
@@ -224,7 +224,7 @@ class BookingFragment : AbstractFragment() {
                 }
                 bbFragment.selectBoth(buildingId = buildingId ?: 0)
                 booking?.let {
-                    val user = user.value!!
+                    val user = user.value
                     binding.dilEntry.setDate(it.entryTime)
                     binding.dilExit.setDate(it.exitTime)
                     binding.etClientName.setText(it.clientName)
@@ -272,7 +272,7 @@ class BookingFragment : AbstractFragment() {
                             }
                         }
                     }
-                    val user = user.value!!
+                    val user = user.value
                     binding.toolbar.title = "Бронь"
                     binding.btnDelete.isEnabled = user.admin
                 }
