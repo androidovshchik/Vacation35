@@ -27,6 +27,7 @@ CREATE TABLE buildings(
     bu_color VARCHAR(20) NOT NULL,
     bu_entry_time MEDIUMINT UNSIGNED,
     bu_exit_time MEDIUMINT UNSIGNED,
+    bu_price_list TEXT NOT NULL DEFAULT '[]',
     PRIMARY KEY (bu_id),
     FOREIGN KEY (bu_base) REFERENCES bases(ba_id)
         ON DELETE CASCADE

@@ -78,9 +78,12 @@ class BuildingListFragment : AbstractFragment() {
         }
         binding.rvList.adapter = adapter
         binding.fabAdd.setOnClickListener {
-            val baseId = bbFragment.bases.value!!.single().id
-            start<BuildingActivity> {
-                putExtra(EXTRA_BASE_ID, baseId)
+            try {
+                val baseId = bbFragment.bases.value!!.single().id
+                start<BuildingActivity> {
+                    putExtra(EXTRA_BASE_ID, baseId)
+                }
+            } catch (ignored: Throwable) {
             }
         }
         bbFragment.bases.observe(viewLifecycleOwner) {

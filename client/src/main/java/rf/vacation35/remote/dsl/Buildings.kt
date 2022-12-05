@@ -14,4 +14,6 @@ object Buildings : IntIdTable("${if (BuildConfig.DEBUG) "_" else ""}buildings", 
     var entryTime = integer("bu_entry_time").nullable()
 
     var exitTime = integer("bu_exit_time").nullable()
+
+    var priceList = text("bu_price_list").default("[]")
 }
