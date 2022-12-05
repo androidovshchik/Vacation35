@@ -25,6 +25,7 @@ class DateInputLayout @JvmOverloads constructor(
     private val mEditText = EditText(context).apply {
         isFocusable = false
         maxLines = 1
+        textSize = 15.5f
     }
 
     init {

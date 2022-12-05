@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,7 +12,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -95,12 +96,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/til_exit" />
 
-            <LinearLayout
-                android:id="@+id/ll_prices"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_prices"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@+id/btn_price_add" />
+                android:layout_marginTop="6dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/btn_price_add"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_year_price" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bids"
@@ -114,7 +119,7 @@
                 android:text="Список заявок"
                 android:textColor="@android:color/black"
                 app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/ll_prices" />
+                app:layout_constraintTop_toBottomOf="@+id/rv_prices" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bookings"
@@ -169,7 +174,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:id="@+id/fl_fullscreen"
