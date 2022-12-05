@@ -114,7 +114,7 @@ abstract class AbstractFragment : Fragment() {
         body: () -> Unit
     ) {
         childFragmentManager.use(R.id.fl_fullscreen, fragment, body, {
-            view?.longSnack("Ошибка при запросе") {
+            view?.longSnack(it.message ?: "Ошибка при запросе") {
                 action("Повторить", retry)
             }
         })

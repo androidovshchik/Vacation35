@@ -33,20 +33,50 @@
 
             <rf.vacation35.screen.view.DateInputLayout
                 android:id="@+id/dil_entry"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:hint="Дата заезда"
+                app:layout_constraintEnd_toStartOf="@+id/til_entry"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/f_bb" />
+
+            <rf.vacation35.screen.view.TimeInputLayout
+                android:id="@+id/til_entry"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
                 android:hint="Время заезда"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/dil_entry"
                 app:layout_constraintTop_toBottomOf="@+id/f_bb" />
 
             <rf.vacation35.screen.view.DateInputLayout
                 android:id="@+id/dil_exit"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:hint="Время выезда"
+                android:layout_marginEnd="8dp"
+                android:hint="Дата выезда"
+                app:layout_constraintEnd_toStartOf="@+id/til_exit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dil_entry" />
+
+            <rf.vacation35.screen.view.TimeInputLayout
+                android:id="@+id/til_exit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:hint="Время заезда"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/dil_exit"
                 app:layout_constraintTop_toBottomOf="@+id/dil_entry" />
 
             <com.google.android.material.textfield.TextInputLayout
