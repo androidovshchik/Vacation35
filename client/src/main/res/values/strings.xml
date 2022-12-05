@@ -2,6 +2,10 @@
     <string name="app_name" tools:ignore="MissingTranslation">Отпуск35</string>
     <string name="material_dialog_title">Выберите цвет</string>
     <string name="title_recent_colors">Основные цвета</string>
+    <string-array name="price">
+        <item>Цена на день недели</item>
+        <item>Цена на день года</item>
+    </string-array>
     <string-array name="month">
         <item>Январь</item>
         <item>Февраль</item>

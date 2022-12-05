@@ -70,6 +70,38 @@
                 android:hint="Время выезда"
                 app:layout_constraintTop_toBottomOf="@+id/til_entry" />
 
+            <Spinner
+                android:id="@+id/s_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:entries="@array/price"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_price_add"
+                app:layout_constraintEnd_toStartOf="@+id/btn_price_add"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/btn_price_add" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_price_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="Добавить"
+                android:textColor="@android:color/black"
+                app:backgroundTint="#d6d6d6"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/til_exit" />
+
+            <LinearLayout
+                android:id="@+id/ll_prices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@+id/btn_price_add" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bids"
                 android:layout_width="match_parent"
@@ -82,7 +114,7 @@
                 android:text="Список заявок"
                 android:textColor="@android:color/black"
                 app:backgroundTint="#d6d6d6"
-                app:layout_constraintTop_toBottomOf="@+id/til_exit" />
+                app:layout_constraintTop_toBottomOf="@+id/ll_prices" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_bookings"
